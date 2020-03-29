@@ -43,12 +43,12 @@ object LoggerA {
   implicit def loggerA[F[_]](
     implicit FE: EffectConstructor[F], FM: Monad[F], logger: Logger
   ): LoggerA[F] =
-    new LoggerA[F] {
+    new LoggerAF[F]
 
-      override implicit val FE0: EffectConstructor[F] = FE
-      override implicit val FM0: Monad[F] = FM
-
-      override val logger0: Logger = logger
-    }
+  final class LoggerAF[F[_]](
+    implicit override val FE0: EffectConstructor[F]
+  , override val FM0: Monad[F]
+  , override val logger0: Logger
+  ) extends LoggerA[F]
 
 }
