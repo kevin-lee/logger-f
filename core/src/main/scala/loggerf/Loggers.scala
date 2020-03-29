@@ -1,13 +1,14 @@
 package loggerf
 
 import cats.Monad
+
 import just.effect.{EffectConstructor, Effectful}
 
 /**
  * @author Kevin Lee
  * @since 2020-03-25
  */
-trait Loggers[F[_]] extends LoggerA[F]
+trait Loggers[F[_]] extends LoggerA[F] with LoggerOption[F]
 
 object Loggers {
 
@@ -17,16 +18,12 @@ object Loggers {
     new LoggersF[F]
 
   final class LoggersF[F[_] : EffectConstructor : Monad](
-    implicit FE: EffectConstructor[F], FM: Monad[F], logger: Logger
-  )
-    extends Loggers[F]
+    implicit override val FE0: EffectConstructor[F]
+  , override val FM0: Monad[F]
+  , override val logger0: Logger
+  ) extends Loggers[F]
     with LoggerA[F]
-    with Effectful {
-
-    override implicit val FE0: EffectConstructor[F] = FE
-    override implicit val FM0: Monad[F] = FM
-
-    override val logger0: Logger = logger
-  }
+    with LoggerOption[F]
+    with Effectful
 
 }
