@@ -20,6 +20,9 @@ lazy val hedgehogLibs: Seq[ModuleID] = Seq(
 lazy val catsCore: Seq[ModuleID] = Seq("org.typelevel" %% "cats-core" % "2.1.1")
 lazy val catsEffect: Seq[ModuleID] = Seq("org.typelevel" %% "cats-effect" % "2.1.2")
 
+lazy val slf4jApi: ModuleID = "org.slf4j" % "slf4j-api" % "1.7.30"
+lazy val logbackClassic: ModuleID =  "ch.qos.logback" % "logback-classic" % "1.2.3"
+
 ThisBuild / scalaVersion     := ProjectScalaVersion
 ThisBuild / version          := ProjectVersion
 ThisBuild / organization     := "io.kevinlee"
@@ -40,14 +43,14 @@ def prefixedProjectName(name: String) = s"logger-f${if (name.isEmpty) "" else s"
 lazy val loggerF = (project in file("."))
   .enablePlugins(DevOopsGitReleasePlugin)
   .settings(
-    name := prefixedProjectName(""),
-    description := "Logger for Tagless Final"
+    name := prefixedProjectName("")
+  , description := "Logger for Tagless Final"
   )
 
 lazy val core = (project in file("core"))
   .enablePlugins(DevOopsGitReleasePlugin)
   .settings(
-    name := prefixedProjectName("core")
+      name := prefixedProjectName("core")
     , description  := "Logger for Tagless Final - Core"
     , unmanagedSourceDirectories in Compile ++= {
       val sharedSourceDir = baseDirectory.value / "src/main"
@@ -66,9 +69,9 @@ lazy val core = (project in file("core"))
       crossVersionProps(hedgehogLibs, SemVer.parseUnsafe(scalaVersion.value)) {
         case (Major(2), Minor(10)) =>
           libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover") ++
-            catsCore ++ catsEffect
+            catsCore ++ catsEffect ++  Seq(slf4jApi, logbackClassic)
         case x =>
-          libraryDependencies.value ++ catsCore ++ catsEffect
+          libraryDependencies.value ++ catsCore ++ catsEffect ++ Seq(slf4jApi, logbackClassic)
       }
     /* Ammonite-REPL { */
     , libraryDependencies ++=
