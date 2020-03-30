@@ -20,6 +20,9 @@ lazy val hedgehogLibs: Seq[ModuleID] = Seq(
 lazy val catsCore: Seq[ModuleID] = Seq("org.typelevel" %% "cats-core" % "2.1.1")
 lazy val catsEffect: Seq[ModuleID] = Seq("org.typelevel" %% "cats-effect" % "2.1.2")
 
+lazy val catsCore_2_0_0: Seq[ModuleID] = Seq("org.typelevel" %% "cats-core" % "2.0.0")
+lazy val catsEffect_2_0_0: Seq[ModuleID] = Seq("org.typelevel" %% "cats-effect" % "2.0.0")
+
 lazy val slf4jApi: ModuleID = "org.slf4j" % "slf4j-api" % "1.7.30"
 lazy val logbackClassic: ModuleID =  "ch.qos.logback" % "logback-classic" % "1.2.3"
 
@@ -69,13 +72,18 @@ lazy val core = (project in file("core"))
     , addCompilerPlugin("org.typelevel" % "kind-projector" % "0.11.0" cross CrossVersion.full)
     , addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
     , libraryDependencies :=
-      crossVersionProps(hedgehogLibs, SemVer.parseUnsafe(scalaVersion.value)) {
-        case (Major(2), Minor(10)) =>
-          libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover") ++
-            catsCore ++ catsEffect ++  Seq(slf4jApi, logbackClassic, log4jApi, log4jCore)
-        case x =>
-          libraryDependencies.value ++ catsCore ++ catsEffect ++ Seq(slf4jApi, logbackClassic, log4jApi, log4jCore)
-      }
+      crossVersionProps(
+          hedgehogLibs ++ Seq(slf4jApi, logbackClassic, log4jApi, log4jCore)
+        , SemVer.parseUnsafe(scalaVersion.value)
+      ) {
+          case (Major(2), Minor(10)) =>
+            libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover") ++
+              catsCore ++ catsEffect
+          case (Major(2), Minor(11)) =>
+            libraryDependencies.value ++ catsCore_2_0_0 ++ catsEffect_2_0_0
+          case x =>
+            libraryDependencies.value ++ catsCore ++ catsEffect
+        }
     /* Ammonite-REPL { */
     , libraryDependencies ++=
       (scalaBinaryVersion.value match {
