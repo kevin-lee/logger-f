@@ -2,7 +2,7 @@ package loggerf
 
 import cats.Monad
 
-import just.effect.{EffectConstructor, Effectful}
+import just.effect.EffectConstructor
 
 /**
  * @author Kevin Lee
@@ -25,6 +25,5 @@ object Loggers {
     with LoggerA[F]
     with LoggerOption[F]
     with LoggerEither[F]
-    with Effectful
 
 }
