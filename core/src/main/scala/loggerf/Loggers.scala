@@ -8,7 +8,7 @@ import just.effect.{EffectConstructor, Effectful}
  * @author Kevin Lee
  * @since 2020-03-25
  */
-trait Loggers[F[_]] extends LoggerA[F] with LoggerOption[F]
+trait Loggers[F[_]] extends LoggerA[F] with LoggerOption[F] with LoggerEither[F]
 
 object Loggers {
 
@@ -24,6 +24,7 @@ object Loggers {
   ) extends Loggers[F]
     with LoggerA[F]
     with LoggerOption[F]
+    with LoggerEither[F]
     with Effectful
 
 }
