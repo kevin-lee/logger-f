@@ -26,6 +26,7 @@ object ConsoleEffect {
     override def putErrStrLn(value: String): F[Unit] =
       EffectConstructor[F].effect(Console.err.println(value))
 
+    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
     override def readYesNo(prompt: String): F[YesNo] = for {
       _ <- putStrLn(prompt)
       answer <- readLn
