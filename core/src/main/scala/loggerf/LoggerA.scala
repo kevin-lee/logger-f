@@ -40,12 +40,14 @@ trait LoggerA[F[_]] {
 object LoggerA {
   def apply[F[_] : LoggerA]: LoggerA[F] = implicitly[LoggerA[F]]
 
+  @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def loggerA[F[_]](
     implicit FE: EffectConstructor[F], FM: Monad[F], logger: Logger
   ): LoggerA[F] =
     new LoggerAF[F]
 
   final class LoggerAF[F[_]](
+    @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
     implicit override val FE0: EffectConstructor[F]
   , override val FM0: Monad[F]
   , override val logger0: Logger
