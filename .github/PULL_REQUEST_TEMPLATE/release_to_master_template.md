@@ -1,7 +1,7 @@
 ---
 name: Release to Master (Not required if it's released from master)
 about: Create a PR to merge Release into master
-title: ''
+title: 'Release v0.0.0 => master'
 labels: release-to-master
 assignees: Kevin-Lee
 

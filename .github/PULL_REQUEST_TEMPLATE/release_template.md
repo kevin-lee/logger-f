@@ -1,7 +1,7 @@
 ---
 name: Release
 about: Create a Release PR
-title: ''
+title: 'logger-f v0.0.0'
 labels: release
 assignees: Kevin-Lee
 
