@@ -2,7 +2,7 @@ package loggerf
 
 import cats.Monad
 
-import just.effect.EffectConstructor
+import effectie.cats.EffectConstructor
 
 /**
  * @author Kevin Lee

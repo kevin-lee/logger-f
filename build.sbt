@@ -46,6 +46,9 @@ ThisBuild / scmInfo :=
 
 def prefixedProjectName(name: String) = s"logger-f${if (name.isEmpty) "" else s"-$name"}"
 
+lazy val effectieVersion = "b0da77917980f2b7a316cfae20ad9d647d488f0c"
+lazy val effectieUri = uri(s"https://github.com/Kevin-Lee/effectie.git#$effectieVersion")
+
 lazy val loggerF = (project in file("."))
   .enablePlugins(DevOopsGitReleasePlugin)
   .settings(
@@ -131,6 +134,10 @@ lazy val core = (project in file("core"))
     })
     /* } Coveralls */
   )
+  .dependsOn(
+      ProjectRef(effectieUri, "core")
+    , ProjectRef(effectieUri, "catsEffect")
+    )
 
 lazy val docDir = file("docs")
 lazy val docs = (project in docDir)

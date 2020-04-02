@@ -3,7 +3,7 @@ package loggerf
 import cats._
 import cats.implicits._
 
-import just.effect.EffectConstructor
+import effectie.cats.EffectConstructor
 
 trait LoggerA[F[_]] {
 
@@ -14,25 +14,25 @@ trait LoggerA[F[_]] {
 
   def debugA[A](fa: F[A])(a2String: A => String): F[A] =
     FM0.flatMap(fa){ a =>
-      FE0.effect(logger0.debug(a2String(a))) *> FE0.effect(a)
+      FE0.effectOf(logger0.debug(a2String(a))) *> FE0.effectOf(a)
     }
   def debug(message: F[String]): F[String] = debugA(message)(identity)
 
   def infoA[A](fa: F[A])(a2String: A => String): F[A] =
     FM0.flatMap(fa){ a =>
-      FE0.effect(logger0.info(a2String(a))) *> FE0.effect(a)
+      FE0.effectOf(logger0.info(a2String(a))) *> FE0.effectOf(a)
     }
   def info(message: F[String]): F[String] = infoA(message)(identity)
 
   def warnA[A](fa: F[A])(a2String: A => String): F[A] =
     FM0.flatMap(fa){ a =>
-      FE0.effect(logger0.warn(a2String(a))) *> FE0.effect(a)
+      FE0.effectOf(logger0.warn(a2String(a))) *> FE0.effectOf(a)
     }
   def warn(message: F[String]): F[String] = warnA(message)(identity)
 
   def errorA[A](fa: F[A])(a2String: A => String): F[A] =
     FM0.flatMap(fa){ a =>
-      FE0.effect(logger0.error(a2String(a))) *> FE0.effect(a)
+      FE0.effectOf(logger0.error(a2String(a))) *> FE0.effectOf(a)
     }
   def error(message: F[String]): F[String] = errorA(message)(identity)
 }
