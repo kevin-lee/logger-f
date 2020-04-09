@@ -46,8 +46,9 @@ ThisBuild / scmInfo :=
 
 def prefixedProjectName(name: String) = s"logger-f${if (name.isEmpty) "" else s"-$name"}"
 
-lazy val effectieVersion = "b0da77917980f2b7a316cfae20ad9d647d488f0c"
-lazy val effectieUri = uri(s"https://github.com/Kevin-Lee/effectie.git#$effectieVersion")
+val effectieVersion = "0.3.0"
+lazy val effectieCatsEffect: ModuleID = "io.kevinlee" %% "effectie-cats-effect" % effectieVersion
+lazy val effectieScalazEffect: ModuleID = "io.kevinlee" %% "effectie-scalaz-effect" % effectieVersion
 
 lazy val loggerF = (project in file("."))
   .enablePlugins(DevOopsGitReleasePlugin)
@@ -88,7 +89,7 @@ lazy val core = (project in file("core"))
             libraryDependencies.value ++ catsCore ++ catsEffect
         }
     /* Ammonite-REPL { */
-    , libraryDependencies ++=
+    , libraryDependencies ++= Seq(effectieCatsEffect, effectieScalazEffect) ++
       (scalaBinaryVersion.value match {
         case "2.10" =>
           Seq.empty[ModuleID]
@@ -134,10 +135,6 @@ lazy val core = (project in file("core"))
     })
     /* } Coveralls */
   )
-  .dependsOn(
-      ProjectRef(effectieUri, "core")
-    , ProjectRef(effectieUri, "catsEffect")
-    )
 
 lazy val docDir = file("docs")
 lazy val docs = (project in docDir)
