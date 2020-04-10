@@ -14,6 +14,7 @@ trait Loggers[F[_]]
   with LoggerEither[F]
   with LoggerOptionT[F]
   with LoggerEitherT[F]
+  with Log[F]
 
 object Loggers {
 
@@ -34,5 +35,6 @@ object Loggers {
     with LoggerEither[F]
     with LoggerOptionT[F]
     with LoggerEitherT[F]
+    with Log[F]
 
 }

@@ -2,6 +2,8 @@ package loggerf
 
 import cats.data.{EitherT, OptionT}
 
+import loggerf.Log.LeveledMessage
+
 /**
  * @author Kevin Lee
  */
@@ -79,6 +81,43 @@ trait Logful {
 
   def errorEitherT[F[_] : LoggerEitherT, A, B](efab: EitherT[F, A, B])(a2String: A => String, b2String: B => String): EitherT[F, A, B] =
     LoggerEitherT[F].errorEitherT(efab)(a2String, b2String)
+
+
+  def log[F[_] : Log, A](fa: F[A])(toLeveledMessage: A => LeveledMessage): F[A] =
+    Log[F].log(fa)(toLeveledMessage)
+
+  def log[F[_] : Log, A](
+      foa: F[Option[A]]
+    )(
+      ifEmpty: => LeveledMessage
+    , toLeveledMessage: A => LeveledMessage
+    ): F[Option[A]] =
+    Log[F].log(foa)(ifEmpty, toLeveledMessage)
+
+  def log[F[_] : Log, A, B](
+      feab: F[Either[A, B]]
+    )(
+      leftToMessage: A => LeveledMessage
+    , rightToMessage: B => LeveledMessage
+    ): F[Either[A, B]] =
+    Log[F].log(feab)(leftToMessage, rightToMessage)
+
+  def log[F[_] : Log, A](
+      otfa: OptionT[F, A]
+    )(
+      ifEmpty: => LeveledMessage
+    , toLeveledMessage: A => LeveledMessage
+    ): OptionT[F, A] =
+    Log[F].log(otfa)(ifEmpty, toLeveledMessage)
+
+
+  def log[F[_] : Log, A, B](
+      etfab: EitherT[F, A, B]
+    )(
+      leftToMessage: A => LeveledMessage
+    , rightToMessage: B => LeveledMessage
+    ): EitherT[F, A, B] =
+    Log[F].log(etfab)(leftToMessage, rightToMessage)
 
 }
 
