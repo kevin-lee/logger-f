@@ -17,11 +17,14 @@ lazy val hedgehogLibs: Seq[ModuleID] = Seq(
   , "qa.hedgehog" %% "hedgehog-sbt" % hedgehogVersion % Test
 )
 
-lazy val libCatsCore: Seq[ModuleID] = Seq("org.typelevel" %% "cats-core" % "2.1.1")
-lazy val libCatsEffect: Seq[ModuleID] = Seq("org.typelevel" %% "cats-effect" % "2.1.2")
+lazy val libScalazCore: ModuleID = "org.scalaz" %% "scalaz-core" % "7.2.30"
+lazy val libScalazEffect: ModuleID = "org.scalaz" %% "scalaz-effect" % "7.2.30"
 
-lazy val libCatsCore_2_0_0: Seq[ModuleID] = Seq("org.typelevel" %% "cats-core" % "2.0.0")
-lazy val libCatsEffect_2_0_0: Seq[ModuleID] = Seq("org.typelevel" %% "cats-effect" % "2.0.0")
+lazy val libCatsCore: ModuleID = "org.typelevel" %% "cats-core" % "2.1.1"
+lazy val libCatsEffect: ModuleID = "org.typelevel" %% "cats-effect" % "2.1.2"
+
+lazy val libCatsCore_2_0_0: ModuleID = "org.typelevel" %% "cats-core" % "2.0.0"
+lazy val libCatsEffect_2_0_0: ModuleID = "org.typelevel" %% "cats-effect" % "2.0.0"
 
 lazy val slf4jApi: ModuleID = "org.slf4j" % "slf4j-api" % "1.7.30"
 lazy val logbackClassic: ModuleID =  "ch.qos.logback" % "logback-classic" % "1.2.3"
@@ -146,18 +149,37 @@ lazy val catsEffect = projectCommonSettings("catsEffect", ProjectName("cats-effe
     description  := "Logger for Tagless Final - Core"
   , libraryDependencies :=
     crossVersionProps(
-      hedgehogLibs ++ Seq(slf4jApi, logbackClassic, log4jApi, log4jCore, effectieCatsEffect, effectieScalazEffect)
+      hedgehogLibs ++ Seq(slf4jApi, logbackClassic, log4jApi, log4jCore, effectieCatsEffect)
       , SemVer.parseUnsafe(scalaVersion.value)
     ) {
       case (Major(2), Minor(10)) =>
         libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover") ++
-          libCatsCore ++ libCatsEffect
+          Seq(libCatsCore, libCatsEffect)
       case (Major(2), Minor(11)) =>
-        libraryDependencies.value ++ libCatsCore_2_0_0 ++ libCatsEffect_2_0_0
+        libraryDependencies.value ++ Seq(libCatsCore_2_0_0, libCatsEffect_2_0_0)
       case x =>
-        libraryDependencies.value ++ libCatsCore ++ libCatsEffect
+        libraryDependencies.value ++ Seq(libCatsCore, libCatsEffect)
     }
   )
+
+
+lazy val scalazEffect = projectCommonSettings("scalazEffect", ProjectName("scalaz-effect"), file("scalaz-effect"))
+  .settings(
+    description  := "Logger for Tagless Final - Scalaz"
+  , libraryDependencies :=
+    crossVersionProps(
+      hedgehogLibs ++ Seq(slf4jApi, logbackClassic, log4jApi, log4jCore, effectieScalazEffect)
+      , SemVer.parseUnsafe(scalaVersion.value)
+    ) {
+      case (Major(2), Minor(10)) =>
+        libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover")
+      case (Major(2), Minor(11)) =>
+        libraryDependencies.value
+      case x =>
+        libraryDependencies.value
+    }
+  )
+
 
 lazy val docDir = file("docs")
 lazy val docs = (project in docDir)
