@@ -1,6 +1,6 @@
 package loggerf
 
-import cats.data.OptionT
+import cats.data.{EitherT, OptionT}
 
 /**
  * @author Kevin Lee
@@ -66,6 +66,19 @@ trait Logful {
 
   def errorOptionT[F[_] : LoggerOptionT, A](fa: OptionT[F, A])(ifEmpty: => String, a2String: A => String): OptionT[F, A] =
     LoggerOptionT[F].errorOptionT(fa)(ifEmpty, a2String)
+
+
+  def debugEitherT[F[_] : LoggerEitherT, A, B](efab: EitherT[F, A, B])(a2String: A => String, b2String: B => String): EitherT[F, A, B] =
+    LoggerEitherT[F].debugEitherT(efab)(a2String, b2String)
+
+  def infoEitherT[F[_] : LoggerEitherT, A, B](efab: EitherT[F, A, B])(a2String: A => String, b2String: B => String): EitherT[F, A, B] =
+    LoggerEitherT[F].infoEitherT(efab)(a2String, b2String)
+
+  def warnEitherT[F[_] : LoggerEitherT, A, B](efab: EitherT[F, A, B])(a2String: A => String, b2String: B => String): EitherT[F, A, B] =
+    LoggerEitherT[F].warnEitherT(efab)(a2String, b2String)
+
+  def errorEitherT[F[_] : LoggerEitherT, A, B](efab: EitherT[F, A, B])(a2String: A => String, b2String: B => String): EitherT[F, A, B] =
+    LoggerEitherT[F].errorEitherT(efab)(a2String, b2String)
 
 }
 
