@@ -1,9 +1,12 @@
-package loggerf
+package loggerf.cats
 
-import scalaz._
-import Scalaz._
+import cats._
+import cats.data.EitherT
+import cats.implicits._
 
-import effectie.scalaz.EffectConstructor
+import effectie.cats.EffectConstructor
+
+import loggerf.Logger
 
 trait LoggerEitherT[F[_]] {
 
@@ -19,11 +22,11 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      MF0.bind(efab.run) {
-        case -\/(a) =>
-          EF0.effectOf(logger0.debug(a2String(a))) *> EF0.effectOf(a.left[B])
-        case \/-(b) =>
-          EF0.effectOf(logger0.debug(b2String(b))) *> EF0.effectOf(b.right[A])
+      MF0.flatMap(efab.value) {
+        case Left(a) =>
+          EF0.effectOf(logger0.debug(a2String(a))) *> EF0.effectOf(a.asLeft[B])
+        case Right(b) =>
+          EF0.effectOf(logger0.debug(b2String(b))) *> EF0.effectOf(b.asRight[A])
       }
     )
 
@@ -34,11 +37,11 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      MF0.bind(efab.run) {
-        case -\/(a) =>
-          EF0.effectOf(logger0.info(a2String(a))) *> EF0.effectOf(a.left[B])
-        case \/-(b) =>
-          EF0.effectOf(logger0.info(b2String(b))) *> EF0.effectOf(b.right[A])
+      MF0.flatMap(efab.value) {
+        case Left(a) =>
+          EF0.effectOf(logger0.info(a2String(a))) *> EF0.effectOf(a.asLeft[B])
+        case Right(b) =>
+          EF0.effectOf(logger0.info(b2String(b))) *> EF0.effectOf(b.asRight[A])
       }
     )
 
@@ -49,11 +52,11 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      MF0.bind(efab.run) {
-        case -\/(a) =>
-          EF0.effectOf(logger0.warn(a2String(a))) *> EF0.effectOf(a.left[B])
-        case \/-(b) =>
-          EF0.effectOf(logger0.warn(b2String(b))) *> EF0.effectOf(b.right[A])
+      MF0.flatMap(efab.value) {
+        case Left(a) =>
+          EF0.effectOf(logger0.warn(a2String(a))) *> EF0.effectOf(a.asLeft[B])
+        case Right(b) =>
+          EF0.effectOf(logger0.warn(b2String(b))) *> EF0.effectOf(b.asRight[A])
       }
     )
 
@@ -64,11 +67,11 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      MF0.bind(efab.run) {
-        case -\/(a) =>
-          EF0.effectOf(logger0.error(a2String(a))) *> EF0.effectOf(a.left[B])
-        case \/-(b) =>
-          EF0.effectOf(logger0.error(b2String(b))) *> EF0.effectOf(b.right[A])
+      MF0.flatMap(efab.value) {
+        case Left(a) =>
+          EF0.effectOf(logger0.error(a2String(a))) *> EF0.effectOf(a.asLeft[B])
+        case Right(b) =>
+          EF0.effectOf(logger0.error(b2String(b))) *> EF0.effectOf(b.asRight[A])
       }
     )
 }

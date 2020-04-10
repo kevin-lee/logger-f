@@ -1,92 +1,65 @@
-package loggerf
+package loggerf.cats
 
-import scalaz._
-import Scalaz._
+import cats._
+import cats.implicits._
 
-import effectie.scalaz.EffectConstructor
+import effectie.cats.EffectConstructor
 
-trait LoggerOptionT[F[_]] {
+import loggerf.Logger
+
+trait LoggerOption[F[_]] {
 
   implicit val EF0: EffectConstructor[F]
   implicit val MF0: Monad[F]
 
   implicit val logger0: Logger
 
-  def debugOptionT[A](
-    ofa: OptionT[F, A]
-  )(
-    ifEmpty: => String
-  , a2String: A => String
-  ): OptionT[F, A] =
-    OptionT(
-      MF0.bind(ofa.run) {
+  def debugOption[A](fa: F[Option[A]])(ifEmpty: => String, a2String: A => String): F[Option[A]] =
+    MF0.flatMap(fa) {
       case Some(a) =>
         EF0.effectOf(logger0.debug(a2String(a))) *> EF0.effectOf(a.some)
       case None =>
         EF0.effectOf(logger0.debug(ifEmpty)) *> EF0.effectOf(none[A])
-      }
-    )
+    }
 
-  def infoOptionT[A](
-    ofa: OptionT[F, A]
-  )(
-    ifEmpty: => String
-  , a2String: A => String
-  ): OptionT[F, A] =
-    OptionT(
-      MF0.bind(ofa.run) {
+  def infoOption[A](fa: F[Option[A]])(ifEmpty: => String, a2String: A => String): F[Option[A]] =
+    MF0.flatMap(fa) {
       case Some(a) =>
         EF0.effectOf(logger0.info(a2String(a))) *> EF0.effectOf(a.some)
       case None =>
         EF0.effectOf(logger0.info(ifEmpty)) *> EF0.effectOf(none[A])
-      }
-    )
+    }
 
-  def warnOptionT[A](
-    ofa: OptionT[F, A]
-  )(
-    ifEmpty: => String
-  , a2String: A => String
-  ): OptionT[F, A] =
-    OptionT(
-      MF0.bind(ofa.run) {
+  def warnOption[A](fa: F[Option[A]])(ifEmpty: => String, a2String: A => String): F[Option[A]] =
+    MF0.flatMap(fa) {
       case Some(a) =>
         EF0.effectOf(logger0.warn(a2String(a))) *> EF0.effectOf(a.some)
       case None =>
         EF0.effectOf(logger0.warn(ifEmpty)) *> EF0.effectOf(none[A])
-      }
-    )
+    }
 
-  def errorOptionT[A](
-    ofa: OptionT[F, A]
-  )(
-    ifEmpty: => String
-  , a2String: A => String
-  ): OptionT[F, A] =
-    OptionT(
-      MF0.bind(ofa.run) {
+  def errorOption[A](fa: F[Option[A]])(ifEmpty: => String, a2String: A => String): F[Option[A]] =
+    MF0.flatMap(fa) {
       case Some(a) =>
         EF0.effectOf(logger0.error(a2String(a))) *> EF0.effectOf(a.some)
       case None =>
         EF0.effectOf(logger0.error(ifEmpty)) *> EF0.effectOf(none[A])
-      }
-    )
-
+    }
 }
 
-object LoggerOptionT {
-  def apply[F[_] : LoggerOptionT]: LoggerOptionT[F] = implicitly[LoggerOptionT[F]]
+object LoggerOption {
+  def apply[F[_] : LoggerOption]: LoggerOption[F] = implicitly[LoggerOption[F]]
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-  implicit def loggerOptionT[F[_]](
+  implicit def loggerOption[F[_]](
     implicit EF: EffectConstructor[F], MF: Monad[F], logger: Logger
-  ): LoggerOptionT[F] = new LoggerOptionTF[F]
+  ): LoggerOption[F] = new LoggerOptionF[F]
 
-  final class LoggerOptionTF[F[_]](
+  final class LoggerOptionF[F[_]](
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
     implicit override val EF0: EffectConstructor[F]
   , override val MF0: Monad[F]
   , override val logger0: Logger
-  ) extends LoggerOptionT[F]
+  ) extends LoggerOption[F]
 
 }

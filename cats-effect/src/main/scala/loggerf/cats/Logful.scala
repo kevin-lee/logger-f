@@ -1,8 +1,8 @@
-package loggerf
+package loggerf.cats
 
 import cats.data.{EitherT, OptionT}
 
-import loggerf.Log.LeveledMessage
+import loggerf.cats.Log.LeveledMessage
 
 /**
  * @author Kevin Lee

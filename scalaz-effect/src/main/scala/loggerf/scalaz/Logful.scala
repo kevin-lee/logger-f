@@ -1,8 +1,8 @@
-package loggerf
+package loggerf.scalaz
 
 import scalaz._
 
-import loggerf.Log.LeveledMessage
+import loggerf.scalaz.Log.LeveledMessage
 
 /**
  * @author Kevin Lee

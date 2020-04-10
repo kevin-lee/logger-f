@@ -1,8 +1,10 @@
-package loggerf
+package loggerf.cats
 
 import cats.Monad
 
 import effectie.cats.EffectConstructor
+
+import loggerf.Logger
 
 /**
  * @author Kevin Lee
