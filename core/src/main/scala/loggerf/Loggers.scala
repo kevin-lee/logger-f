@@ -8,7 +8,7 @@ import effectie.cats.EffectConstructor
  * @author Kevin Lee
  * @since 2020-03-25
  */
-trait Loggers[F[_]] extends LoggerA[F] with LoggerOption[F] with LoggerEither[F]
+trait Loggers[F[_]] extends LoggerA[F] with LoggerOption[F] with LoggerEither[F] with LoggerOptionT[F]
 
 object Loggers {
 
@@ -27,5 +27,6 @@ object Loggers {
     with LoggerA[F]
     with LoggerOption[F]
     with LoggerEither[F]
+    with LoggerOptionT[F]
 
 }
