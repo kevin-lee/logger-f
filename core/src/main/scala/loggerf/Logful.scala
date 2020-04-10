@@ -1,5 +1,7 @@
 package loggerf
 
+import cats.data.OptionT
+
 /**
  * @author Kevin Lee
  */
@@ -51,6 +53,20 @@ trait Logful {
 
   def errorEither[F[_] : LoggerEither, A, B](fab: F[Either[A, B]])(a2String: A => String, b2String: B => String): F[Either[A, B]] =
     LoggerEither[F].errorEither(fab)(a2String, b2String)
+
+
+  def debugOptionT[F[_] : LoggerOptionT, A](fa: OptionT[F, A])(ifEmpty: => String, a2String: A => String): OptionT[F, A] =
+    LoggerOptionT[F].debugOptionT(fa)(ifEmpty, a2String)
+
+  def infoOptionT[F[_] : LoggerOptionT, A](fa: OptionT[F, A])(ifEmpty: => String, a2String: A => String): OptionT[F, A] =
+    LoggerOptionT[F].infoOptionT(fa)(ifEmpty, a2String)
+
+  def warnOptionT[F[_] : LoggerOptionT, A](fa: OptionT[F, A])(ifEmpty: => String, a2String: A => String): OptionT[F, A] =
+    LoggerOptionT[F].warnOptionT(fa)(ifEmpty, a2String)
+
+  def errorOptionT[F[_] : LoggerOptionT, A](fa: OptionT[F, A])(ifEmpty: => String, a2String: A => String): OptionT[F, A] =
+    LoggerOptionT[F].errorOptionT(fa)(ifEmpty, a2String)
+
 }
 
 object Logful extends Logful
