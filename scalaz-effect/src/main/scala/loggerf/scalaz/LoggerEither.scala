@@ -1,9 +1,11 @@
-package loggerf
+package loggerf.scalaz
 
 import scalaz._
 import Scalaz._
 
 import effectie.scalaz.EffectConstructor
+
+import loggerf.Logger
 
 trait LoggerEither[F[_]] {
 

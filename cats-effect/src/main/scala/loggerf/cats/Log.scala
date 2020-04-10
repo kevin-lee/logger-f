@@ -1,10 +1,13 @@
-package loggerf
+package loggerf.cats
 
-import scalaz._
-import Scalaz._
+import cats._
+import cats.data.{EitherT, OptionT}
+import cats.implicits._
 
 import effectie.Effectful._
-import effectie.scalaz.EffectConstructor
+import effectie.cats.EffectConstructor
+
+import loggerf.Logger
 
 /**
  * @author Kevin Lee
@@ -20,7 +23,7 @@ trait Log[F[_]] {
   val logger0: Logger
 
   def log[A](fa: F[A])(toLeveledMessage: A => LeveledMessage): F[A] =
-    MF0.bind(fa) { a =>
+    MF0.flatMap(fa) { a =>
       toLeveledMessage(a) match {
         case LeveledMessage(message, level) =>
           effectOf(getLogger(logger0, level)(message)) *> effectOf(a)
@@ -33,7 +36,7 @@ trait Log[F[_]] {
       ifEmpty: => LeveledMessage
     , toLeveledMessage: A => LeveledMessage
     ): F[Option[A]] =
-    MF0.bind(foa) {
+    MF0.flatMap(foa) {
       case None =>
         (for {
           message <- effectOf(ifEmpty)
@@ -48,21 +51,21 @@ trait Log[F[_]] {
 
 
   def log[A, B](
-      feab: F[A \/ B]
+      feab: F[Either[A, B]]
     )(
       leftToMessage: A => LeveledMessage
     , rightToMessage: B => LeveledMessage
-    ): F[A \/ B] =
-    MF0.bind(feab) {
-    case -\/(a) =>
-      leftToMessage(a) match {
+    ): F[Either[A, B]] =
+    MF0.flatMap(feab) {
+    case Left(l) =>
+      leftToMessage(l) match {
         case LeveledMessage(message, level) =>
-          effectOf(getLogger(logger0, level)(message)) *> effectOf(a.left[B])
+          effectOf(getLogger(logger0, level)(message)) *> effectOf(l.asLeft[B])
       }
-    case \/-(b) =>
-      rightToMessage(b) match {
+    case Right(r) =>
+      rightToMessage(r) match {
         case LeveledMessage(message, level) =>
-          effectOf(getLogger(logger0, level)(message)) *> effectOf(b.right[A])
+          effectOf(getLogger(logger0, level)(message)) *> effectOf(r.asRight[A])
       }
   }
 
@@ -72,7 +75,7 @@ trait Log[F[_]] {
       ifEmpty: => LeveledMessage
     , toLeveledMessage: A => LeveledMessage
     ): OptionT[F, A] =
-    OptionT(log(otfa.run)(ifEmpty, toLeveledMessage))
+    OptionT(log(otfa.value)(ifEmpty, toLeveledMessage))
 
 
   def log[A, B](
@@ -81,7 +84,7 @@ trait Log[F[_]] {
       leftToMessage: A => LeveledMessage
     , rightToMessage: B => LeveledMessage
     ): EitherT[F, A, B] =
-    EitherT(log(etfab.run)(leftToMessage, rightToMessage))
+    EitherT(log(etfab.value)(leftToMessage, rightToMessage))
 
 }
 

@@ -1,8 +1,10 @@
-package loggerf
-
-import scalaz.Monad
+package loggerf.scalaz
 
 import effectie.scalaz.EffectConstructor
+
+import loggerf.Logger
+
+import scalaz.Monad
 
 /**
  * @author Kevin Lee

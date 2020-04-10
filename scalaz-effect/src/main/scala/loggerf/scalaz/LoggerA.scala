@@ -1,9 +1,11 @@
-package loggerf
+package loggerf.scalaz
 
-import cats._
-import cats.implicits._
+import scalaz._
+import Scalaz._
 
-import effectie.cats.EffectConstructor
+import effectie.scalaz.EffectConstructor
+
+import loggerf.Logger
 
 trait LoggerA[F[_]] {
 
@@ -13,25 +15,25 @@ trait LoggerA[F[_]] {
   implicit val logger0: Logger
 
   def debugA[A](fa: F[A])(a2String: A => String): F[A] =
-    MF0.flatMap(fa){ a =>
+    MF0.bind(fa){ a =>
       EF0.effectOf(logger0.debug(a2String(a))) *> EF0.effectOf(a)
     }
   def debugS(message: F[String]): F[String] = debugA(message)(identity)
 
   def infoA[A](fa: F[A])(a2String: A => String): F[A] =
-    MF0.flatMap(fa){ a =>
+    MF0.bind(fa){ a =>
       EF0.effectOf(logger0.info(a2String(a))) *> EF0.effectOf(a)
     }
   def infoS(message: F[String]): F[String] = infoA(message)(identity)
 
   def warnA[A](fa: F[A])(a2String: A => String): F[A] =
-    MF0.flatMap(fa){ a =>
+    MF0.bind(fa){ a =>
       EF0.effectOf(logger0.warn(a2String(a))) *> EF0.effectOf(a)
     }
   def warnS(message: F[String]): F[String] = warnA(message)(identity)
 
   def errorA[A](fa: F[A])(a2String: A => String): F[A] =
-    MF0.flatMap(fa){ a =>
+    MF0.bind(fa){ a =>
       EF0.effectOf(logger0.error(a2String(a))) *> EF0.effectOf(a)
     }
   def errorS(message: F[String]): F[String] = errorA(message)(identity)

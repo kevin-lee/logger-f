@@ -1,9 +1,11 @@
-package loggerf
+package loggerf.cats
 
 import cats._
 import cats.implicits._
 
 import effectie.cats.EffectConstructor
+
+import loggerf.Logger
 
 trait LoggerEither[F[_]] {
 
