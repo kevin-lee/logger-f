@@ -1,4 +1,4 @@
-import ProjectInfo._
+import ProjectInfo.{ProjectName, _}
 import kevinlee.sbt.SbtCommon.crossVersionProps
 import just.semver.SemVer
 import SemVer.{Major, Minor}
@@ -17,11 +17,11 @@ lazy val hedgehogLibs: Seq[ModuleID] = Seq(
   , "qa.hedgehog" %% "hedgehog-sbt" % hedgehogVersion % Test
 )
 
-lazy val catsCore: Seq[ModuleID] = Seq("org.typelevel" %% "cats-core" % "2.1.1")
-lazy val catsEffect: Seq[ModuleID] = Seq("org.typelevel" %% "cats-effect" % "2.1.2")
+lazy val libCatsCore: Seq[ModuleID] = Seq("org.typelevel" %% "cats-core" % "2.1.1")
+lazy val libCatsEffect: Seq[ModuleID] = Seq("org.typelevel" %% "cats-effect" % "2.1.2")
 
-lazy val catsCore_2_0_0: Seq[ModuleID] = Seq("org.typelevel" %% "cats-core" % "2.0.0")
-lazy val catsEffect_2_0_0: Seq[ModuleID] = Seq("org.typelevel" %% "cats-effect" % "2.0.0")
+lazy val libCatsCore_2_0_0: Seq[ModuleID] = Seq("org.typelevel" %% "cats-core" % "2.0.0")
+lazy val libCatsEffect_2_0_0: Seq[ModuleID] = Seq("org.typelevel" %% "cats-effect" % "2.0.0")
 
 lazy val slf4jApi: ModuleID = "org.slf4j" % "slf4j-api" % "1.7.30"
 lazy val logbackClassic: ModuleID =  "ch.qos.logback" % "logback-classic" % "1.2.3"
@@ -46,22 +46,22 @@ ThisBuild / scmInfo :=
 
 def prefixedProjectName(name: String) = s"logger-f${if (name.isEmpty) "" else s"-$name"}"
 
+lazy val noPublish: SettingsDefinition = Seq(
+  publish := {},
+  publishLocal := {},
+  publishArtifact := false,
+  skip in packagedArtifacts := true,
+  skip in publish := true
+)
+
 val effectieVersion = "0.3.0"
 lazy val effectieCatsEffect: ModuleID = "io.kevinlee" %% "effectie-cats-effect" % effectieVersion
 lazy val effectieScalazEffect: ModuleID = "io.kevinlee" %% "effectie-scalaz-effect" % effectieVersion
 
-lazy val loggerF = (project in file("."))
-  .enablePlugins(DevOopsGitReleasePlugin)
-  .settings(
-    name := prefixedProjectName("")
-  , description := "Logger for Tagless Final"
-  )
-
-lazy val core = (project in file("core"))
-  .enablePlugins(DevOopsGitReleasePlugin)
-  .settings(
-      name := prefixedProjectName("core")
-    , description  := "Logger for Tagless Final - Core"
+def projectCommonSettings(id: String, projectName: ProjectName, file: File): Project =
+  Project(id, file)
+    .settings(
+      name := prefixedProjectName(projectName.projectName)
     , unmanagedSourceDirectories in Compile ++= {
       val sharedSourceDir = baseDirectory.value / "src/main"
       if (scalaVersion.value.startsWith("2.13") || scalaVersion.value.startsWith("2.12"))
@@ -75,21 +75,8 @@ lazy val core = (project in file("core"))
     )
     , addCompilerPlugin("org.typelevel" % "kind-projector" % "0.11.0" cross CrossVersion.full)
     , addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
-    , libraryDependencies :=
-      crossVersionProps(
-          hedgehogLibs ++ Seq(slf4jApi, logbackClassic, log4jApi, log4jCore)
-        , SemVer.parseUnsafe(scalaVersion.value)
-      ) {
-          case (Major(2), Minor(10)) =>
-            libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover") ++
-              catsCore ++ catsEffect
-          case (Major(2), Minor(11)) =>
-            libraryDependencies.value ++ catsCore_2_0_0 ++ catsEffect_2_0_0
-          case x =>
-            libraryDependencies.value ++ catsCore ++ catsEffect
-        }
     /* Ammonite-REPL { */
-    , libraryDependencies ++= Seq(effectieCatsEffect, effectieScalazEffect) ++
+    , libraryDependencies ++=
       (scalaBinaryVersion.value match {
         case "2.10" =>
           Seq.empty[ModuleID]
@@ -145,12 +132,31 @@ lazy val core = (project in file("core"))
 
     /* Coveralls { */
     , coverageHighlighting := (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 10)) =>
-        false
-      case _ =>
-        true
-    })
+        case Some((2, 10)) =>
+          false
+        case _ =>
+          true
+      })
     /* } Coveralls */
+    )
+
+
+lazy val catsEffect = projectCommonSettings("catsEffect", ProjectName("cats-effect"), file("cats-effect"))
+  .settings(
+    description  := "Logger for Tagless Final - Core"
+  , libraryDependencies :=
+    crossVersionProps(
+      hedgehogLibs ++ Seq(slf4jApi, logbackClassic, log4jApi, log4jCore, effectieCatsEffect, effectieScalazEffect)
+      , SemVer.parseUnsafe(scalaVersion.value)
+    ) {
+      case (Major(2), Minor(10)) =>
+        libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover") ++
+          libCatsCore ++ libCatsEffect
+      case (Major(2), Minor(11)) =>
+        libraryDependencies.value ++ libCatsCore_2_0_0 ++ libCatsEffect_2_0_0
+      case x =>
+        libraryDependencies.value ++ libCatsCore ++ libCatsEffect
+    }
   )
 
 lazy val docDir = file("docs")
@@ -193,4 +199,13 @@ lazy val docs = (project in docDir)
     /* } microsites */
 
   )
-  .dependsOn(core)
+  .settings(noPublish)
+  .dependsOn(catsEffect)
+
+lazy val loggerF = (project in file("."))
+  .enablePlugins(DevOopsGitReleasePlugin)
+  .settings(
+    name := prefixedProjectName("")
+    , description := "Logger for Tagless Final"
+  )
+  .dependsOn()
