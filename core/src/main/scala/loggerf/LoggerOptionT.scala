@@ -7,8 +7,8 @@ import effectie.cats.EffectConstructor
 
 trait LoggerOptionT[F[_]] {
 
-  implicit val FE0: EffectConstructor[F]
-  implicit val FM0: Monad[F]
+  implicit val EF0: EffectConstructor[F]
+  implicit val MF0: Monad[F]
 
   implicit val logger0: Logger
 
@@ -19,11 +19,11 @@ trait LoggerOptionT[F[_]] {
   , a2String: A => String
   ): OptionT[F, A] =
     OptionT(
-      FM0.flatMap(ofa.value) {
+      MF0.flatMap(ofa.value) {
       case Some(a) =>
-        FE0.effectOf(logger0.debug(a2String(a))) *> FE0.effectOf(a.some)
+        EF0.effectOf(logger0.debug(a2String(a))) *> EF0.effectOf(a.some)
       case None =>
-        FE0.effectOf(logger0.debug(ifEmpty)) *> FE0.effectOf(none[A])
+        EF0.effectOf(logger0.debug(ifEmpty)) *> EF0.effectOf(none[A])
       }
     )
 
@@ -34,11 +34,11 @@ trait LoggerOptionT[F[_]] {
   , a2String: A => String
   ): OptionT[F, A] =
     OptionT(
-      FM0.flatMap(ofa.value) {
+      MF0.flatMap(ofa.value) {
       case Some(a) =>
-        FE0.effectOf(logger0.info(a2String(a))) *> FE0.effectOf(a.some)
+        EF0.effectOf(logger0.info(a2String(a))) *> EF0.effectOf(a.some)
       case None =>
-        FE0.effectOf(logger0.info(ifEmpty)) *> FE0.effectOf(none[A])
+        EF0.effectOf(logger0.info(ifEmpty)) *> EF0.effectOf(none[A])
       }
     )
 
@@ -49,11 +49,11 @@ trait LoggerOptionT[F[_]] {
   , a2String: A => String
   ): OptionT[F, A] =
     OptionT(
-      FM0.flatMap(ofa.value) {
+      MF0.flatMap(ofa.value) {
       case Some(a) =>
-        FE0.effectOf(logger0.warn(a2String(a))) *> FE0.effectOf(a.some)
+        EF0.effectOf(logger0.warn(a2String(a))) *> EF0.effectOf(a.some)
       case None =>
-        FE0.effectOf(logger0.warn(ifEmpty)) *> FE0.effectOf(none[A])
+        EF0.effectOf(logger0.warn(ifEmpty)) *> EF0.effectOf(none[A])
       }
     )
 
@@ -64,11 +64,11 @@ trait LoggerOptionT[F[_]] {
   , a2String: A => String
   ): OptionT[F, A] =
     OptionT(
-      FM0.flatMap(ofa.value) {
+      MF0.flatMap(ofa.value) {
       case Some(a) =>
-        FE0.effectOf(logger0.error(a2String(a))) *> FE0.effectOf(a.some)
+        EF0.effectOf(logger0.error(a2String(a))) *> EF0.effectOf(a.some)
       case None =>
-        FE0.effectOf(logger0.error(ifEmpty)) *> FE0.effectOf(none[A])
+        EF0.effectOf(logger0.error(ifEmpty)) *> EF0.effectOf(none[A])
       }
     )
 
@@ -79,13 +79,13 @@ object LoggerOptionT {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def loggerOptionT[F[_]](
-    implicit FE: EffectConstructor[F], FM: Monad[F], logger: Logger
+    implicit EF: EffectConstructor[F], MF: Monad[F], logger: Logger
   ): LoggerOptionT[F] = new LoggerOptionTF[F]
 
   final class LoggerOptionTF[F[_]](
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-    implicit override val FE0: EffectConstructor[F]
-  , override val FM0: Monad[F]
+    implicit override val EF0: EffectConstructor[F]
+  , override val MF0: Monad[F]
   , override val logger0: Logger
   ) extends LoggerOptionT[F]
 

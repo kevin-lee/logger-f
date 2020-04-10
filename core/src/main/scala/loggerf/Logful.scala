@@ -9,26 +9,26 @@ trait Logful {
   def debugA[F[_] : LoggerA, A](fa: F[A])(a2String: A => String): F[A] =
     LoggerA[F].debugA(fa)(a2String)
 
-  def debug[F[_] : LoggerA](message: F[String]): F[String] =
-    LoggerA[F].debug(message)
+  def debugS[F[_] : LoggerA](message: F[String]): F[String] =
+    LoggerA[F].debugS(message)
 
   def infoA[F[_] : LoggerA, A](fa: F[A])(a2String: A => String): F[A] =
     LoggerA[F].infoA(fa)(a2String)
 
-  def info[F[_] : LoggerA](message: F[String]): F[String] =
-    LoggerA[F].info(message)
+  def infoS[F[_] : LoggerA](message: F[String]): F[String] =
+    LoggerA[F].infoS(message)
 
   def warnA[F[_] : LoggerA, A](fa: F[A])(a2String: A => String): F[A] =
     LoggerA[F].warnA(fa)(a2String)
 
-  def warn[F[_] : LoggerA](message: F[String]): F[String] =
-    LoggerA[F].warn(message)
+  def warnS[F[_] : LoggerA](message: F[String]): F[String] =
+    LoggerA[F].warnS(message)
 
   def errorA[F[_] : LoggerA, A](fa: F[A])(a2String: A => String): F[A] =
     LoggerA[F].errorA(fa)(a2String)
 
-  def error[F[_] : LoggerA](message: F[String]): F[String] =
-    LoggerA[F].error(message)
+  def errorS[F[_] : LoggerA](message: F[String]): F[String] =
+    LoggerA[F].errorS(message)
 
   def debugOption[F[_] : LoggerOption, A](fa: F[Option[A]])(ifEmpty: => String, a2String: A => String): F[Option[A]] =
     LoggerOption[F].debugOption(fa)(ifEmpty, a2String)
