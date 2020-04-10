@@ -7,8 +7,8 @@ import effectie.cats.EffectConstructor
 
 trait LoggerEitherT[F[_]] {
 
-  implicit val FE0: EffectConstructor[F]
-  implicit val FM0: Monad[F]
+  implicit val EF0: EffectConstructor[F]
+  implicit val MF0: Monad[F]
 
   implicit val logger0: Logger
 
@@ -19,11 +19,11 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      FM0.flatMap(efab.value) {
+      MF0.flatMap(efab.value) {
         case Left(a) =>
-          FE0.effectOf(logger0.debug(a2String(a))) *> FE0.effectOf(a.asLeft[B])
+          EF0.effectOf(logger0.debug(a2String(a))) *> EF0.effectOf(a.asLeft[B])
         case Right(b) =>
-          FE0.effectOf(logger0.debug(b2String(b))) *> FE0.effectOf(b.asRight[A])
+          EF0.effectOf(logger0.debug(b2String(b))) *> EF0.effectOf(b.asRight[A])
       }
     )
 
@@ -34,11 +34,11 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      FM0.flatMap(efab.value) {
+      MF0.flatMap(efab.value) {
         case Left(a) =>
-          FE0.effectOf(logger0.info(a2String(a))) *> FE0.effectOf(a.asLeft[B])
+          EF0.effectOf(logger0.info(a2String(a))) *> EF0.effectOf(a.asLeft[B])
         case Right(b) =>
-          FE0.effectOf(logger0.info(b2String(b))) *> FE0.effectOf(b.asRight[A])
+          EF0.effectOf(logger0.info(b2String(b))) *> EF0.effectOf(b.asRight[A])
       }
     )
 
@@ -49,11 +49,11 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      FM0.flatMap(efab.value) {
+      MF0.flatMap(efab.value) {
         case Left(a) =>
-          FE0.effectOf(logger0.warn(a2String(a))) *> FE0.effectOf(a.asLeft[B])
+          EF0.effectOf(logger0.warn(a2String(a))) *> EF0.effectOf(a.asLeft[B])
         case Right(b) =>
-          FE0.effectOf(logger0.warn(b2String(b))) *> FE0.effectOf(b.asRight[A])
+          EF0.effectOf(logger0.warn(b2String(b))) *> EF0.effectOf(b.asRight[A])
       }
     )
 
@@ -64,11 +64,11 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      FM0.flatMap(efab.value) {
+      MF0.flatMap(efab.value) {
         case Left(a) =>
-          FE0.effectOf(logger0.error(a2String(a))) *> FE0.effectOf(a.asLeft[B])
+          EF0.effectOf(logger0.error(a2String(a))) *> EF0.effectOf(a.asLeft[B])
         case Right(b) =>
-          FE0.effectOf(logger0.error(b2String(b))) *> FE0.effectOf(b.asRight[A])
+          EF0.effectOf(logger0.error(b2String(b))) *> EF0.effectOf(b.asRight[A])
       }
     )
 }
@@ -78,13 +78,13 @@ object LoggerEitherT {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def loggerEitherT[F[_]](
-    implicit FE: EffectConstructor[F], FM: Monad[F], logger: Logger
+    implicit EF: EffectConstructor[F], MF: Monad[F], logger: Logger
   ): LoggerEitherT[F] = new LoggerEitherTF[F]
 
   final class LoggerEitherTF[F[_]](
       @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-      implicit override val FE0: EffectConstructor[F]
-    , override val FM0: Monad[F]
+      implicit override val EF0: EffectConstructor[F]
+    , override val MF0: Monad[F]
     , override val logger0: Logger
   ) extends LoggerEitherT[F]
 
