@@ -114,8 +114,25 @@ lazy val core = (project in file("core"))
           }
       })
     /* } Ammonite-REPL */
-    , wartremoverErrors in (Compile, compile) ++= commonWarts((scalaBinaryVersion in update).value)
-    , wartremoverErrors in (Test, compile) ++= commonWarts((scalaBinaryVersion in update).value)
+    /* WartRemover and scalacOptions { */
+    //      , wartremoverErrors in (Compile, compile) ++= commonWarts((scalaBinaryVersion in update).value)
+    //      , wartremoverErrors in (Test, compile) ++= commonWarts((scalaBinaryVersion in update).value)
+    , wartremoverErrors ++= commonWarts((scalaBinaryVersion in update).value)
+    , Compile / console / wartremoverErrors := List.empty
+    , Compile / console / wartremoverWarnings := List.empty
+    , Compile / console / scalacOptions :=
+      (console / scalacOptions).value
+        .filterNot(option =>
+          option.contains("wartremover") || option.contains("import")
+        )
+    , Test / console / wartremoverErrors := List.empty
+    , Test / console / wartremoverWarnings := List.empty
+    , Test / console / scalacOptions :=
+      (console / scalacOptions).value
+        .filterNot( option =>
+          option.contains("wartremover") || option.contains("import")
+        )
+    /* } WartRemover and scalacOptions */
     , testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
     /* Bintray { */
     , bintrayPackageLabels := Seq("Scala", "Logger", "Tagless Final", "Finally Tagless", "Functional Programming", "FP")
