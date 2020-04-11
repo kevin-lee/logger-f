@@ -6,6 +6,7 @@ import microsites.ConfigYml
 
 val ProjectScalaVersion: String = "2.13.1"
 val CrossScalaVersions: Seq[String] = Seq("2.11.12", "2.12.11", ProjectScalaVersion)
+val IncludeTest: String = "compile->compile;test->test"
 
 lazy val hedgehogVersion = "97854199ef795a5dfba15478fd9abe66035ddea2"
 lazy val hedgehogRepo: MavenRepository =
@@ -188,7 +189,7 @@ lazy val catsEffect =
         libraryDependencies.value ++ Seq(libCatsCore, libCatsEffect)
     }
   )
-  .dependsOn(core)
+  .dependsOn(core % IncludeTest)
 
 
 lazy val scalazEffect = projectCommonSettings("scalazEffect", ProjectName("scalaz-effect"), file("scalaz-effect"))
@@ -200,14 +201,15 @@ lazy val scalazEffect = projectCommonSettings("scalazEffect", ProjectName("scala
       , SemVer.parseUnsafe(scalaVersion.value)
     ) {
       case (Major(2), Minor(10)) =>
-        libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover")
+        libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover") ++
+          Seq(libScalazCore, libScalazEffect)
       case (Major(2), Minor(11)) =>
-        libraryDependencies.value
+        libraryDependencies.value ++ Seq(libScalazCore, libScalazEffect)
       case x =>
-        libraryDependencies.value
+        libraryDependencies.value ++ Seq(libScalazCore, libScalazEffect)
     }
   )
-  .dependsOn(core)
+  .dependsOn(core % IncludeTest)
 
 
 lazy val testCatsEffectWithSlf4jLogger =
