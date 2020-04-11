@@ -11,36 +11,74 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-    - name: sbt GitHub Release
-      env:
-        GITHUB_TOKEN: ${{ secrets.RELEASE_AUTH_TOKEN_GITHUB }}
-      run: |
-        echo "Run] sbt GitHub release"
-        echo 'sbt -J-Xmx2048m "; project core; clean; +test; +packagedArtifacts"'
-        sbt -J-Xmx2048m "; project core; clean; +test; +packagedArtifacts"
-        echo 'sbt -J-Xmx2048m "; gitHubRelease"'
-        sbt -J-Xmx2048m "; gitHubRelease"
-    - name: sbt Publish core
-      env:
-        BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-        BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
-      run: |
-        echo "Run] sbt publish"
-        echo 'sbt -J-Xmx2048m "; project core; clean; +publish"'
-        sbt -J-Xmx2048m "; project core; clean; +publish"
-    - name: Sync core to Maven Central
-      env:
-        BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-        BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
-      run: |
-        PROJECT_VERSION="${GITHUB_REF#refs/tags/v}"
-        BINTRAY_SUBJECT=kevinlee
-        BINTRAY_REPO=maven
-        BINTRAY_PACKAGE=logger-f-core
-        echo "BINTRAY_SUBJECT: $BINTRAY_SUBJECT"
-        echo "   BINTRAY_REPO: $BINTRAY_REPO"
-        echo "BINTRAY_PACKAGE: $BINTRAY_PACKAGE"
-        echo "PROJECT_VERSION: $PROJECT_VERSION"
-        echo "Sync to Maven Central..."
-        curl --user $BINTRAY_USER:$BINTRAY_PASS -X POST "https://api.bintray.com/maven_central_sync/$BINTRAY_SUBJECT/$BINTRAY_REPO/$BINTRAY_PACKAGE/versions/$PROJECT_VERSION"
+      - uses: actions/checkout@v1
+      - name: sbt GitHub Release LoggerF
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_AUTH_TOKEN_GITHUB }}
+        run: |
+          echo "Run] sbt GitHub release - core"
+          echo 'sbt -J-Xmx2048m "; project core; clean; +test; +packagedArtifacts"'
+          sbt -J-Xmx2048m "; project core; clean; +test; +packagedArtifacts"
+          echo "====================="
+          echo "Run] sbt GitHub release - slf4jLogger"
+          echo 'sbt -J-Xmx2048m "; project slf4jLogger; clean; +test; +packagedArtifacts"'
+          sbt -J-Xmx2048m "; project slf4jLogger; clean; +test; +packagedArtifacts"
+          echo "====================="
+          echo "Run] sbt GitHub release - log4jLogger"
+          echo 'sbt -J-Xmx2048m "; project log4jLogger; clean; +test; +packagedArtifacts"'
+          sbt -J-Xmx2048m "; project log4jLogger; clean; +test; +packagedArtifacts"
+          echo "====================="
+          echo "Run] sbt GitHub release - cats-effect"
+          echo 'sbt -J-Xmx2048m "; project catsEffect; clean; +test; +packagedArtifacts"'
+          sbt -J-Xmx2048m "; project catsEffect; clean; +test; +packagedArtifacts"
+          echo "====================="
+          echo "Run] sbt GitHub release - scalaz-effect"
+          echo 'sbt -J-Xmx2048m "; project scalazEffect; clean; +test; +packagedArtifacts"'
+          sbt -J-Xmx2048m "; project scalazEffect; clean; +test; +packagedArtifacts"
+          echo "====================="
+          echo 'sbt -J-Xmx2048m "; gitHubRelease"'
+          sbt -J-Xmx2048m "; gitHubRelease"
+      - name: sbt Publish LoggerF
+        env:
+          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+          BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
+        run: |
+          echo "Run] sbt publish - core"
+          echo 'sbt -J-Xmx2048m "; project core; clean; +publish"'
+          sbt -J-Xmx2048m "; project core; clean; +publish"
+          echo "====================="
+          echo "Run] sbt publish - slf4jLogger"
+          echo 'sbt -J-Xmx2048m "; project slf4jLogger; clean; +publish"'
+          sbt -J-Xmx2048m "; project slf4jLogger; clean; +publish"
+          echo "====================="
+          echo "Run] sbt publish - log4jLogger"
+          echo 'sbt -J-Xmx2048m "; project log4jLogger; clean; +publish"'
+          sbt -J-Xmx2048m "; project log4jLogger; clean; +publish"
+          echo "====================="
+          echo "Run] sbt publish - cats-effect"
+          echo 'sbt -J-Xmx2048m "; project catsEffect; clean; +publish"'
+          sbt -J-Xmx2048m "; project catsEffect; clean; +publish"
+          echo "====================="
+          echo "Run] sbt publish - scalaz-effect"
+          echo 'sbt -J-Xmx2048m "; project scalazEffect; clean; +publish"'
+          sbt -J-Xmx2048m "; project scalazEffect; clean; +publish"
+
+          # Uncomment once Bintray is linked to JCenter
+#      - name: Sync LoggerF to Maven Central
+#        env:
+#          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+#          BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
+#        run: |
+#          PROJECT_VERSION="${GITHUB_REF#refs/tags/v}"
+#          BINTRAY_SUBJECT=kevinlee
+#          BINTRAY_REPO=maven
+#          echo "PROJECT_VERSION: $PROJECT_VERSION"
+#          echo "BINTRAY_SUBJECT: $BINTRAY_SUBJECT"
+#          echo "   BINTRAY_REPO: $BINTRAY_REPO"
+#          BINTRAY_PACKAGES="logger-f-core logger-f-slf4j logger-f-log4j logger-f-cats-effect logger-f-scalaz-effect"
+#          for bintray_package in $BINTRAY_PACKAGES
+#          do
+#            echo "bintray_package: $bintray_package"
+#            echo "Sync to Maven Central..."
+#            curl --user $BINTRAY_USER:$BINTRAY_PASS -X POST "https://api.bintray.com/maven_central_sync/$BINTRAY_SUBJECT/$BINTRAY_REPO/$bintray_package/versions/$PROJECT_VERSION"
+#          done

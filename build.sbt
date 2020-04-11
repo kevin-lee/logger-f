@@ -143,13 +143,40 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
     /* } Coveralls */
     )
 
+lazy val core =
+  projectCommonSettings("core", ProjectName("core"), file("core"))
+  .settings(
+    description  := "Logger for Tagless Final - Core"
+  )
 
-lazy val catsEffect = projectCommonSettings("catsEffect", ProjectName("cats-effect"), file("cats-effect"))
+lazy val slf4jLogger =
+  projectCommonSettings("slf4jLogger", ProjectName("slf4j"), file("slf4j"))
+  .settings(
+    description  := "Logger for Tagless Final - Logger with Slf4j"
+  , libraryDependencies ++= Seq(
+        slf4jApi % Provided
+      )
+  )
+  .dependsOn(core)
+
+lazy val log4jLogger =
+  projectCommonSettings("log4jLogger", ProjectName("log4j"), file("log4j"))
+  .settings(
+    description  := "Logger for Tagless Final - Logger with Log4j"
+  , libraryDependencies ++= Seq(
+        log4jApi, log4jCore
+      ).map(_ % Provided)
+  )
+  .dependsOn(core)
+
+
+lazy val catsEffect =
+  projectCommonSettings("catsEffect", ProjectName("cats-effect"), file("cats-effect"))
   .settings(
     description  := "Logger for Tagless Final - Core"
   , libraryDependencies :=
     crossVersionProps(
-      hedgehogLibs ++ Seq(slf4jApi, logbackClassic, log4jApi, log4jCore, effectieCatsEffect)
+      hedgehogLibs ++ Seq(effectieCatsEffect)
       , SemVer.parseUnsafe(scalaVersion.value)
     ) {
       case (Major(2), Minor(10)) =>
@@ -161,6 +188,7 @@ lazy val catsEffect = projectCommonSettings("catsEffect", ProjectName("cats-effe
         libraryDependencies.value ++ Seq(libCatsCore, libCatsEffect)
     }
   )
+  .dependsOn(core)
 
 
 lazy val scalazEffect = projectCommonSettings("scalazEffect", ProjectName("scalaz-effect"), file("scalaz-effect"))
@@ -168,7 +196,7 @@ lazy val scalazEffect = projectCommonSettings("scalazEffect", ProjectName("scala
     description  := "Logger for Tagless Final - Scalaz"
   , libraryDependencies :=
     crossVersionProps(
-      hedgehogLibs ++ Seq(slf4jApi, logbackClassic, log4jApi, log4jCore, effectieScalazEffect)
+      hedgehogLibs ++ Seq(effectieScalazEffect)
       , SemVer.parseUnsafe(scalaVersion.value)
     ) {
       case (Major(2), Minor(10)) =>
@@ -179,6 +207,41 @@ lazy val scalazEffect = projectCommonSettings("scalazEffect", ProjectName("scala
         libraryDependencies.value
     }
   )
+  .dependsOn(core)
+
+
+lazy val testCatsEffectWithSlf4jLogger =
+  projectCommonSettings("testCatsEffectWithSlf4jLogger", ProjectName("test-cats-effect-slf4j"), file("test-cats-effect-slf4j"))
+    .settings(
+      description  := "Test Logger for Tagless Final - Logger with Slf4j"
+    , libraryDependencies ++= Seq(slf4jApi, logbackClassic)
+    )
+    .dependsOn(core, slf4jLogger, catsEffect)
+
+lazy val testScalazEffectWithSlf4jLogger =
+  projectCommonSettings("testScalazEffectWithSlf4jLogger", ProjectName("test-scalaz-effect-slf4j"), file("test-scalaz-effect-slf4j"))
+    .settings(
+      description  := "Test Logger for Tagless Final - Logger with Slf4j"
+    , libraryDependencies ++= Seq(slf4jApi, logbackClassic)
+    )
+    .dependsOn(core, slf4jLogger, scalazEffect)
+
+lazy val testCatsEffectWithLog4jLogger =
+  projectCommonSettings("testCatsEffectWithLog4jLogger", ProjectName("test-cats-effect-log4j"), file("test-cats-effect-log4j"))
+    .settings(
+      description  := "Test Logger for Tagless Final - Logger with Log4j"
+    , libraryDependencies ++= Seq(log4jApi, log4jCore)
+    )
+    .dependsOn(core, log4jLogger, catsEffect)
+
+lazy val testScalazEffectWithLog4jLogger =
+  projectCommonSettings("testScalazEffectWithLog4jLogger", ProjectName("test-scalaz-effect-log4j"), file("test-scalaz-effect-log4j"))
+    .settings(
+      description  := "Test Logger for Tagless Final - Logger with Log4j"
+    , libraryDependencies ++= Seq(log4jApi, log4jCore)
+    )
+    .dependsOn(core, log4jLogger, scalazEffect)
+
 
 
 lazy val docDir = file("docs")
@@ -228,6 +291,6 @@ lazy val loggerF = (project in file("."))
   .enablePlugins(DevOopsGitReleasePlugin)
   .settings(
     name := prefixedProjectName("")
-    , description := "Logger for Tagless Final"
+  , description := "Logger for Tagless Final"
   )
-  .dependsOn()
+  .dependsOn(core, slf4jLogger, log4jLogger, catsEffect, scalazEffect)
