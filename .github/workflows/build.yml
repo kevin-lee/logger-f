@@ -68,17 +68,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-ivy-scala-2_13-
 
-      - name: Build catsEffect for Scala 2.13
+      - name: Build core for Scala 2.13
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: .github/workflows/sbt-build.sh core 2.13.1
 
-      - name: Build catsEffect for Scala 2.13
+      - name: Build slf4jLogger for Scala 2.13
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: .github/workflows/sbt-build.sh slf4jLogger 2.13.1
 
-      - name: Build catsEffect for Scala 2.13
+      - name: Build log4jLogger for Scala 2.13
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: .github/workflows/sbt-build.sh log4jLogger 2.13.1
@@ -88,7 +88,7 @@ jobs:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: .github/workflows/sbt-build.sh catsEffect 2.13.1
 
-      - name: Build catsEffect for Scala 2.13
+      - name: Build scalazEffect for Scala 2.13
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: .github/workflows/sbt-build.sh scalazEffect 2.13.1
