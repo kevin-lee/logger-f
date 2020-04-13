@@ -294,7 +294,7 @@ lazy val docs = (project in docDir)
 
   )
   .settings(noPublish)
-  .dependsOn(catsEffect)
+  .dependsOn(core, slf4jLogger, log4jLogger, catsEffect, scalazEffect)
 
 lazy val loggerF = (project in file("."))
   .enablePlugins(DevOopsGitReleasePlugin)
