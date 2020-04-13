@@ -2,7 +2,7 @@ import ProjectInfo.{ProjectName, _}
 import kevinlee.sbt.SbtCommon.crossVersionProps
 import just.semver.SemVer
 import SemVer.{Major, Minor}
-import microsites.ConfigYml
+import microsites.{ConfigYml, MicrositeFavicon}
 
 val ProjectScalaVersion: String = "2.13.1"
 val CrossScalaVersions: Seq[String] = Seq("2.11.12", "2.12.11", ProjectScalaVersion)
@@ -282,7 +282,21 @@ lazy val docs = (project in docDir)
     , micrositeStaticDirectory := docDir / "microsite" / "static"
     , micrositeExtraMdFilesOutput := docDir / "microsite" / "extra_md"
     , micrositePluginsDirectory := docDir / "microsite" / "plugins"
-
+    , micrositeFavicons := Seq(
+        MicrositeFavicon("logger-f-logo-16x16.png", "16x16")
+      , MicrositeFavicon("logger-f-logo-32x32.png", "32x32")
+      , MicrositeFavicon("logger-f-logo-96x96.png", "96x96")
+      )
+//    , micrositePalette := Map(
+//      "brand-primary"     -> "#E05236",
+//      "brand-secondary"   -> "#3F3242",
+//      "brand-tertiary"    -> "#2D232F",
+//      "gray-dark"         -> "#453E46",
+//      "gray"              -> "#837F84",
+//      "gray-light"        -> "#E3E2E3",
+//      "gray-lighter"      -> "#F4F3F4",
+//      "white-color"       -> "#FFFFFF"
+//    )
     /* } microsites */
 
   )

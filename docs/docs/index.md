@@ -4,7 +4,7 @@ title:  "Logger-F"
 section: "home"
 ---
 
-# logger-f
+# ![LoggerF Logo](img/logger-f-logo-96x96.png) logger-f
 
 [![Build Status](https://github.com/Kevin-Lee/logger-f/workflows/Build%20All/badge.svg)](https://github.com/Kevin-Lee/logger-f/actions?workflow=Build+All)
 [![Release Status](https://github.com/Kevin-Lee/logger-f/workflows/Release/badge.svg)](https://github.com/Kevin-Lee/logger-f/actions?workflow=Release)
