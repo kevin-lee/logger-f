@@ -2,7 +2,6 @@ package loggerf.cats
 
 import cats._
 import cats.data.EitherT
-import cats.implicits._
 
 import effectie.cats.EffectConstructor
 
@@ -22,12 +21,7 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      MF0.flatMap(efab.value) {
-        case Left(a) =>
-          EF0.effectOf(logger0.debug(a2String(a))) *> EF0.effectOf(a.asLeft[B])
-        case Right(b) =>
-          EF0.effectOf(logger0.debug(b2String(b))) *> EF0.effectOf(b.asRight[A])
-      }
+      LoggerEither[F].debugEither(efab.value)(a2String, b2String)
     )
 
   def infoEitherT[A, B](
@@ -37,12 +31,7 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      MF0.flatMap(efab.value) {
-        case Left(a) =>
-          EF0.effectOf(logger0.info(a2String(a))) *> EF0.effectOf(a.asLeft[B])
-        case Right(b) =>
-          EF0.effectOf(logger0.info(b2String(b))) *> EF0.effectOf(b.asRight[A])
-      }
+      LoggerEither[F].infoEither(efab.value)(a2String, b2String)
     )
 
   def warnEitherT[A, B](
@@ -52,12 +41,7 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      MF0.flatMap(efab.value) {
-        case Left(a) =>
-          EF0.effectOf(logger0.warn(a2String(a))) *> EF0.effectOf(a.asLeft[B])
-        case Right(b) =>
-          EF0.effectOf(logger0.warn(b2String(b))) *> EF0.effectOf(b.asRight[A])
-      }
+      LoggerEither[F].warnEither(efab.value)(a2String, b2String)
     )
 
   def errorEitherT[A, B](
@@ -67,12 +51,7 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      MF0.flatMap(efab.value) {
-        case Left(a) =>
-          EF0.effectOf(logger0.error(a2String(a))) *> EF0.effectOf(a.asLeft[B])
-        case Right(b) =>
-          EF0.effectOf(logger0.error(b2String(b))) *> EF0.effectOf(b.asRight[A])
-      }
+      LoggerEither[F].errorEither(efab.value)(a2String, b2String)
     )
 }
 

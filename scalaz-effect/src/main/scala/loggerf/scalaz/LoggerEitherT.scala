@@ -1,7 +1,6 @@
 package loggerf.scalaz
 
 import scalaz._
-import Scalaz._
 
 import effectie.scalaz.EffectConstructor
 
@@ -21,12 +20,7 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      MF0.bind(efab.run) {
-        case -\/(a) =>
-          EF0.effectOf(logger0.debug(a2String(a))) *> EF0.effectOf(a.left[B])
-        case \/-(b) =>
-          EF0.effectOf(logger0.debug(b2String(b))) *> EF0.effectOf(b.right[A])
-      }
+      LoggerEither[F].debugEither(efab.run)(a2String, b2String)
     )
 
   def infoEitherT[A, B](
@@ -36,12 +30,7 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      MF0.bind(efab.run) {
-        case -\/(a) =>
-          EF0.effectOf(logger0.info(a2String(a))) *> EF0.effectOf(a.left[B])
-        case \/-(b) =>
-          EF0.effectOf(logger0.info(b2String(b))) *> EF0.effectOf(b.right[A])
-      }
+      LoggerEither[F].infoEither(efab.run)(a2String, b2String)
     )
 
   def warnEitherT[A, B](
@@ -51,12 +40,7 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      MF0.bind(efab.run) {
-        case -\/(a) =>
-          EF0.effectOf(logger0.warn(a2String(a))) *> EF0.effectOf(a.left[B])
-        case \/-(b) =>
-          EF0.effectOf(logger0.warn(b2String(b))) *> EF0.effectOf(b.right[A])
-      }
+      LoggerEither[F].warnEither(efab.run)(a2String, b2String)
     )
 
   def errorEitherT[A, B](
@@ -66,12 +50,7 @@ trait LoggerEitherT[F[_]] {
   , b2String: B => String
   ): EitherT[F, A, B] =
     EitherT(
-      MF0.bind(efab.run) {
-        case -\/(a) =>
-          EF0.effectOf(logger0.error(a2String(a))) *> EF0.effectOf(a.left[B])
-        case \/-(b) =>
-          EF0.effectOf(logger0.error(b2String(b))) *> EF0.effectOf(b.right[A])
-      }
+      LoggerEither[F].errorEither(efab.run)(a2String, b2String)
     )
 }
 

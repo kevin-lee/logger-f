@@ -2,7 +2,6 @@ package loggerf.cats
 
 import cats._
 import cats.data.OptionT
-import cats.implicits._
 
 import effectie.cats.EffectConstructor
 
@@ -22,12 +21,7 @@ trait LoggerOptionT[F[_]] {
   , a2String: A => String
   ): OptionT[F, A] =
     OptionT(
-      MF0.flatMap(ofa.value) {
-      case Some(a) =>
-        EF0.effectOf(logger0.debug(a2String(a))) *> EF0.effectOf(a.some)
-      case None =>
-        EF0.effectOf(logger0.debug(ifEmpty)) *> EF0.effectOf(none[A])
-      }
+      LoggerOption[F].debugOption(ofa.value)(ifEmpty, a2String)
     )
 
   def infoOptionT[A](
@@ -37,12 +31,7 @@ trait LoggerOptionT[F[_]] {
   , a2String: A => String
   ): OptionT[F, A] =
     OptionT(
-      MF0.flatMap(ofa.value) {
-      case Some(a) =>
-        EF0.effectOf(logger0.info(a2String(a))) *> EF0.effectOf(a.some)
-      case None =>
-        EF0.effectOf(logger0.info(ifEmpty)) *> EF0.effectOf(none[A])
-      }
+      LoggerOption[F].infoOption(ofa.value)(ifEmpty, a2String)
     )
 
   def warnOptionT[A](
@@ -52,12 +41,7 @@ trait LoggerOptionT[F[_]] {
   , a2String: A => String
   ): OptionT[F, A] =
     OptionT(
-      MF0.flatMap(ofa.value) {
-      case Some(a) =>
-        EF0.effectOf(logger0.warn(a2String(a))) *> EF0.effectOf(a.some)
-      case None =>
-        EF0.effectOf(logger0.warn(ifEmpty)) *> EF0.effectOf(none[A])
-      }
+      LoggerOption[F].warnOption(ofa.value)(ifEmpty, a2String)
     )
 
   def errorOptionT[A](
@@ -67,12 +51,7 @@ trait LoggerOptionT[F[_]] {
   , a2String: A => String
   ): OptionT[F, A] =
     OptionT(
-      MF0.flatMap(ofa.value) {
-      case Some(a) =>
-        EF0.effectOf(logger0.error(a2String(a))) *> EF0.effectOf(a.some)
-      case None =>
-        EF0.effectOf(logger0.error(ifEmpty)) *> EF0.effectOf(none[A])
-      }
+      LoggerOption[F].errorOption(ofa.value)(ifEmpty, a2String)
     )
 
 }
