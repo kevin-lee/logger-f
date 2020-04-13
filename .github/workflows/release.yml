@@ -63,22 +63,21 @@ jobs:
           echo 'sbt -J-Xmx2048m "; project scalazEffect; clean; +publish"'
           sbt -J-Xmx2048m "; project scalazEffect; clean; +publish"
 
-          # Uncomment once Bintray is linked to JCenter
-#      - name: Sync LoggerF to Maven Central
-#        env:
-#          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-#          BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
-#        run: |
-#          PROJECT_VERSION="${GITHUB_REF#refs/tags/v}"
-#          BINTRAY_SUBJECT=kevinlee
-#          BINTRAY_REPO=maven
-#          echo "PROJECT_VERSION: $PROJECT_VERSION"
-#          echo "BINTRAY_SUBJECT: $BINTRAY_SUBJECT"
-#          echo "   BINTRAY_REPO: $BINTRAY_REPO"
-#          BINTRAY_PACKAGES="logger-f-core logger-f-slf4j logger-f-log4j logger-f-cats-effect logger-f-scalaz-effect"
-#          for bintray_package in $BINTRAY_PACKAGES
-#          do
-#            echo "bintray_package: $bintray_package"
-#            echo "Sync to Maven Central..."
-#            curl --user $BINTRAY_USER:$BINTRAY_PASS -X POST "https://api.bintray.com/maven_central_sync/$BINTRAY_SUBJECT/$BINTRAY_REPO/$bintray_package/versions/$PROJECT_VERSION"
-#          done
+      - name: Sync LoggerF to Maven Central
+        env:
+          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+          BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
+        run: |
+          PROJECT_VERSION="${GITHUB_REF#refs/tags/v}"
+          BINTRAY_SUBJECT=kevinlee
+          BINTRAY_REPO=maven
+          echo "PROJECT_VERSION: $PROJECT_VERSION"
+          echo "BINTRAY_SUBJECT: $BINTRAY_SUBJECT"
+          echo "   BINTRAY_REPO: $BINTRAY_REPO"
+          BINTRAY_PACKAGES="logger-f-core logger-f-slf4j logger-f-log4j logger-f-cats-effect logger-f-scalaz-effect"
+          for bintray_package in $BINTRAY_PACKAGES
+          do
+            echo "bintray_package: $bintray_package"
+            echo "Sync to Maven Central..."
+            curl --user $BINTRAY_USER:$BINTRAY_PASS -X POST "https://api.bintray.com/maven_central_sync/$BINTRAY_SUBJECT/$BINTRAY_REPO/$bintray_package/versions/$PROJECT_VERSION"
+          done
