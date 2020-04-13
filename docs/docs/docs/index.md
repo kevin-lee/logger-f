@@ -138,6 +138,35 @@ With logs like
 00:17:33.995 [main] ERROR MyLogger - b is empty
 ```
 
+***
+
+Another example with `EitherT`,
+```scala mdoc:reset-object
+import cats._, cats.data._, cats.implicits._
+import effectie.Effectful._
+import effectie.cats._
+
+import loggerf.Slf4JLogger
+import loggerf.cats.Log
+import loggerf.cats.Log.LeveledMessage._
+import loggerf.cats.Logful._
+
+implicit val logger = Slf4JLogger.slf4JLogger("MyLogger") // or Slf4JLogger.slf4JLogger[MyClass]
+
+def foo[F[_] : EffectConstructor : Monad : Log](n: Int): F[Either[String, Int]] = (for {
+  a <- log(EitherT(effectOf(n.asRight[String])))(err => error(s"Error: $err"), a => debug(s"a is $a"))
+  b <- log(EitherT(effectOf("Some Error".asLeft[Int])))(err => error(s"Error: $err"), b => debug(s"b is $b"))
+  c <- log(EitherT(effectOf(123.asRight[String])))(err => warn(s"Error: $err"), c => debug(s"c is $c"))
+} yield c).value
+
+foo(1).unsafeRunSync() // You expect Left("Some Error") here.
+```
+With logs like
+```
+00:40:48.663 [main] DEBUG MyLogger - a is 1
+00:40:48.667 [main] ERROR MyLogger - Error: Some Error
+```
+
 ## Usage
 
 Pleae check out
