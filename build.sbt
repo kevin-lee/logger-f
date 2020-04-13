@@ -120,7 +120,7 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
     , testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
     /* Bintray { */
     , bintrayPackageLabels := Seq("Scala", "Logger", "Tagless Final", "Finally Tagless", "Functional Programming", "FP")
-    , bintrayVcsUrl := Some("""git@github.com:Kevin-Lee/logger-f.git""")
+    , bintrayVcsUrl := Some("""https://github.com/Kevin-Lee/logger-f""")
     , licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
     /* } Bintray */
 
