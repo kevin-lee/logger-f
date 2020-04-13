@@ -44,8 +44,8 @@ ThisBuild / developers   := List(
 ThisBuild / homepage := Some(url("https://github.com/Kevin-Lee/logger-f"))
 ThisBuild / scmInfo :=
   Some(ScmInfo(
-    url("https://github.com/Kevin-Lee/logger-f")
-    , "git@github.com:Kevin-Lee/logger-f.git"
+    browseUrl = url("https://github.com/Kevin-Lee/logger-f")
+  , connection = "scm:git:git@github.com:Kevin-Lee/logger-f.git"
   ))
 
 def prefixedProjectName(name: String) = s"logger-f${if (name.isEmpty) "" else s"-$name"}"
@@ -66,13 +66,6 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
   Project(id, file)
     .settings(
       name := prefixedProjectName(projectName.projectName)
-    , unmanagedSourceDirectories in Compile ++= {
-      val sharedSourceDir = baseDirectory.value / "src/main"
-      if (scalaVersion.value.startsWith("2.13") || scalaVersion.value.startsWith("2.12"))
-        Seq(sharedSourceDir / "scala-2.12_2.13")
-      else
-        Seq(sharedSourceDir / "scala-2.10_2.11")
-    }
     , resolvers ++= Seq(
       Resolver.sonatypeRepo("releases")
       , hedgehogRepo
