@@ -258,8 +258,8 @@ lazy val docs = (project in docDir)
     , micrositeTheme := "pattern"
     , micrositeHighlightTheme := "atom-one-light"
     , micrositeGitterChannel := false
-    , micrositeGithubLinks := false
-    , micrositeShareOnSocial := false
+    , micrositeGithubLinks := true
+    , micrositeShareOnSocial := true
     , micrositeHighlightLanguages ++= Seq("shell")
 
     , micrositeConfigYaml := ConfigYml(
