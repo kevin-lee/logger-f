@@ -8,6 +8,7 @@ import effectie.Effectful._
 import effectie.cats.EffectConstructor
 
 import loggerf.Logger
+import loggerf.cats.Log.{MaybeIgnorable, NotIgnorable}
 
 /**
  * @author Kevin Lee
@@ -22,10 +23,10 @@ trait Log[F[_]] {
 
   val logger0: Logger
 
-  def log[A](fa: F[A])(toLeveledMessage: A => LeveledMessage): F[A] =
+  def log[A](fa: F[A])(toLeveledMessage: A => LeveledMessage with NotIgnorable): F[A] =
     MF0.flatMap(fa) { a =>
       toLeveledMessage(a) match {
-        case LeveledMessage(message, level) =>
+        case LeveledMessage.LogMessage(message, level) =>
           effectOf(getLogger(logger0, level)(message)) *> effectOf(a)
       }
     }
@@ -33,47 +34,58 @@ trait Log[F[_]] {
   def log[A](
       foa: F[Option[A]]
     )(
-      ifEmpty: => LeveledMessage
-    , toLeveledMessage: A => LeveledMessage
+      ifEmpty: => LeveledMessage with MaybeIgnorable
+    , toLeveledMessage: A => LeveledMessage with MaybeIgnorable
     ): F[Option[A]] =
     MF0.flatMap(foa) {
       case None =>
-        (for {
-          message <- effectOf(ifEmpty)
-          _ <- effectOf(getLogger(logger0, message.level)(message.message))
-        } yield ()) *> effectOf(none[A])
+        ifEmpty match {
+          case LeveledMessage.Ignore =>
+            effectOfPure(none[A])
+
+          case LeveledMessage.LogMessage(message, level) =>
+            effectOf(getLogger(logger0, level)(message)) *> effectOfPure(none[A])
+        }
       case Some(a) =>
         toLeveledMessage(a) match {
-          case LeveledMessage(message, level) =>
+          case LeveledMessage.LogMessage(message, level) =>
             effectOf(getLogger(logger0, level)(message)) *> effectOf(a.some)
+
+          case LeveledMessage.Ignore =>
+            effectOf(a.some)
         }
     }
-
 
   def log[A, B](
       feab: F[Either[A, B]]
     )(
-      leftToMessage: A => LeveledMessage
-    , rightToMessage: B => LeveledMessage
+      leftToMessage: A => LeveledMessage with MaybeIgnorable
+    , rightToMessage: B => LeveledMessage with MaybeIgnorable
     ): F[Either[A, B]] =
     MF0.flatMap(feab) {
     case Left(l) =>
       leftToMessage(l) match {
-        case LeveledMessage(message, level) =>
+        case LeveledMessage.LogMessage(message, level) =>
           effectOf(getLogger(logger0, level)(message)) *> effectOf(l.asLeft[B])
+
+        case LeveledMessage.Ignore =>
+          effectOf(l.asLeft[B])
       }
     case Right(r) =>
       rightToMessage(r) match {
-        case LeveledMessage(message, level) =>
+        case LeveledMessage.LogMessage(message, level) =>
           effectOf(getLogger(logger0, level)(message)) *> effectOf(r.asRight[A])
+
+        case LeveledMessage.Ignore =>
+          effectOf(r.asRight[A])
       }
   }
 
   def log[A](
       otfa: OptionT[F, A]
     )(
-      ifEmpty: => LeveledMessage
-    , toLeveledMessage: A => LeveledMessage
+      ifEmpty: => LeveledMessage with MaybeIgnorable
+    , toLeveledMessage: A => LeveledMessage with MaybeIgnorable
     ): OptionT[F, A] =
     OptionT(log(otfa.value)(ifEmpty, toLeveledMessage))
 
@@ -81,8 +93,8 @@ trait Log[F[_]] {
   def log[A, B](
       etfab: EitherT[F, A, B]
     )(
-      leftToMessage: A => LeveledMessage
-    , rightToMessage: B => LeveledMessage
+      leftToMessage: A => LeveledMessage with MaybeIgnorable
+    , rightToMessage: B => LeveledMessage with MaybeIgnorable
     ): EitherT[F, A, B] =
     EitherT(log(etfab.value)(leftToMessage, rightToMessage))
 
@@ -102,19 +114,28 @@ object Log {
     def error: Level = Error
   }
 
-  final case class LeveledMessage(message: String, level: Level)
+  sealed trait LeveledMessage
+  sealed trait MaybeIgnorable
+  sealed trait Ignorable extends MaybeIgnorable
+  sealed trait NotIgnorable extends MaybeIgnorable
+
   object LeveledMessage {
-    def debug(message: String): LeveledMessage =
-      LeveledMessage(message, Level.debug)
+    final case class LogMessage(message: String, level: Level) extends LeveledMessage with NotIgnorable
+    case object Ignore extends LeveledMessage with Ignorable
 
-    def info(message: String): LeveledMessage =
-      LeveledMessage(message, Level.info)
+    def debug(message: String): LeveledMessage with NotIgnorable =
+      LogMessage(message, Level.debug)
 
-    def warn(message: String): LeveledMessage =
-      LeveledMessage(message, Level.warn)
+    def info(message: String): LeveledMessage with NotIgnorable =
+      LogMessage(message, Level.info)
 
-    def error(message: String): LeveledMessage =
-      LeveledMessage(message, Level.error)
+    def warn(message: String): LeveledMessage with NotIgnorable =
+      LogMessage(message, Level.warn)
+
+    def error(message: String): LeveledMessage with NotIgnorable =
+      LogMessage(message, Level.error)
+
+    def ignore: LeveledMessage with MaybeIgnorable = Ignore
   }
 
   def getLogger(logger: Logger, level: Level): String => Unit = level match {
