@@ -1,8 +1,7 @@
 package loggerf.scalaz
 
 import scalaz._
-
-import loggerf.scalaz.Log.LeveledMessage
+import loggerf.scalaz.Log.{LeveledMessage, MaybeIgnorable, NotIgnorable}
 
 /**
  * @author Kevin Lee
@@ -83,30 +82,30 @@ trait Logful {
     LoggerEitherT[F].errorEitherT(efab)(a2String, b2String)
 
 
-  def log[F[_] : Log, A](fa: F[A])(toLeveledMessage: A => LeveledMessage): F[A] =
+  def log[F[_] : Log, A](fa: F[A])(toLeveledMessage: A => LeveledMessage with NotIgnorable): F[A] =
     Log[F].log(fa)(toLeveledMessage)
 
   def log[F[_] : Log, A](
       foa: F[Option[A]]
     )(
-      ifEmpty: => LeveledMessage
-    , toLeveledMessage: A => LeveledMessage
+      ifEmpty: => LeveledMessage with MaybeIgnorable
+    , toLeveledMessage: A => LeveledMessage with MaybeIgnorable
     ): F[Option[A]] =
     Log[F].log(foa)(ifEmpty, toLeveledMessage)
 
   def log[F[_] : Log, A, B](
       feab: F[A \/ B]
     )(
-      leftToMessage: A => LeveledMessage
-    , rightToMessage: B => LeveledMessage
+      leftToMessage: A => LeveledMessage with MaybeIgnorable
+    , rightToMessage: B => LeveledMessage with MaybeIgnorable
     ): F[A \/ B] =
     Log[F].log(feab)(leftToMessage, rightToMessage)
 
   def log[F[_] : Log, A](
       otfa: OptionT[F, A]
     )(
-      ifEmpty: => LeveledMessage
-    , toLeveledMessage: A => LeveledMessage
+      ifEmpty: => LeveledMessage with MaybeIgnorable
+    , toLeveledMessage: A => LeveledMessage with MaybeIgnorable
     ): OptionT[F, A] =
     Log[F].log(otfa)(ifEmpty, toLeveledMessage)
 
@@ -114,8 +113,8 @@ trait Logful {
   def log[F[_] : Log, A, B](
       etfab: EitherT[F, A, B]
     )(
-      leftToMessage: A => LeveledMessage
-    , rightToMessage: B => LeveledMessage
+      leftToMessage: A => LeveledMessage with MaybeIgnorable
+    , rightToMessage: B => LeveledMessage with MaybeIgnorable
     ): EitherT[F, A, B] =
     Log[F].log(etfab)(leftToMessage, rightToMessage)
 
