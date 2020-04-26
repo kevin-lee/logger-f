@@ -54,6 +54,7 @@ lazy val noPublish: SettingsDefinition = Seq(
   publish := {},
   publishLocal := {},
   publishArtifact := false,
+  skip in sbt.Keys.`package` := true,
   skip in packagedArtifacts := true,
   skip in publish := true
 )
@@ -311,4 +312,5 @@ lazy val loggerF = (project in file("."))
     )
   /* } GitHub Release */
   )
-  .dependsOn(core, slf4jLogger, log4jLogger, catsEffect, scalazEffect)
+  .settings(noPublish)
+  .aggregate(core, slf4jLogger, log4jLogger, catsEffect, scalazEffect)
