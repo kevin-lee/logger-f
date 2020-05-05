@@ -4,7 +4,7 @@ import just.semver.SemVer
 import SemVer.{Major, Minor}
 import microsites.{ConfigYml, MicrositeFavicon}
 
-val ProjectScalaVersion: String = "2.13.1"
+val ProjectScalaVersion: String = "2.13.2"
 val CrossScalaVersions: Seq[String] = Seq("2.11.12", "2.12.11", ProjectScalaVersion)
 val IncludeTest: String = "compile->compile;test->test"
 
@@ -80,10 +80,8 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
           Seq.empty[ModuleID]
         case "2.11" =>
           Seq("com.lihaoyi" % "ammonite" % "1.6.7" % Test cross CrossVersion.full)
-        case "2.12" =>
-          Seq.empty[ModuleID] // TODO: add ammonite when it supports Scala 2.12.11
         case _ =>
-          Seq("com.lihaoyi" % "ammonite" % "2.0.4" % Test cross CrossVersion.full)
+          Seq("com.lihaoyi" % "ammonite" % "2.1.1" % Test cross CrossVersion.full)
       })
     , sourceGenerators in Test +=
       (scalaBinaryVersion.value match {
