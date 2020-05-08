@@ -17,8 +17,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++=
   Seq(
-    "io.kevinlee" %% "logger-f-cats-effect" % "0.1.0",
-    "io.kevinlee" %% "logger-f-slf4j" % "0.1.0"
+    "io.kevinlee" %% "logger-f-cats-effect" % "0.2.0",
+    "io.kevinlee" %% "logger-f-slf4j" % "0.2.0"
   )
 ```
 
@@ -27,8 +27,8 @@ libraryDependencies ++=
 ```scala
 libraryDependencies ++=
   Seq(
-    "io.kevinlee" %% "logger-f-cats-effect" % "0.1.0",
-    "io.kevinlee" %% "logger-f-log4j" % "0.1.0"
+    "io.kevinlee" %% "logger-f-cats-effect" % "0.2.0",
+    "io.kevinlee" %% "logger-f-log4j" % "0.2.0"
   )
 ```
 
@@ -41,8 +41,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++= 
   Seq(
-    "io.kevinlee" %% "effectie-scalaz-effect" % "0.3.0",
-    "io.kevinlee" %% "logger-f-slf4j" % "0.1.0"
+    "io.kevinlee" %% "logger-f-scalaz-effect" % "0.2.0",
+    "io.kevinlee" %% "logger-f-slf4j" % "0.2.0"
   )
 ```
 
@@ -53,8 +53,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++= 
   Seq(
-    "io.kevinlee" %% "effectie-scalaz-effect" % "0.3.0",
-    "io.kevinlee" %% "logger-f-log4j" % "0.1.0"
+    "io.kevinlee" %% "logger-f-scalaz-effect" % "0.2.0",
+    "io.kevinlee" %% "logger-f-log4j" % "0.2.0"
   )
 ```
 
@@ -72,7 +72,10 @@ for {
 That's true but what happens if you want to use `Option` or `Either`? If you use them with tagless final, you may get the result you want.
 e.g.)
 ```scala mdoc:reset-object
-import cats._, cats.implicits._
+import cats._
+import cats.implicits._
+import cats.effect._
+
 import effectie.Effectful._
 import effectie.cats._
 
@@ -82,7 +85,7 @@ def foo[F[_] : EffectConstructor : Monad](n: Int): F[Option[Int]] = for {
   c <- effectOf(123.some)
 } yield c
 
-foo(1).unsafeRunSync() // You expect None here!!!
+foo[IO](1).unsafeRunSync() // You expect None here!!!
 
 ```
 
@@ -95,7 +98,11 @@ So you need to use `OptionT` for `F[Option[A]]` and `EitherT` for `F[Either[A, B
 Let's write it again with `OptionT`.
 
 ```scala mdoc:reset-object
-import cats._, cats.data._, cats.implicits._
+import cats._
+import cats.data._
+import cats.implicits._
+import cats.effect._
+
 import effectie.Effectful._
 import effectie.cats._
 
@@ -105,7 +112,7 @@ def foo[F[_] : EffectConstructor : Monad](n: Int): F[Option[Int]] = (for {
   c <- OptionT(effectOf(123.some))
 } yield c).value
 
-foo(1).unsafeRunSync() // You expect None here.
+foo[IO](1).unsafeRunSync() // You expect None here.
 
 ```
 The problem's gone! Now each `flatMap` handles only `Some` case and that's what you want. However, because of that, it's hard to log `None` case.
@@ -113,7 +120,11 @@ The problem's gone! Now each `flatMap` handles only `Some` case and that's what 
 LoggerF can solve this issue for you.
 
 ```scala mdoc:reset-object
-import cats._, cats.data._, cats.implicits._
+import cats._
+import cats.data._
+import cats.implicits._
+import cats.effect._
+
 import effectie.Effectful._
 import effectie.cats._
 
@@ -130,7 +141,7 @@ def foo[F[_] : EffectConstructor : Monad : Log](n: Int): F[Option[Int]] = (for {
   c <- log(OptionT(effectOf(123.some)))(warn("c is empty"), c => debug(s"c is $c"))
 } yield c).value
 
-foo(1).unsafeRunSync() // You expect None here.
+foo[IO](1).unsafeRunSync() // You expect None here.
 ```
 With logs like
 ```
@@ -142,7 +153,11 @@ With logs like
 
 Another example with `EitherT`,
 ```scala mdoc:reset-object
-import cats._, cats.data._, cats.implicits._
+import cats._
+import cats.data._
+import cats.implicits._
+import cats.effect._
+
 import effectie.Effectful._
 import effectie.cats._
 
@@ -159,7 +174,7 @@ def foo[F[_] : EffectConstructor : Monad : Log](n: Int): F[Either[String, Int]] 
   c <- log(EitherT(effectOf(123.asRight[String])))(err => warn(s"Error: $err"), c => debug(s"c is $c"))
 } yield c).value
 
-foo(1).unsafeRunSync() // You expect Left("Some Error") here.
+foo[IO](1).unsafeRunSync() // You expect Left("Some Error") here.
 ```
 With logs like
 ```
