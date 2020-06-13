@@ -176,7 +176,7 @@ object LogSpec extends Properties {
   def testLogFEitherAB: Property = for {
     rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
     leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRIght <- Gen.boolean.log("isRight")
+    isRight <- Gen.boolean.log("isRight")
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
@@ -188,7 +188,7 @@ object LogSpec extends Properties {
       _ <- Log[F].log(effectOf(eab))(error, b => error(b.toString))
     } yield ().right[String]
 
-    val eab = if (isRIght) rightInt.right[String] else leftString.left[Int]
+    val eab = if (isRight) rightInt.right[String] else leftString.left[Int]
 
     runLog[IO](eab).unsafePerformIO()
 
@@ -216,7 +216,7 @@ object LogSpec extends Properties {
   def testLogFEitherABIgnoreLeft: Property = for {
     rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
     leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRIght <- Gen.boolean.log("isRight")
+    isRight <- Gen.boolean.log("isRight")
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
@@ -228,7 +228,7 @@ object LogSpec extends Properties {
       _ <- Log[F].log(effectOf(eab))(_ => ignore, b => error(b.toString))
     } yield ().right[String]
 
-    val eab = if (isRIght) rightInt.right[String] else leftString.left[Int]
+    val eab = if (isRight) rightInt.right[String] else leftString.left[Int]
 
     runLog[IO](eab).unsafePerformIO()
 
@@ -256,7 +256,7 @@ object LogSpec extends Properties {
   def testLogFEitherABIgnoreRight: Property = for {
     rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
     leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRIght <- Gen.boolean.log("isRight")
+    isRight <- Gen.boolean.log("isRight")
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
@@ -268,7 +268,7 @@ object LogSpec extends Properties {
       _ <- Log[F].log(effectOf(eab))(error, _ => ignore)
     } yield ().right[String]
 
-    val eab = if (isRIght) rightInt.right[String] else leftString.left[Int]
+    val eab = if (isRight) rightInt.right[String] else leftString.left[Int]
 
     runLog[IO](eab).unsafePerformIO()
 
@@ -407,7 +407,7 @@ object LogSpec extends Properties {
   def testLogEitherTFAB: Property = for {
     rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
     leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRIght <- Gen.boolean.log("isRight")
+    isRight <- Gen.boolean.log("isRight")
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
@@ -419,7 +419,7 @@ object LogSpec extends Properties {
       _ <- Log[F].log(EitherT(effectOf(eab)))(error, b => error(b.toString))
     } yield ()).run
 
-    val eab = if (isRIght) rightInt.right[String] else leftString.left[Int]
+    val eab = if (isRight) rightInt.right[String] else leftString.left[Int]
 
     runLog[IO](eab).unsafePerformIO()
 
@@ -447,7 +447,7 @@ object LogSpec extends Properties {
   def testLogEitherTFABIgnoreLeft: Property = for {
     rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
     leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRIght <- Gen.boolean.log("isRight")
+    isRight <- Gen.boolean.log("isRight")
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
@@ -459,7 +459,7 @@ object LogSpec extends Properties {
       _ <- Log[F].log(EitherT(effectOf(eab)))(_ => ignore, b => error(b.toString))
     } yield ()).run
 
-    val eab = if (isRIght) rightInt.right[String] else leftString.left[Int]
+    val eab = if (isRight) rightInt.right[String] else leftString.left[Int]
 
     runLog[IO](eab).unsafePerformIO()
 
@@ -487,7 +487,7 @@ object LogSpec extends Properties {
   def testLogEitherTFABIgnoreRight: Property = for {
     rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
     leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRIght <- Gen.boolean.log("isRight")
+    isRight <- Gen.boolean.log("isRight")
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
@@ -499,7 +499,7 @@ object LogSpec extends Properties {
       _ <- Log[F].log(EitherT(effectOf(eab)))(error, _ => ignore)
     } yield ()).run
 
-    val eab = if (isRIght) rightInt.right[String] else leftString.left[Int]
+    val eab = if (isRight) rightInt.right[String] else leftString.left[Int]
 
     runLog[IO](eab).unsafePerformIO()
 

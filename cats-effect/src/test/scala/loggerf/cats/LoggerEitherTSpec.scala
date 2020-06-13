@@ -29,7 +29,7 @@ object LoggerEitherTSpec extends Properties {
   def testLoggerEitherTDebugEitherTFEAB: Property = for {
     rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
     leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRIght <- Gen.boolean.log("isRight")
+    isRight <- Gen.boolean.log("isRight")
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
@@ -37,7 +37,7 @@ object LoggerEitherTSpec extends Properties {
     def runLog[F[_] : EffectConstructor : Monad](eab: Either[String, Int]): F[Either[String, Int]] =
       LoggerEitherT[F].debugEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).value
 
-    val eab = if (isRIght) rightInt.asRight[String] else leftString.asLeft[Int]
+    val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val result = runLog[IO](eab).unsafeRunSync()
 
@@ -70,7 +70,7 @@ object LoggerEitherTSpec extends Properties {
   def testLoggerEitherTInfoEitherTFEAB: Property = for {
     rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
     leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRIght <- Gen.boolean.log("isRight")
+    isRight <- Gen.boolean.log("isRight")
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
@@ -78,7 +78,7 @@ object LoggerEitherTSpec extends Properties {
     def runLog[F[_] : EffectConstructor : Monad](eab: Either[String, Int]): F[Either[String, Int]] =
      LoggerEitherT[F].infoEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).value
 
-    val eab = if (isRIght) rightInt.asRight[String] else leftString.asLeft[Int]
+    val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val result = runLog[IO](eab).unsafeRunSync()
 
@@ -111,7 +111,7 @@ object LoggerEitherTSpec extends Properties {
   def testLoggerEitherTWarnEitherTFEAB: Property = for {
     rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
     leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRIght <- Gen.boolean.log("isRight")
+    isRight <- Gen.boolean.log("isRight")
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
@@ -119,7 +119,7 @@ object LoggerEitherTSpec extends Properties {
     def runLog[F[_] : EffectConstructor : Monad](eab: Either[String, Int]): F[Either[String, Int]] =
      LoggerEitherT[F].warnEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).value
 
-    val eab = if (isRIght) rightInt.asRight[String] else leftString.asLeft[Int]
+    val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val result = runLog[IO](eab).unsafeRunSync()
 
@@ -152,7 +152,7 @@ object LoggerEitherTSpec extends Properties {
   def testLoggerEitherTErrorEitherTFEAB: Property = for {
     rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
     leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRIght <- Gen.boolean.log("isRight")
+    isRight <- Gen.boolean.log("isRight")
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
@@ -160,7 +160,7 @@ object LoggerEitherTSpec extends Properties {
     def runLog[F[_] : EffectConstructor : Monad](eab: Either[String, Int]): F[Either[String, Int]] =
      LoggerEitherT[F].errorEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).value
 
-    val eab = if (isRIght) rightInt.asRight[String] else leftString.asLeft[Int]
+    val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val result = runLog[IO](eab).unsafeRunSync()
 
