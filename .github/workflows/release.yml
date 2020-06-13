@@ -110,8 +110,7 @@ jobs:
 
     strategy:
       matrix:
-        project:
-          name: ["logger-f-core", "logger-f-slf4j", "logger-f-log4j", "logger-f-cats-effect", "logger-f-scalaz-effect"]
+        project_name: [ "logger-f-core", "logger-f-slf4j", "logger-f-log4j", "logger-f-cats-effect", "logger-f-scalaz-effect" ]
 
     steps:
       - uses: actions/checkout@v2
@@ -128,7 +127,7 @@ jobs:
           echo "BINTRAY_SUBJECT: $BINTRAY_SUBJECT"
           echo "   BINTRAY_REPO: $BINTRAY_REPO"
 
-          bintray_package=${{ matrix.project.name }}
+          bintray_package=${{ matrix.project_name }}
           echo "bintray_package: $bintray_package"
           echo "Sync to Maven Central..."
           curl --user $BINTRAY_USER:$BINTRAY_PASS -X POST "https://api.bintray.com/maven_central_sync/$BINTRAY_SUBJECT/$BINTRAY_REPO/$bintray_package/versions/$PROJECT_VERSION"
