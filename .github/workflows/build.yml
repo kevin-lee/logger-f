@@ -12,6 +12,7 @@ jobs:
         scala:
           - { version: "2.11.12", binary-version: "2.11", java-version: "8" }
           - { version: "2.12.11", binary-version: "2.12", java-version: "11" }
+          - { version: "2.13.2",  binary-version: "2.13", java-version: "11" }
 
     steps:
       - uses: actions/checkout@v2
@@ -36,91 +37,26 @@ jobs:
             ${{ runner.os }}-ivy-scala-${{ matrix.scala.binary-version }}-
 
       - name: Build core for Scala ${{ matrix.scala.version }}
-        run: |
-          java -version
-          .github/workflows/sbt-build-simple.sh core ${{ matrix.scala.version }}
-
-      - name: Build slf4jLogger for Scala ${{ matrix.scala.version }}
-        run: |
-          java -version
-          .github/workflows/sbt-build-simple.sh slf4jLogger ${{ matrix.scala.version }}
-
-      - name: Build log4jLogger for Scala ${{ matrix.scala.version }}
-        run: |
-          java -version
-          .github/workflows/sbt-build-simple.sh log4jLogger ${{ matrix.scala.version }}
-
-      - name: Build catsEffect for Scala ${{ matrix.scala.version }}
-        run: |
-          java -version
-          .github/workflows/sbt-build-simple.sh catsEffect ${{ matrix.scala.version }}
-
-      - name: Build scalazEffect for Scala ${{ matrix.scala.version }}
-        run: |
-          java -version
-          .github/workflows/sbt-build-simple.sh scalazEffect ${{ matrix.scala.version }}
-
-  build_scala2_13:
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        scala:
-          - { version: "2.13.2", binary-version: "2.13", java-version: "11" }
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
-        with:
-          java-version: ${{ matrix.scala.java-version }}
-
-      - name: Cache Coursier
-        uses: actions/cache@v1
-        with:
-          path: ~/.cache/coursier
-          key: ${{ runner.os }}-coursier-scala-${{ matrix.scala.binary-version }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-coursier-scala-${{ matrix.scala.binary-version }}-
-
-      - name: Cache Ivy
-        uses: actions/cache@v1
-        with:
-          path: ~/.ivy2/cache
-          key: ${{ runner.os }}-ivy-scala-${{ matrix.scala.binary-version }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-ivy-scala-${{ matrix.scala.binary-version }}-
-
-      - name: Build core for Scala ${{ matrix.scala.version }}
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: |
           java -version
           .github/workflows/sbt-build.sh core ${{ matrix.scala.version }}
 
       - name: Build slf4jLogger for Scala ${{ matrix.scala.version }}
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: |
           java -version
           .github/workflows/sbt-build.sh slf4jLogger ${{ matrix.scala.version }}
 
       - name: Build log4jLogger for Scala ${{ matrix.scala.version }}
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: |
           java -version
           .github/workflows/sbt-build.sh log4jLogger ${{ matrix.scala.version }}
 
-      - name: Build catsEffect for ${{ matrix.scala.version }}
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      - name: Build catsEffect for Scala ${{ matrix.scala.version }}
         run: |
           java -version
           .github/workflows/sbt-build.sh catsEffect ${{ matrix.scala.version }}
 
       - name: Build scalazEffect for Scala ${{ matrix.scala.version }}
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: |
           java -version
           .github/workflows/sbt-build.sh scalazEffect ${{ matrix.scala.version }}
