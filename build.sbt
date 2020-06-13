@@ -81,14 +81,12 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
         case "2.11" =>
           Seq("com.lihaoyi" % "ammonite" % "1.6.7" % Test cross CrossVersion.full)
         case _ =>
-          Seq("com.lihaoyi" % "ammonite" % "2.1.1" % Test cross CrossVersion.full)
+          Seq("com.lihaoyi" % "ammonite" % "2.1.4" % Test cross CrossVersion.full)
       })
     , sourceGenerators in Test +=
       (scalaBinaryVersion.value match {
         case "2.10" =>
           task(Seq.empty[File])
-        case "2.12" =>
-          task(Seq.empty[File]) // TODO: add ammonite when it supports Scala 2.12.11
         case _ =>
           task {
             val file = (sourceManaged in Test).value / "amm.scala"
