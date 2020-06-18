@@ -299,6 +299,7 @@ lazy val loggerF = (project in file("."))
     name := prefixedProjectName("")
   , description := "Logger for F[_]"
   /* GitHub Release { */
+  , gitTagFrom := "main"
   , devOopsPackagedArtifacts := List(
       s"core/target/scala-*/${name.value}*.jar"
     , s"cats-effect/target/scala-*/${name.value}*.jar"

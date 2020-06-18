@@ -1,4 +1,4 @@
-# ![LoggerF Logo](https://raw.githubusercontent.com/Kevin-Lee/logger-f/master/docs/microsite/img/logger-f-logo-96x96.png) logger-f
+# ![LoggerF Logo](https://raw.githubusercontent.com/Kevin-Lee/logger-f/main/docs/microsite/img/logger-f-logo-96x96.png) logger-f
 
 Please visit [https://kevin-lee.github.io/logger-f](https://kevin-lee.github.io/logger-f).
 

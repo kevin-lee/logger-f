@@ -14,6 +14,6 @@ Close #0 - Summary
 
 ***
 
-# Release v0.0.0 => master
+# Release v0.0.0 => main
 
 Details: [v0.0.0](https://github.com/Kevin-Lee/logger-f/releases/tag/v0.0.0)
