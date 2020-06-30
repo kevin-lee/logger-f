@@ -31,6 +31,10 @@ jobs:
           echo 'sbt -J-Xmx2048m "; project log4jLogger; clean; +test; +packagedArtifacts"'
           sbt -J-Xmx2048m "; project log4jLogger; clean; +test; +packagedArtifacts"
           echo "====================="
+          echo "Run] sbt GitHub release - sbtLogging"
+          echo 'sbt -J-Xmx2048m "; project sbtLogging; clean; +test; +packagedArtifacts"'
+          sbt -J-Xmx2048m "; project sbtLogging; clean; +test; +packagedArtifacts"
+          echo "====================="
           echo "Run] sbt GitHub release - cats-effect"
           echo 'sbt -J-Xmx2048m "; project catsEffect; clean; +test; +packagedArtifacts"'
           sbt -J-Xmx2048m "; project catsEffect; clean; +test; +packagedArtifacts"
@@ -94,6 +98,10 @@ jobs:
           echo 'sbt -J-Xmx2048m "; project log4jLogger; ++ ${{ matrix.scala.version }}! -v; clean; publish"'
           sbt -J-Xmx2048m "; project log4jLogger; ++ ${{ matrix.scala.version }}! -v; clean; publish"
           echo "====================="
+          echo "Run] sbt publish - sbtLogging for Scala ${{ matrix.scala.version }}"
+          echo 'sbt -J-Xmx2048m "; project sbtLogging; ++ ${{ matrix.scala.version }}! -v; clean; publish"'
+          sbt -J-Xmx2048m "; project sbtLogging; ++ ${{ matrix.scala.version }}! -v; clean; publish"
+          echo "====================="
           echo "Run] sbt publish - cats-effect for Scala ${{ matrix.scala.version }}"
           echo 'sbt -J-Xmx2048m "; project catsEffect; ++ ${{ matrix.scala.version }}! -v; clean; publish"'
           sbt -J-Xmx2048m "; project catsEffect; ++ ${{ matrix.scala.version }}! -v; clean; publish"
@@ -122,7 +130,7 @@ jobs:
           echo "PROJECT_VERSION: $PROJECT_VERSION"
           echo "BINTRAY_SUBJECT: $BINTRAY_SUBJECT"
           echo "   BINTRAY_REPO: $BINTRAY_REPO"
-          BINTRAY_PACKAGES="logger-f-core logger-f-slf4j logger-f-log4j logger-f-cats-effect logger-f-scalaz-effect"
+          BINTRAY_PACKAGES="logger-f-core logger-f-slf4j logger-f-log4j logger-f-sbt-logging logger-f-cats-effect logger-f-scalaz-effect"
           for bintray_package in $BINTRAY_PACKAGES
           do
             echo "bintray_package: $bintray_package"

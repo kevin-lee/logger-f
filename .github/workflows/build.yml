@@ -51,6 +51,11 @@ jobs:
           java -version
           .github/workflows/sbt-build.sh log4jLogger ${{ matrix.scala.version }}
 
+      - name: Build sbtLogging for Scala ${{ matrix.scala.version }}
+        run: |
+          java -version
+          .github/workflows/sbt-build.sh sbtLogging ${{ matrix.scala.version }}
+
       - name: Build catsEffect for Scala ${{ matrix.scala.version }}
         run: |
           java -version

@@ -33,6 +33,8 @@ lazy val logbackClassic: ModuleID =  "ch.qos.logback" % "logback-classic" % "1.2
 lazy val log4jApi = "org.apache.logging.log4j" % "log4j-api" % "2.13.1"
 lazy val log4jCore = "org.apache.logging.log4j" % "log4j-core" % "2.13.1"
 
+lazy val sbtLoggingLib = "org.scala-sbt" %% "util-logging"
+
 ThisBuild / scalaVersion     := ProjectScalaVersion
 ThisBuild / version          := ProjectVersion
 ThisBuild / organization     := "io.kevinlee"
@@ -157,6 +159,30 @@ lazy val log4jLogger =
   , libraryDependencies ++= Seq(
         log4jApi, log4jCore
       ).map(_ % Provided)
+  )
+  .dependsOn(core)
+
+lazy val sbtLogging =
+  projectCommonSettings("sbtLogging", ProjectName("sbt-logging"), file("sbt-logging"))
+  .settings(
+    description  := "Logger for F[_] - Logger with sbt logging"
+  , libraryDependencies ++= crossVersionProps(
+        List.empty
+      , SemVer.parseUnsafe(scalaVersion.value)
+    ) {
+      case (Major(2), Minor(11)) =>
+        Seq(
+          sbtLoggingLib % "1.2.4"
+        ).map(_ % Provided)
+      case (Major(2), Minor(12)) =>
+        Seq(
+          sbtLoggingLib % "1.3.3"
+        ).map(_ % Provided)
+      case (Major(2), Minor(13)) =>
+        Seq(
+          sbtLoggingLib % "1.3.2"
+        ).map(_ % Provided)
+    }
   )
   .dependsOn(core)
 
@@ -306,6 +332,7 @@ lazy val loggerF = (project in file("."))
     , s"scalaz-effect/target/scala-*/${name.value}*.jar"
     , s"slf4j/target/scala-*/${name.value}*.jar"
     , s"log4j/target/scala-*/${name.value}*.jar"
+    , s"sbt-logging/target/scala-*/${name.value}*.jar"
     )
   /* } GitHub Release */
   )
