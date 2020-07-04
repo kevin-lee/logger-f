@@ -51,8 +51,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++= 
   Seq(
-    "io.kevinlee" %% "logger-f-scalaz-effect" % "0.2.0",
-    "io.kevinlee" %% "logger-f-slf4j" % "0.2.0"
+    "io.kevinlee" %% "logger-f-scalaz-effect" % "0.4.0",
+    "io.kevinlee" %% "logger-f-slf4j" % "0.4.0"
   )
 ```
 
@@ -63,8 +63,20 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++= 
   Seq(
-    "io.kevinlee" %% "logger-f-scalaz-effect" % "0.2.0",
-    "io.kevinlee" %% "logger-f-log4j" % "0.2.0"
+    "io.kevinlee" %% "logger-f-scalaz-effect" % "0.4.0",
+    "io.kevinlee" %% "logger-f-log4j" % "0.4.0"
+  )
+```
+
+### With sbt Logging Util
+
+In `build.sbt`,
+
+```scala
+libraryDependencies ++= 
+  Seq(
+    "io.kevinlee" %% "logger-f-scalaz-effect" % "0.4.0",
+    "io.kevinlee" %% "logger-f-sbt-logging" % "0.4.0"
   )
 ```
 
