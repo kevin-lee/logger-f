@@ -17,8 +17,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++=
   Seq(
-    "io.kevinlee" %% "logger-f-cats-effect" % "0.2.0",
-    "io.kevinlee" %% "logger-f-slf4j" % "0.2.0"
+    "io.kevinlee" %% "logger-f-cats-effect" % "0.4.0",
+    "io.kevinlee" %% "logger-f-slf4j" % "0.4.0"
   )
 ```
 
@@ -27,8 +27,18 @@ libraryDependencies ++=
 ```scala
 libraryDependencies ++=
   Seq(
-    "io.kevinlee" %% "logger-f-cats-effect" % "0.2.0",
-    "io.kevinlee" %% "logger-f-log4j" % "0.2.0"
+    "io.kevinlee" %% "logger-f-cats-effect" % "0.4.0",
+    "io.kevinlee" %% "logger-f-log4j" % "0.4.0"
+  )
+```
+
+### With sbt Logging Util
+
+```scala
+libraryDependencies ++=
+  Seq(
+    "io.kevinlee" %% "logger-f-cats-effect" % "0.4.0",
+    "io.kevinlee" %% "logger-f-sbt-logging" % "0.4.0"
   )
 ```
 
