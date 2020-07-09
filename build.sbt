@@ -40,17 +40,21 @@ ThisBuild / version          := ProjectVersion
 ThisBuild / organization     := "io.kevinlee"
 ThisBuild / organizationName := "Kevin's Code"
 ThisBuild / crossScalaVersions := CrossScalaVersions
+
+val GitHubUsername = "Kevin-Lee"
+val RepoName = "logger-f"
+
 ThisBuild / developers   := List(
-  Developer("Kevin-Lee", "Kevin Lee", "kevin.code@kevinlee.io", url("https://github.com/Kevin-Lee"))
+  Developer(GitHubUsername, "Kevin Lee", "kevin.code@kevinlee.io", url(s"https://github.com/$GitHubUsername"))
 )
-ThisBuild / homepage := Some(url("https://github.com/Kevin-Lee/logger-f"))
+ThisBuild / homepage := Some(url(s"https://github.com/$GitHubUsername/$RepoName"))
 ThisBuild / scmInfo :=
   Some(ScmInfo(
-    browseUrl = url("https://github.com/Kevin-Lee/logger-f")
-  , connection = "scm:git:git@github.com:Kevin-Lee/logger-f.git"
+    browseUrl = url(s"https://github.com/$GitHubUsername/$RepoName")
+  , connection = s"scm:git:git@github.com:$GitHubUsername/$RepoName.git"
   ))
 
-def prefixedProjectName(name: String) = s"logger-f${if (name.isEmpty) "" else s"-$name"}"
+def prefixedProjectName(name: String) = s"$RepoName${if (name.isEmpty) "" else s"-$name"}"
 
 lazy val noPublish: SettingsDefinition = Seq(
   publish := {},
@@ -119,7 +123,7 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
     , testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
     /* Bintray { */
     , bintrayPackageLabels := Seq("Scala", "Logger", "Tagless Final", "Finally Tagless", "Functional Programming", "FP")
-    , bintrayVcsUrl := Some("""https://github.com/Kevin-Lee/logger-f""")
+    , bintrayVcsUrl := Some(s"""https://github.com/$GitHubUsername/$RepoName""")
     , licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
     /* } Bintray */
 
@@ -262,62 +266,79 @@ lazy val testScalazEffectWithLog4jLogger =
 
 
 
-lazy val docDir = file("docs")
-lazy val docs = (project in docDir)
-  .enablePlugins(MicrositesPlugin)
+//lazy val docDir = file("docs")
+//lazy val docs = (project in docDir)
+//  .enablePlugins(MicrositesPlugin)
+//  .settings(
+//      name := prefixedProjectName("docs")
+//    /* microsites { */
+//    , micrositeName := prefixedProjectName("")
+//    , micrositeAuthor := "Kevin Lee"
+//    , micrositeHomepage := "https://blog.kevinlee.io"
+//    , micrositeDescription := "Logger for F[_]"
+//    , micrositeGithubOwner := "Kevin-Lee"
+//    , micrositeGithubRepo := "logger-f"
+//    , micrositeBaseUrl := "/logger-f"
+//    , micrositeDocumentationUrl := s"${micrositeBaseUrl.value}/docs"
+//    , micrositePushSiteWith := GitHub4s
+//    , micrositeGithubToken := sys.env.get("GITHUB_TOKEN")
+//    , micrositeTheme := "pattern"
+//    , micrositeHighlightTheme := "atom-one-light"
+//    , micrositeGitterChannel := false
+//    , micrositeGithubLinks := true
+//    , micrositeShareOnSocial := true
+//    , micrositeHighlightLanguages ++= Seq("shell")
+//
+//    , micrositeConfigYaml := ConfigYml(
+//      yamlPath = Some(docDir / "microsite" / "_config.yml")
+//    )
+//    , micrositeImgDirectory := docDir / "microsite" / "img"
+//    , micrositeCssDirectory := docDir / "microsite" / "css"
+//    , micrositeSassDirectory := docDir / "microsite" / "sass"
+//    , micrositeJsDirectory := docDir / "microsite" / "js"
+//    , micrositeExternalLayoutsDirectory := docDir / "microsite" / "layouts"
+//    , micrositeExternalIncludesDirectory := docDir / "microsite" / "includes"
+//    , micrositeDataDirectory := docDir / "microsite" / "data"
+//    , micrositeStaticDirectory := docDir / "microsite" / "static"
+//    , micrositeExtraMdFilesOutput := docDir / "microsite" / "extra_md"
+//    , micrositePluginsDirectory := docDir / "microsite" / "plugins"
+//    , micrositeFavicons := Seq(
+//        MicrositeFavicon("logger-f-logo-16x16.png", "16x16")
+//      , MicrositeFavicon("logger-f-logo-32x32.png", "32x32")
+//      , MicrositeFavicon("logger-f-logo-96x96.png", "96x96")
+//      )
+////    , micrositePalette := Map(
+////      "brand-primary"     -> "#E05236",
+////      "brand-secondary"   -> "#3F3242",
+////      "brand-tertiary"    -> "#2D232F",
+////      "gray-dark"         -> "#453E46",
+////      "gray"              -> "#837F84",
+////      "gray-light"        -> "#E3E2E3",
+////      "gray-lighter"      -> "#F4F3F4",
+////      "white-color"       -> "#FFFFFF"
+////    )
+//    /* } microsites */
+//
+//  )
+//  .settings(noPublish)
+//  .dependsOn(core, slf4jLogger, log4jLogger, catsEffect, scalazEffect)
+
+
+lazy val docs = (project in file("generated-docs"))
+  .enablePlugins(MdocPlugin, DocusaurPlugin)
   .settings(
       name := prefixedProjectName("docs")
-    /* microsites { */
-    , micrositeName := prefixedProjectName("")
-    , micrositeAuthor := "Kevin Lee"
-    , micrositeHomepage := "https://blog.kevinlee.io"
-    , micrositeDescription := "Logger for F[_]"
-    , micrositeGithubOwner := "Kevin-Lee"
-    , micrositeGithubRepo := "logger-f"
-    , micrositeBaseUrl := "/logger-f"
-    , micrositeDocumentationUrl := s"${micrositeBaseUrl.value}/docs"
-    , micrositePushSiteWith := GitHub4s
-    , micrositeGithubToken := sys.env.get("GITHUB_TOKEN")
-    , micrositeTheme := "pattern"
-    , micrositeHighlightTheme := "atom-one-light"
-    , micrositeGitterChannel := false
-    , micrositeGithubLinks := true
-    , micrositeShareOnSocial := true
-    , micrositeHighlightLanguages ++= Seq("shell")
+    , skip in publish := true
 
-    , micrositeConfigYaml := ConfigYml(
-      yamlPath = Some(docDir / "microsite" / "_config.yml")
-    )
-    , micrositeImgDirectory := docDir / "microsite" / "img"
-    , micrositeCssDirectory := docDir / "microsite" / "css"
-    , micrositeSassDirectory := docDir / "microsite" / "sass"
-    , micrositeJsDirectory := docDir / "microsite" / "js"
-    , micrositeExternalLayoutsDirectory := docDir / "microsite" / "layouts"
-    , micrositeExternalIncludesDirectory := docDir / "microsite" / "includes"
-    , micrositeDataDirectory := docDir / "microsite" / "data"
-    , micrositeStaticDirectory := docDir / "microsite" / "static"
-    , micrositeExtraMdFilesOutput := docDir / "microsite" / "extra_md"
-    , micrositePluginsDirectory := docDir / "microsite" / "plugins"
-    , micrositeFavicons := Seq(
-        MicrositeFavicon("logger-f-logo-16x16.png", "16x16")
-      , MicrositeFavicon("logger-f-logo-32x32.png", "32x32")
-      , MicrositeFavicon("logger-f-logo-96x96.png", "96x96")
-      )
-//    , micrositePalette := Map(
-//      "brand-primary"     -> "#E05236",
-//      "brand-secondary"   -> "#3F3242",
-//      "brand-tertiary"    -> "#2D232F",
-//      "gray-dark"         -> "#453E46",
-//      "gray"              -> "#837F84",
-//      "gray-light"        -> "#E3E2E3",
-//      "gray-lighter"      -> "#F4F3F4",
-//      "white-color"       -> "#FFFFFF"
-//    )
-    /* } microsites */
+    , docusaurDir := (ThisBuild / baseDirectory).value / "website"
+    , docusaurBuildDir := docusaurDir.value / "build"
 
+    , gitHubPagesOrgName := GitHubUsername
+    , gitHubPagesRepoName := RepoName
   )
   .settings(noPublish)
   .dependsOn(core, slf4jLogger, log4jLogger, catsEffect, scalazEffect)
+
 
 lazy val loggerF = (project in file("."))
   .enablePlugins(DevOopsGitReleasePlugin)

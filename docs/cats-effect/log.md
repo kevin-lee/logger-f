@@ -1,20 +1,20 @@
 ---
-layout: docs
+id: log
 title: "Log - Cats"
 ---
 
-# Log - Cats (WIP)
+## Log - Cats (WIP)
 
 `Log` is a typeclass to log `F[A]`, `F[Option[A]]`, `F[Either[A, B]]`, `OptionT[F, A]` and `EitherT[F, A, B]`.
 
 It requires `EffectConstructor` from [Effectie](https://kevin-lee.github.io/effectie) and `Monad` from [Cats](https://typelevel.org/cats).
 
-# Log `F[A]`
+## Log `F[A]`
 ```
 Log[F].log(F[A])(A => String)
 ```
 
-## Example
+### Example
 ```scala mdoc:reset-object
 trait Named[A] {
   def name(a: A): String
@@ -50,12 +50,13 @@ trait Greeting[F[_]] {
 object Greeting {
   def apply[F[_] : Greeting]: Greeting[F] = implicitly[Greeting[F]]
 
-  implicit def hello[F[_]: EffectConstructor: Monad: Log]: Greeting[F] = new Greeting[F] {
-    def greet[A: Named](a: A): F[String] = for {
-      name <- log(effectOf(Named[A].name(a)))(x => info(s"The name is $x"))
-      greeting <- effectOfPure(s"Hello $name")
-    } yield greeting
-  } 
+  implicit def hello[F[_]: EffectConstructor: Monad: Log]: Greeting[F] =
+    new Greeting[F] {
+      def greet[A: Named](a: A): F[String] = for {
+        name <- log(effectOf(Named[A].name(a)))(x => info(s"The name is $x"))
+        greeting <- effectOfPure(s"Hello $name")
+      } yield greeting
+    }
 
 }
 
@@ -80,10 +81,10 @@ object MyApp extends IOApp {
 Hello Kevin Lee
 ```
 
-# Log `F[Option[A]]`
+## Log `F[Option[A]]`
 
-# Log `OptionT[F, A]`
+## Log `OptionT[F, A]`
 
-# Log `F[Either[A, B]]`
+## Log `F[Either[A, B]]`
 
-# Log `EitherT[F, A, B]`
+## Log `EitherT[F, A, B]`
