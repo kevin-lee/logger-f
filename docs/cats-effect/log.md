@@ -10,7 +10,7 @@ title: "Log - Cats"
 It requires `EffectConstructor` from [Effectie](https://kevin-lee.github.io/effectie) and `Monad` from [Cats](https://typelevel.org/cats).
 
 ## Log `F[A]`
-```
+```scala
 Log[F].log(F[A])(A => String)
 ```
 
