@@ -1,6 +1,6 @@
 # ![LoggerF Logo](https://raw.githubusercontent.com/Kevin-Lee/logger-f/main/website/static/img/logger-f-logo-64x64.png) logger-f
 
-Please visit [https://kevin-lee.github.io/logger-f](https://kevin-lee.github.io/logger-f).
+# Please visit [https://kevin-lee.github.io/logger-f](https://kevin-lee.github.io/logger-f)
 
 [![Build Status](https://github.com/Kevin-Lee/logger-f/workflows/Build%20All/badge.svg)](https://github.com/Kevin-Lee/logger-f/actions?workflow=Build+All)
 [![Release Status](https://github.com/Kevin-Lee/logger-f/workflows/Release/badge.svg)](https://github.com/Kevin-Lee/logger-f/actions?workflow=Release)
@@ -13,4 +13,3 @@ Please visit [https://kevin-lee.github.io/logger-f](https://kevin-lee.github.io/
 | logger-f-slf4j | [![Download](https://api.bintray.com/packages/kevinlee/maven/logger-f-slf4j/images/download.svg)](https://bintray.com/kevinlee/maven/logger-f-slf4j/_latestVersion) | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-slf4j_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-slf4j_2.13) |
 | logger-f-log4j | [![Download](https://api.bintray.com/packages/kevinlee/maven/logger-f-log4j/images/download.svg)](https://bintray.com/kevinlee/maven/logger-f-log4j/_latestVersion) | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-log4j_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-log4j_2.13) |
 
-Please visit [https://kevin-lee.github.io/logger-f](https://kevin-lee.github.io/logger-f).
