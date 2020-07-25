@@ -46,6 +46,7 @@ libraryDependencies ++=
 ```
 
 #### With sbt Logging Util
+You probably need `logger-f` for sbt plugin development.
 
 ```scala
 libraryDependencies ++=
@@ -242,5 +243,5 @@ With logs like
 ### Usage
 
 Pleae check out
-* [LoggerF for Cats Effect](cats-effect)
-* [LoggerF for Scalaz Effect](scalaz-effect)
+* [LoggerF for Cats Effect](cats-effect/cats-effect)
+* [LoggerF for Scalaz Effect](scalaz-effect/scalaz-effect)
