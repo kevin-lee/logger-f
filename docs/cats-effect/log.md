@@ -39,9 +39,8 @@ import cats.implicits._
 import effectie.cats.EffectConstructor
 import effectie.Effectful._
 
-import loggerf.cats.Log
-import loggerf.cats.Logful._
-import loggerf.cats.Log.LeveledMessage._
+import loggerf.cats._
+import loggerf.syntax._
 
 trait Greeting[F[_]] {
   def greet[A: Named](a: A): F[String]
@@ -62,8 +61,7 @@ object Greeting {
 
 import cats.effect._
 import effectie.cats.ConsoleEffect
-import loggerf.Logger
-import loggerf.Slf4JLogger
+import loggerf.logger._
 
 object MyApp extends IOApp {
 

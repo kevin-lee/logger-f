@@ -38,9 +38,9 @@ import Scalaz._
 import effectie.scalaz.EffectConstructor
 import effectie.Effectful._
 
-import loggerf.scalaz.Log
-import loggerf.scalaz.Logful._
-import loggerf.scalaz.Log.LeveledMessage._
+import loggerf.logger._
+import loggerf.scalaz._
+import loggerf.syntax._
 
 trait Greeting[F[_]] {
   def greet[A: Named](a: A): F[String]
@@ -61,8 +61,6 @@ object Greeting {
 
 import scalaz.effect._
 import effectie.scalaz.ConsoleEffect
-import loggerf.Logger
-import loggerf.Slf4JLogger
 
 object MyApp {
 
