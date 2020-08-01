@@ -1,7 +1,8 @@
 package loggerf.scalaz
 
+import loggerf.LeveledMessage
+import loggerf.LeveledMessage.{MaybeIgnorable, NotIgnorable}
 import scalaz._
-import loggerf.scalaz.Log.{LeveledMessage, MaybeIgnorable, NotIgnorable}
 
 /**
  * @author Kevin Lee

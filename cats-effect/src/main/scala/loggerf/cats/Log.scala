@@ -7,16 +7,16 @@ import cats.implicits._
 import effectie.Effectful._
 import effectie.cats.EffectConstructor
 
-import loggerf.Logger
-import loggerf.cats.Log.{MaybeIgnorable, NotIgnorable}
+import loggerf.LeveledMessage
+import loggerf.LeveledMessage.{MaybeIgnorable, NotIgnorable}
+import loggerf.logger.Logger
+import loggerf.syntax._
 
 /**
  * @author Kevin Lee
  * @since 2020-04-10
  */
 trait Log[F[_]] {
-
-  import Log.{LeveledMessage, getLogger}
 
   implicit val EF0: EffectConstructor[F]
   implicit val MF0: Monad[F]
@@ -101,49 +101,6 @@ trait Log[F[_]] {
 }
 
 object Log {
-  sealed trait Level
-  object Level {
-    case object Debug extends Level
-    case object Info extends Level
-    case object Warn extends Level
-    case object Error extends Level
-
-    def debug: Level = Debug
-    def info: Level = Info
-    def warn: Level = Warn
-    def error: Level = Error
-  }
-
-  sealed trait LeveledMessage
-  sealed trait MaybeIgnorable
-  sealed trait Ignorable extends MaybeIgnorable
-  sealed trait NotIgnorable extends MaybeIgnorable
-
-  object LeveledMessage {
-    final case class LogMessage(message: String, level: Level) extends LeveledMessage with NotIgnorable
-    case object Ignore extends LeveledMessage with Ignorable
-
-    def debug(message: String): LeveledMessage with NotIgnorable =
-      LogMessage(message, Level.debug)
-
-    def info(message: String): LeveledMessage with NotIgnorable =
-      LogMessage(message, Level.info)
-
-    def warn(message: String): LeveledMessage with NotIgnorable =
-      LogMessage(message, Level.warn)
-
-    def error(message: String): LeveledMessage with NotIgnorable =
-      LogMessage(message, Level.error)
-
-    def ignore: LeveledMessage with MaybeIgnorable = Ignore
-  }
-
-  def getLogger(logger: Logger, level: Level): String => Unit = level match {
-    case Level.Debug => logger.debug
-    case Level.Info => logger.info
-    case Level.Warn => logger.warn
-    case Level.Error => logger.error
-  }
 
   def apply[F[_] : Log]: Log[F] = implicitly[Log[F]]
 

@@ -1,10 +1,8 @@
 package loggerf.scalaz
 
 import scalaz._
-
 import effectie.scalaz.EffectConstructor
-
-import loggerf.Logger
+import loggerf.logger.Logger
 
 trait LoggerEitherT[F[_]] {
 

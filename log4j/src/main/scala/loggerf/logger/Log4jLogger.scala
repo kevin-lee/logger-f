@@ -1,4 +1,4 @@
-package loggerf
+package loggerf.logger
 
 import scala.reflect.ClassTag
 

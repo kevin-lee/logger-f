@@ -2,10 +2,8 @@ package loggerf.cats
 
 import cats._
 import cats.data.EitherT
-
 import effectie.cats.EffectConstructor
-
-import loggerf.Logger
+import loggerf.logger.Logger
 
 trait LoggerEitherT[F[_]] {
 

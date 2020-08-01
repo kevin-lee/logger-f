@@ -2,10 +2,8 @@ package loggerf.scalaz
 
 import scalaz._
 import Scalaz._
-
 import effectie.scalaz.EffectConstructor
-
-import loggerf.Logger
+import loggerf.logger.Logger
 
 trait LoggerA[F[_]] {
 

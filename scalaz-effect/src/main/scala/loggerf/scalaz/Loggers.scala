@@ -1,9 +1,7 @@
 package loggerf.scalaz
 
 import effectie.scalaz.EffectConstructor
-
-import loggerf.Logger
-
+import loggerf.logger.Logger
 import scalaz.Monad
 
 /**

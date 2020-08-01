@@ -1,8 +1,6 @@
-package loggerf.sbt
+package loggerf.logger
 
-import sbt.util.Logger
-
-final class SbtLogger(val log: Logger) extends loggerf.Logger {
+final class SbtLogger(val log: sbt.util.Logger) extends Logger {
 
   override def debug(message: String): Unit = log.debug(message)
 
@@ -15,5 +13,5 @@ final class SbtLogger(val log: Logger) extends loggerf.Logger {
 
 object SbtLogger {
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-  def sbtLogger(implicit log: Logger): loggerf.Logger = new SbtLogger(log)
+  def sbtLogger(implicit log: sbt.util.Logger): Logger = new SbtLogger(log)
 }
