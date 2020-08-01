@@ -1,7 +1,8 @@
 package loggerf.cats
 
 import cats.data.{EitherT, OptionT}
-import loggerf.cats.Log.{LeveledMessage, MaybeIgnorable, NotIgnorable}
+import loggerf.LeveledMessage
+import loggerf.LeveledMessage.{MaybeIgnorable, NotIgnorable}
 
 /**
  * @author Kevin Lee

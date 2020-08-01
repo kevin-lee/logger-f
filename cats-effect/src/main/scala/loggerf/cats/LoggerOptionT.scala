@@ -2,10 +2,8 @@ package loggerf.cats
 
 import cats._
 import cats.data.OptionT
-
 import effectie.cats.EffectConstructor
-
-import loggerf.Logger
+import loggerf.logger.Logger
 
 trait LoggerOptionT[F[_]] {
 

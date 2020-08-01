@@ -4,14 +4,11 @@ import cats._
 import cats.data.EitherT
 import cats.implicits._
 import cats.effect._
-
 import effectie.Effectful._
 import effectie.cats.EffectConstructor
-
 import hedgehog._
 import hedgehog.runner._
-
-import loggerf.LoggerForTesting
+import loggerf.logger.LoggerForTesting
 
 /**
  * @author Kevin Lee
