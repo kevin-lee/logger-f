@@ -3,8 +3,8 @@ import kevinlee.sbt.SbtCommon.crossVersionProps
 import just.semver.SemVer
 import SemVer.{Major, Minor}
 
-val ProjectScalaVersion: String = "2.13.2"
-val CrossScalaVersions: Seq[String] = Seq("2.11.12", "2.12.11", ProjectScalaVersion)
+val ProjectScalaVersion: String = "2.13.3"
+val CrossScalaVersions: Seq[String] = Seq("2.11.12", "2.12.12", ProjectScalaVersion)
 val IncludeTest: String = "compile->compile;test->test"
 
 lazy val hedgehogVersion = "97854199ef795a5dfba15478fd9abe66035ddea2"
@@ -73,9 +73,19 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
     .settings(
       name := prefixedProjectName(projectName.projectName)
     , resolvers ++= Seq(
-      Resolver.sonatypeRepo("releases")
-      , hedgehogRepo
-    )
+        Resolver.sonatypeRepo("releases")
+        , hedgehogRepo
+      )
+    , scalacOptions := (SemVer.parseUnsafe(scalaVersion.value) match {
+        case SemVer(SemVer.Major(2), SemVer.Minor(13), SemVer.Patch(patch), _, _) =>
+          val options = scalacOptions.value
+          if (patch >= 3)
+            options.filterNot(_ == "-Xlint:nullary-override")
+          else
+            options
+        case _: SemVer =>
+          scalacOptions.value
+      })
     , addCompilerPlugin("org.typelevel" % "kind-projector" % "0.11.0" cross CrossVersion.full)
     , addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
     /* Ammonite-REPL { */
@@ -86,7 +96,7 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
         case "2.11" =>
           Seq("com.lihaoyi" % "ammonite" % "1.6.7" % Test cross CrossVersion.full)
         case _ =>
-          Seq("com.lihaoyi" % "ammonite" % "2.1.4" % Test cross CrossVersion.full)
+          Seq("com.lihaoyi" % "ammonite" % "2.2.0" % Test cross CrossVersion.full)
       })
     , sourceGenerators in Test +=
       (scalaBinaryVersion.value match {
