@@ -2,7 +2,7 @@ package loggerf.logger
 
 import scala.reflect.ClassTag
 
-final class Slf4JLogger(logger: org.slf4j.Logger) extends Logger {
+final class Slf4JLogger(val logger: org.slf4j.Logger) extends Logger {
 
   override def debug(message: String): Unit = logger.debug(message)
 
@@ -20,5 +20,8 @@ object Slf4JLogger {
 
   def slf4JLogger(name: String): Logger =
     new Slf4JLogger(org.slf4j.LoggerFactory.getLogger(name))
+
+  def slf4JLoggerWith(logger: org.slf4j.Logger): Logger =
+    new Slf4JLogger(logger)
 
 }
