@@ -30,8 +30,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++=
   Seq(
-    "io.kevinlee" %% "logger-f-cats-effect" % "0.4.0",
-    "io.kevinlee" %% "logger-f-slf4j" % "0.4.0"
+    "io.kevinlee" %% "logger-f-cats-effect" % "1.0.0",
+    "io.kevinlee" %% "logger-f-slf4j" % "1.0.0"
   )
 ```
 
@@ -40,8 +40,8 @@ libraryDependencies ++=
 ```scala
 libraryDependencies ++=
   Seq(
-    "io.kevinlee" %% "logger-f-cats-effect" % "0.4.0",
-    "io.kevinlee" %% "logger-f-log4j" % "0.4.0"
+    "io.kevinlee" %% "logger-f-cats-effect" % "1.0.0",
+    "io.kevinlee" %% "logger-f-log4j" % "1.0.0"
   )
 ```
 
@@ -51,8 +51,8 @@ You probably need `logger-f` for sbt plugin development.
 ```scala
 libraryDependencies ++=
   Seq(
-    "io.kevinlee" %% "logger-f-cats-effect" % "0.4.0",
-    "io.kevinlee" %% "logger-f-sbt-logging" % "0.4.0"
+    "io.kevinlee" %% "logger-f-cats-effect" % "1.0.0",
+    "io.kevinlee" %% "logger-f-sbt-logging" % "1.0.0"
   )
 ```
 
@@ -65,8 +65,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++= 
   Seq(
-    "io.kevinlee" %% "logger-f-scalaz-effect" % "0.4.0",
-    "io.kevinlee" %% "logger-f-slf4j" % "0.4.0"
+    "io.kevinlee" %% "logger-f-scalaz-effect" % "1.0.0",
+    "io.kevinlee" %% "logger-f-slf4j" % "1.0.0"
   )
 ```
 
@@ -77,8 +77,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++= 
   Seq(
-    "io.kevinlee" %% "logger-f-scalaz-effect" % "0.4.0",
-    "io.kevinlee" %% "logger-f-log4j" % "0.4.0"
+    "io.kevinlee" %% "logger-f-scalaz-effect" % "1.0.0",
+    "io.kevinlee" %% "logger-f-log4j" % "1.0.0"
   )
 ```
 
@@ -89,8 +89,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++= 
   Seq(
-    "io.kevinlee" %% "logger-f-scalaz-effect" % "0.4.0",
-    "io.kevinlee" %% "logger-f-sbt-logging" % "0.4.0"
+    "io.kevinlee" %% "logger-f-scalaz-effect" % "1.0.0",
+    "io.kevinlee" %% "logger-f-sbt-logging" % "1.0.0"
   )
 ```
 
@@ -164,10 +164,9 @@ import cats.effect._
 import effectie.Effectful._
 import effectie.cats._
 
-import loggerf.Slf4JLogger
-import loggerf.cats.Log
-import loggerf.cats.Log.LeveledMessage._
-import loggerf.cats.Logful._
+import loggerf.cats._
+import loggerf.logger._
+import loggerf.syntax._
 
 // or Slf4JLogger.slf4JLogger[MyClass]
 implicit val logger = Slf4JLogger.slf4JLogger("MyLogger")
@@ -208,10 +207,9 @@ import cats.effect._
 import effectie.Effectful._
 import effectie.cats._
 
-import loggerf.Slf4JLogger
-import loggerf.cats.Log
-import loggerf.cats.Log.LeveledMessage._
-import loggerf.cats.Logful._
+import loggerf.cats._
+import loggerf.logger._
+import loggerf.syntax._
 
 // or Slf4JLogger.slf4JLogger[MyClass]
 implicit val logger = Slf4JLogger.slf4JLogger("MyLogger")
