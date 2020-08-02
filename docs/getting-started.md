@@ -30,8 +30,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++=
   Seq(
-    "io.kevinlee" %% "logger-f-cats-effect" % "1.0.0",
-    "io.kevinlee" %% "logger-f-slf4j" % "1.0.0"
+    "io.kevinlee" %% "logger-f-cats-effect" % "1.1.0",
+    "io.kevinlee" %% "logger-f-slf4j" % "1.1.0"
   )
 ```
 
@@ -40,8 +40,8 @@ libraryDependencies ++=
 ```scala
 libraryDependencies ++=
   Seq(
-    "io.kevinlee" %% "logger-f-cats-effect" % "1.0.0",
-    "io.kevinlee" %% "logger-f-log4j" % "1.0.0"
+    "io.kevinlee" %% "logger-f-cats-effect" % "1.1.0",
+    "io.kevinlee" %% "logger-f-log4j" % "1.1.0"
   )
 ```
 
@@ -51,8 +51,8 @@ You probably need `logger-f` for sbt plugin development.
 ```scala
 libraryDependencies ++=
   Seq(
-    "io.kevinlee" %% "logger-f-cats-effect" % "1.0.0",
-    "io.kevinlee" %% "logger-f-sbt-logging" % "1.0.0"
+    "io.kevinlee" %% "logger-f-cats-effect" % "1.1.0",
+    "io.kevinlee" %% "logger-f-sbt-logging" % "1.1.0"
   )
 ```
 
@@ -65,8 +65,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++= 
   Seq(
-    "io.kevinlee" %% "logger-f-scalaz-effect" % "1.0.0",
-    "io.kevinlee" %% "logger-f-slf4j" % "1.0.0"
+    "io.kevinlee" %% "logger-f-scalaz-effect" % "1.1.0",
+    "io.kevinlee" %% "logger-f-slf4j" % "1.1.0"
   )
 ```
 
@@ -77,8 +77,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++= 
   Seq(
-    "io.kevinlee" %% "logger-f-scalaz-effect" % "1.0.0",
-    "io.kevinlee" %% "logger-f-log4j" % "1.0.0"
+    "io.kevinlee" %% "logger-f-scalaz-effect" % "1.1.0",
+    "io.kevinlee" %% "logger-f-log4j" % "1.1.0"
   )
 ```
 
@@ -89,8 +89,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++= 
   Seq(
-    "io.kevinlee" %% "logger-f-scalaz-effect" % "1.0.0",
-    "io.kevinlee" %% "logger-f-sbt-logging" % "1.0.0"
+    "io.kevinlee" %% "logger-f-scalaz-effect" % "1.1.0",
+    "io.kevinlee" %% "logger-f-sbt-logging" % "1.1.0"
   )
 ```
 
