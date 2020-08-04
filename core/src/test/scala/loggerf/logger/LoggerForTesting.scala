@@ -9,16 +9,16 @@ import loggerf.logger.LoggerForTesting.MessageKeeper
 final case class LoggerForTesting private (
   logger: MessageKeeper
 ) extends Logger {
-  override def debug(message: String): Unit =
+  override def debug(message: => String): Unit =
     logger.debugMessages = logger.debugMessages :+ message
 
-  override def info(message: String): Unit =
+  override def info(message: => String): Unit =
     logger.infoMessages = logger.infoMessages :+ message
 
-  override def warn(message: String): Unit =
+  override def warn(message: => String): Unit =
     logger.warnMessages = logger.warnMessages :+ message
 
-  override def error(message: String): Unit =
+  override def error(message: => String): Unit =
     logger.errorMessages = logger.errorMessages :+ message
 }
 

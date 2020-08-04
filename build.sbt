@@ -169,6 +169,13 @@ lazy val log4jLogger =
   projectCommonSettings("log4jLogger", ProjectName("log4j"), file("log4j"))
   .settings(
     description  := "Logger for F[_] - Logger with Log4j"
+  , unmanagedSourceDirectories in Compile ++= {
+      val sharedSourceDir = baseDirectory.value / "src/main"
+      if (scalaVersion.value.startsWith("2.13") || scalaVersion.value.startsWith("2.12"))
+        Seq(sharedSourceDir / "scala-2.12_2.13")
+      else
+        Seq(sharedSourceDir / "scala-2.10_2.11")
+    }
   , libraryDependencies ++= Seq(
         log4jApi, log4jCore
       ).map(_ % Provided)

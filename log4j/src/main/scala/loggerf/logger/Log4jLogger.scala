@@ -6,13 +6,17 @@ final class Log4jLogger(
   val logger: org.apache.logging.log4j.Logger
 ) extends Logger {
 
-  override def debug(message: String): Unit = logger.debug(message)
+  override def debug(message: => String): Unit =
+    logger.debug(Log4jCompat.toStringSupplier(message))
 
-  override def info(message: String): Unit = logger.info(message)
+  override def info(message: => String): Unit =
+    logger.info(Log4jCompat.toStringSupplier(message))
 
-  override def warn(message: String): Unit = logger.warn(message)
+  override def warn(message: => String): Unit =
+    logger.warn(Log4jCompat.toStringSupplier(message))
 
-  override def error(message: String): Unit = logger.error(message)
+  override def error(message: => String): Unit =
+    logger.error(Log4jCompat.toStringSupplier(message))
 }
 
 object Log4jLogger {
