@@ -1,10 +1,12 @@
 package loggerf.logger
 
+import org.apache.logging.log4j.{LogManager, Logger}
+
 import scala.reflect.ClassTag
 
 final class Log4jLogger(
-  val logger: org.apache.logging.log4j.Logger
-) extends Logger {
+  val logger: Logger
+) extends CanLog {
 
   override def debug(message: => String): Unit =
     logger.debug(Log4jCompat.toStringSupplier(message))
@@ -21,12 +23,27 @@ final class Log4jLogger(
 
 object Log4jLogger {
 
-  def log4jLogger[A](implicit aClassTag: ClassTag[A]): Logger =
-    new Log4jLogger(org.apache.logging.log4j.LogManager.getLogger(aClassTag.runtimeClass))
+  def log4jCanLog[A](implicit aClassTag: ClassTag[A]): CanLog =
+    new Log4jLogger(LogManager.getLogger(aClassTag.runtimeClass))
 
-  def log4jLogger(name: String): Logger =
-    new Log4jLogger(org.apache.logging.log4j.LogManager.getLogger(name))
+  def log4jCanLog(name: String): CanLog =
+    new Log4jLogger(LogManager.getLogger(name))
 
-  def log4jLoggerWith(logger: org.apache.logging.log4j.Logger): Logger =
+  def log4jCanLogWith(logger: Logger): CanLog =
     new Log4jLogger(logger)
+
+  @deprecated(message = "Use Log4jLogger.log4jCanLog[A] instead", since = "1.2.0")
+  def log4jLogger[A](implicit aClassTag: ClassTag[A]): CanLog =
+    log4jCanLog[A]
+
+  @deprecated(message = "Use Log4jLogger.log4jCanLog(String) instead", since = "1.2.0")
+  def log4jLogger(name: String): CanLog =
+    log4jCanLog(name)
+
+  @deprecated(
+    message = "Use Log4jLogger.log4jCanLogWith(org.apache.logging.log4j.Logger) instead",
+    since = "1.2.0"
+  )
+  def log4jLoggerWith(logger: Logger): CanLog =
+    log4jCanLogWith(logger)
 }

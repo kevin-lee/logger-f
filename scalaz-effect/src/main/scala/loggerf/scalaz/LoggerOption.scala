@@ -3,14 +3,14 @@ package loggerf.scalaz
 import scalaz._
 import Scalaz._
 import effectie.scalaz.EffectConstructor
-import loggerf.logger.Logger
+import loggerf.logger.CanLog
 
 trait LoggerOption[F[_]] {
 
   implicit val EF0: EffectConstructor[F]
   implicit val MF0: Monad[F]
 
-  implicit val logger0: Logger
+  implicit val logger0: CanLog
 
   def debugOption[A](fa: F[Option[A]])(ifEmpty: => String, a2String: A => String): F[Option[A]] =
     MF0.bind(fa) {
@@ -50,14 +50,14 @@ object LoggerOption {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def loggerOption[F[_]](
-    implicit EF: EffectConstructor[F], MF: Monad[F], logger: Logger
+    implicit EF: EffectConstructor[F], MF: Monad[F], logger: CanLog
   ): LoggerOption[F] = new LoggerOptionF[F]
 
   final class LoggerOptionF[F[_]](
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
     implicit override val EF0: EffectConstructor[F]
   , override val MF0: Monad[F]
-  , override val logger0: Logger
+  , override val logger0: CanLog
   ) extends LoggerOption[F]
 
 }

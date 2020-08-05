@@ -8,7 +8,7 @@ import effectie.scalaz.EffectConstructor
 
 import loggerf.LeveledMessage
 import loggerf.LeveledMessage.{MaybeIgnorable, NotIgnorable}
-import loggerf.logger.Logger
+import loggerf.logger.CanLog
 import loggerf.syntax._
 
 /**
@@ -20,7 +20,7 @@ trait Log[F[_]] {
   implicit val EF0: EffectConstructor[F]
   implicit val MF0: Monad[F]
 
-  val logger0: Logger
+  val logger0: CanLog
 
   def log[A](fa: F[A])(toLeveledMessage: A => LeveledMessage with NotIgnorable): F[A] =
     MF0.bind(fa) { a =>
@@ -106,7 +106,7 @@ object Log {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def logF[F[_]](
-    implicit EF: EffectConstructor[F], EM: Monad[F], logger: Logger
+    implicit EF: EffectConstructor[F], EM: Monad[F], logger: CanLog
   ): Log[F] =
     new LogF[F]
 
@@ -114,7 +114,7 @@ object Log {
   final class LogF[F[_]](
     implicit override val EF0: EffectConstructor[F]
   , implicit override val MF0: Monad[F]
-  , override val logger0: Logger
+  , override val logger0: CanLog
   ) extends Log[F]
 
 }

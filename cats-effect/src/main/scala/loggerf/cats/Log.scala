@@ -9,7 +9,7 @@ import effectie.cats.EffectConstructor
 
 import loggerf.LeveledMessage
 import loggerf.LeveledMessage.{MaybeIgnorable, NotIgnorable}
-import loggerf.logger.Logger
+import loggerf.logger.CanLog
 import loggerf.syntax._
 
 /**
@@ -21,13 +21,13 @@ trait Log[F[_]] {
   implicit val EF0: EffectConstructor[F]
   implicit val MF0: Monad[F]
 
-  val logger0: Logger
+  val canLog: CanLog
 
   def log[A](fa: F[A])(toLeveledMessage: A => LeveledMessage with NotIgnorable): F[A] =
     MF0.flatMap(fa) { a =>
       toLeveledMessage(a) match {
         case LeveledMessage.LogMessage(message, level) =>
-          effectOf(getLogger(logger0, level)(message)) *> effectOf(a)
+          effectOf(getLogger(canLog, level)(message)) *> effectOf(a)
       }
     }
 
@@ -44,12 +44,12 @@ trait Log[F[_]] {
             effectOfPure(none[A])
 
           case LeveledMessage.LogMessage(message, level) =>
-            effectOf(getLogger(logger0, level)(message)) *> effectOfPure(none[A])
+            effectOf(getLogger(canLog, level)(message)) *> effectOfPure(none[A])
         }
       case Some(a) =>
         toLeveledMessage(a) match {
           case LeveledMessage.LogMessage(message, level) =>
-            effectOf(getLogger(logger0, level)(message)) *> effectOf(a.some)
+            effectOf(getLogger(canLog, level)(message)) *> effectOf(a.some)
 
           case LeveledMessage.Ignore =>
             effectOf(a.some)
@@ -66,7 +66,7 @@ trait Log[F[_]] {
     case Left(l) =>
       leftToMessage(l) match {
         case LeveledMessage.LogMessage(message, level) =>
-          effectOf(getLogger(logger0, level)(message)) *> effectOf(l.asLeft[B])
+          effectOf(getLogger(canLog, level)(message)) *> effectOf(l.asLeft[B])
 
         case LeveledMessage.Ignore =>
           effectOf(l.asLeft[B])
@@ -74,7 +74,7 @@ trait Log[F[_]] {
     case Right(r) =>
       rightToMessage(r) match {
         case LeveledMessage.LogMessage(message, level) =>
-          effectOf(getLogger(logger0, level)(message)) *> effectOf(r.asRight[A])
+          effectOf(getLogger(canLog, level)(message)) *> effectOf(r.asRight[A])
 
         case LeveledMessage.Ignore =>
           effectOf(r.asRight[A])
@@ -106,7 +106,7 @@ object Log {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def logF[F[_]](
-    implicit EF: EffectConstructor[F], EM: Monad[F], logger: Logger
+    implicit EF: EffectConstructor[F], EM: Monad[F], logger: CanLog
   ): Log[F] =
     new LogF[F]
 
@@ -114,7 +114,7 @@ object Log {
   final class LogF[F[_]](
     implicit override val EF0: EffectConstructor[F]
   , implicit override val MF0: Monad[F]
-  , override val logger0: Logger
+  , override val canLog: CanLog
   ) extends Log[F]
 
 }

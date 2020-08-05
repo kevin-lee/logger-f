@@ -8,7 +8,7 @@ import loggerf.logger.LoggerForTesting.MessageKeeper
  */
 final case class LoggerForTesting private (
   logger: MessageKeeper
-) extends Logger {
+) extends CanLog {
   override def debug(message: => String): Unit =
     logger.debugMessages = logger.debugMessages :+ message
 

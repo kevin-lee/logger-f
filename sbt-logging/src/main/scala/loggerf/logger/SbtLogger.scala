@@ -1,6 +1,8 @@
 package loggerf.logger
 
-final class SbtLogger(val logger: sbt.util.Logger) extends Logger {
+import sbt.util.Logger
+
+final class SbtLogger(val logger: Logger) extends CanLog {
 
   override def debug(message: => String): Unit = logger.debug(message)
 
@@ -13,5 +15,9 @@ final class SbtLogger(val logger: sbt.util.Logger) extends Logger {
 
 object SbtLogger {
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-  def sbtLogger(implicit log: sbt.util.Logger): Logger = new SbtLogger(log)
+  def sbtLoggerCanLog(implicit logger: Logger): CanLog = new SbtLogger(logger)
+
+  @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
+  @deprecated(message = "Use SbtLogger.sbtLoggerCanLog(sbt.util.Logger) instead", since = "1.2.0")
+  def sbtLogger(implicit logger: Logger): CanLog = sbtLoggerCanLog(logger)
 }
