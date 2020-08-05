@@ -2,7 +2,7 @@ package loggerf.cats
 
 import cats.Monad
 import effectie.cats.EffectConstructor
-import loggerf.logger.Logger
+import loggerf.logger.CanLog
 
 /**
  * @author Kevin Lee
@@ -21,14 +21,14 @@ object Loggers {
   def apply[F[_] : Loggers]: Loggers[F] = implicitly[Loggers[F]]
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-  implicit def loggers[F[_]](implicit EF: EffectConstructor[F], MF: Monad[F], logger: Logger): Loggers[F] =
+  implicit def loggers[F[_]](implicit EF: EffectConstructor[F], MF: Monad[F], logger: CanLog): Loggers[F] =
     new LoggersF[F]
 
   final class LoggersF[F[_] : EffectConstructor : Monad](
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
     implicit override val EF0: EffectConstructor[F]
   , override val MF0: Monad[F]
-  , override val logger0: Logger
+  , override val canLog: CanLog
   ) extends Loggers[F]
     with LoggerA[F]
     with LoggerOption[F]

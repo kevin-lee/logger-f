@@ -1,8 +1,10 @@
 package loggerf.logger
 
+import org.slf4j.{Logger, LoggerFactory}
+
 import scala.reflect.ClassTag
 
-final class Slf4JLogger(val logger: org.slf4j.Logger) extends Logger {
+final class Slf4JLogger(val logger: Logger) extends CanLog {
 
   private def constructLog(isAvailable: Boolean, logFunction: String => Unit): (=> String) => Unit =
     if (isAvailable)
@@ -34,13 +36,13 @@ final class Slf4JLogger(val logger: org.slf4j.Logger) extends Logger {
 
 object Slf4JLogger {
 
-  def slf4JLogger[A](implicit aClass: ClassTag[A]): Logger =
-    new Slf4JLogger(org.slf4j.LoggerFactory.getLogger(aClass.runtimeClass))
+  def slf4JLogger[A](implicit aClass: ClassTag[A]): CanLog =
+    new Slf4JLogger(LoggerFactory.getLogger(aClass.runtimeClass))
 
-  def slf4JLogger(name: String): Logger =
-    new Slf4JLogger(org.slf4j.LoggerFactory.getLogger(name))
+  def slf4JLogger(name: String): CanLog =
+    new Slf4JLogger(LoggerFactory.getLogger(name))
 
-  def slf4JLoggerWith(logger: org.slf4j.Logger): Logger =
+  def slf4JLoggerWith(logger: Logger): CanLog =
     new Slf4JLogger(logger)
 
 }

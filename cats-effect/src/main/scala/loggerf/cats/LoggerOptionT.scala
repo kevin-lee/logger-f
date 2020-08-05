@@ -3,14 +3,14 @@ package loggerf.cats
 import cats._
 import cats.data.OptionT
 import effectie.cats.EffectConstructor
-import loggerf.logger.Logger
+import loggerf.logger.CanLog
 
 trait LoggerOptionT[F[_]] {
 
   implicit val EF0: EffectConstructor[F]
   implicit val MF0: Monad[F]
 
-  implicit val logger0: Logger
+  implicit val canLog: CanLog
 
   def debugOptionT[A](
     ofa: OptionT[F, A]
@@ -59,14 +59,14 @@ object LoggerOptionT {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def loggerOptionT[F[_]](
-    implicit EF: EffectConstructor[F], MF: Monad[F], logger: Logger
+    implicit EF: EffectConstructor[F], MF: Monad[F], logger: CanLog
   ): LoggerOptionT[F] = new LoggerOptionTF[F]
 
   final class LoggerOptionTF[F[_]](
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
     implicit override val EF0: EffectConstructor[F]
   , override val MF0: Monad[F]
-  , override val logger0: Logger
+  , override val canLog: CanLog
   ) extends LoggerOptionT[F]
 
 }

@@ -3,36 +3,36 @@ package loggerf.cats
 import cats._
 import cats.implicits._
 import effectie.cats.EffectConstructor
-import loggerf.logger.Logger
+import loggerf.logger.CanLog
 
 trait LoggerA[F[_]] {
 
   implicit val EF0: EffectConstructor[F]
   implicit val MF0: Monad[F]
 
-  implicit val logger0: Logger
+  implicit val canLog: CanLog
 
   def debugA[A](fa: F[A])(a2String: A => String): F[A] =
     MF0.flatMap(fa){ a =>
-      EF0.effectOf(logger0.debug(a2String(a))) *> EF0.effectOf(a)
+      EF0.effectOf(canLog.debug(a2String(a))) *> EF0.effectOf(a)
     }
   def debugS(message: F[String]): F[String] = debugA(message)(identity)
 
   def infoA[A](fa: F[A])(a2String: A => String): F[A] =
     MF0.flatMap(fa){ a =>
-      EF0.effectOf(logger0.info(a2String(a))) *> EF0.effectOf(a)
+      EF0.effectOf(canLog.info(a2String(a))) *> EF0.effectOf(a)
     }
   def infoS(message: F[String]): F[String] = infoA(message)(identity)
 
   def warnA[A](fa: F[A])(a2String: A => String): F[A] =
     MF0.flatMap(fa){ a =>
-      EF0.effectOf(logger0.warn(a2String(a))) *> EF0.effectOf(a)
+      EF0.effectOf(canLog.warn(a2String(a))) *> EF0.effectOf(a)
     }
   def warnS(message: F[String]): F[String] = warnA(message)(identity)
 
   def errorA[A](fa: F[A])(a2String: A => String): F[A] =
     MF0.flatMap(fa){ a =>
-      EF0.effectOf(logger0.error(a2String(a))) *> EF0.effectOf(a)
+      EF0.effectOf(canLog.error(a2String(a))) *> EF0.effectOf(a)
     }
   def errorS(message: F[String]): F[String] = errorA(message)(identity)
 }
@@ -42,7 +42,7 @@ object LoggerA {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def loggerA[F[_]](
-    implicit EF: EffectConstructor[F], MF: Monad[F], logger: Logger
+    implicit EF: EffectConstructor[F], MF: Monad[F], logger: CanLog
   ): LoggerA[F] =
     new LoggerAF[F]
 
@@ -50,7 +50,7 @@ object LoggerA {
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
     implicit override val EF0: EffectConstructor[F]
   , override val MF0: Monad[F]
-  , override val logger0: Logger
+  , override val canLog: CanLog
   ) extends LoggerA[F]
 
 }

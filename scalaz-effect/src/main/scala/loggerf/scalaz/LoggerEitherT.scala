@@ -2,14 +2,14 @@ package loggerf.scalaz
 
 import scalaz._
 import effectie.scalaz.EffectConstructor
-import loggerf.logger.Logger
+import loggerf.logger.CanLog
 
 trait LoggerEitherT[F[_]] {
 
   implicit val EF0: EffectConstructor[F]
   implicit val MF0: Monad[F]
 
-  implicit val logger0: Logger
+  implicit val logger0: CanLog
 
   def debugEitherT[A, B](
     efab: EitherT[F, A, B]
@@ -57,14 +57,14 @@ object LoggerEitherT {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def loggerEitherT[F[_]](
-    implicit EF: EffectConstructor[F], MF: Monad[F], logger: Logger
+    implicit EF: EffectConstructor[F], MF: Monad[F], logger: CanLog
   ): LoggerEitherT[F] = new LoggerEitherTF[F]
 
   final class LoggerEitherTF[F[_]](
       @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
       implicit override val EF0: EffectConstructor[F]
     , override val MF0: Monad[F]
-    , override val logger0: Logger
+    , override val logger0: CanLog
   ) extends LoggerEitherT[F]
 
 }

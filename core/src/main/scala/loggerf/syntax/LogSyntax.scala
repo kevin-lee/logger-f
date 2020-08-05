@@ -1,6 +1,6 @@
 package loggerf.syntax
 
-import loggerf.logger.Logger
+import loggerf.logger.CanLog
 
 /**
  * @author Kevin Lee
@@ -10,11 +10,11 @@ trait LogSyntax {
 
   import loggerf.Level
 
-  def getLogger(logger: Logger, level: Level): (=> String) => Unit = level match {
-    case Level.Debug => logger.debug
-    case Level.Info => logger.info
-    case Level.Warn => logger.warn
-    case Level.Error => logger.error
+  def getLogger(canLog: CanLog, level: Level): (=> String) => Unit = level match {
+    case Level.Debug => canLog.debug
+    case Level.Info => canLog.info
+    case Level.Warn => canLog.warn
+    case Level.Error => canLog.error
   }
 
 }
