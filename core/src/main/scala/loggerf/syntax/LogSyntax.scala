@@ -10,7 +10,7 @@ trait LogSyntax {
 
   import loggerf.Level
 
-  def getLogger(logger: Logger, level: Level): String => Unit = level match {
+  def getLogger(logger: Logger, level: Level): (=> String) => Unit = level match {
     case Level.Debug => logger.debug
     case Level.Info => logger.info
     case Level.Warn => logger.warn
