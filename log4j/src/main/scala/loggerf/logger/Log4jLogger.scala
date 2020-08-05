@@ -23,12 +23,27 @@ final class Log4jLogger(
 
 object Log4jLogger {
 
-  def log4jLogger[A](implicit aClassTag: ClassTag[A]): CanLog =
+  def log4jCanLog[A](implicit aClassTag: ClassTag[A]): CanLog =
     new Log4jLogger(LogManager.getLogger(aClassTag.runtimeClass))
 
-  def log4jLogger(name: String): CanLog =
+  def log4jCanLog(name: String): CanLog =
     new Log4jLogger(LogManager.getLogger(name))
 
-  def log4jLoggerWith(logger: Logger): CanLog =
+  def log4jCanLogWith(logger: Logger): CanLog =
     new Log4jLogger(logger)
+
+  @deprecated(message = "Use Log4jLogger.log4jCanLog[A] instead", since = "1.2.0")
+  def log4jLogger[A](implicit aClassTag: ClassTag[A]): CanLog =
+    log4jCanLog[A]
+
+  @deprecated(message = "Use Log4jLogger.log4jCanLog(String) instead", since = "1.2.0")
+  def log4jLogger(name: String): CanLog =
+    log4jCanLog(name)
+
+  @deprecated(
+    message = "Use Log4jLogger.log4jCanLogWith(org.apache.logging.log4j.Logger) instead",
+    since = "1.2.0"
+  )
+  def log4jLoggerWith(logger: Logger): CanLog =
+    log4jCanLogWith(logger)
 }

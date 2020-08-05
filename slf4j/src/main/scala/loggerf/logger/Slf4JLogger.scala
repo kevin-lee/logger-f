@@ -36,13 +36,25 @@ final class Slf4JLogger(val logger: Logger) extends CanLog {
 
 object Slf4JLogger {
 
-  def slf4JLogger[A](implicit aClass: ClassTag[A]): CanLog =
+  def slf4JCanLog[A](implicit aClass: ClassTag[A]): CanLog =
     new Slf4JLogger(LoggerFactory.getLogger(aClass.runtimeClass))
 
-  def slf4JLogger(name: String): CanLog =
+  def slf4JCanLog(name: String): CanLog =
     new Slf4JLogger(LoggerFactory.getLogger(name))
 
-  def slf4JLoggerWith(logger: Logger): CanLog =
+  def slf4JCanLogWith(logger: Logger): CanLog =
     new Slf4JLogger(logger)
+
+  @deprecated(message = "Use Slf4JLogger.slf4JCanLog[A] instead", since ="1.2.0")
+  def slf4JLogger[A](implicit aClass: ClassTag[A]): CanLog =
+    slf4JCanLog[A]
+
+  @deprecated(message = "Use Slf4JLogger.slf4JCanLog(String) instead", since = "1.2.0")
+  def slf4JLogger(name: String): CanLog =
+    slf4JCanLog(name)
+
+  @deprecated(message = "Use Slf4JLogger.slf4JLoggerWith(org.slf4j.Logger) instead", since = "1.2.0")
+  def slf4JLoggerWith(logger: Logger): CanLog =
+    slf4JCanLogWith(logger)
 
 }
