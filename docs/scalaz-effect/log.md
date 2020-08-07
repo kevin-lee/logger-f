@@ -34,8 +34,10 @@ object Person {
 
 import scalaz._
 import Scalaz._
+import scalaz.effect._
 
 import effectie.scalaz.EffectConstructor
+import effectie.scalaz.ConsoleEffect
 import effectie.Effectful._
 
 import loggerf.logger._
@@ -59,12 +61,9 @@ object Greeting {
 
 }
 
-import scalaz.effect._
-import effectie.scalaz.ConsoleEffect
-
 object MyApp {
 
-  implicit val logger: Logger = Slf4JLogger.slf4JLogger("MyApp")
+  implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp")
 
   def run(args: List[String]): IO[Unit] = for {
     greetingMessage <- Greeting[IO].greet(Person(GivenName("Kevin"), Surname("Lee")))

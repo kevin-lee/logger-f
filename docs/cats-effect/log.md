@@ -35,11 +35,14 @@ object Person {
 
 import cats._
 import cats.implicits._
+import cats.effect._
 
 import effectie.cats.EffectConstructor
+import effectie.cats.ConsoleEffect
 import effectie.Effectful._
 
 import loggerf.cats._
+import loggerf.logger._
 import loggerf.syntax._
 
 trait Greeting[F[_]] {
@@ -59,13 +62,9 @@ object Greeting {
 
 }
 
-import cats.effect._
-import effectie.cats.ConsoleEffect
-import loggerf.logger._
-
 object MyApp extends IOApp {
 
-  implicit val logger: Logger = Slf4JLogger.slf4JLogger("MyApp")
+  implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp")
 
   def run(args: List[String]): IO[ExitCode] = for {
     greetingMessage <- Greeting[IO].greet(Person(GivenName("Kevin"), Surname("Lee")))

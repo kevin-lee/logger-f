@@ -30,8 +30,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++=
   Seq(
-    "io.kevinlee" %% "logger-f-cats-effect" % "1.1.0",
-    "io.kevinlee" %% "logger-f-slf4j" % "1.1.0"
+    "io.kevinlee" %% "logger-f-cats-effect" % "1.2.0",
+    "io.kevinlee" %% "logger-f-slf4j" % "1.2.0"
   )
 ```
 
@@ -40,8 +40,8 @@ libraryDependencies ++=
 ```scala
 libraryDependencies ++=
   Seq(
-    "io.kevinlee" %% "logger-f-cats-effect" % "1.1.0",
-    "io.kevinlee" %% "logger-f-log4j" % "1.1.0"
+    "io.kevinlee" %% "logger-f-cats-effect" % "1.2.0",
+    "io.kevinlee" %% "logger-f-log4j" % "1.2.0"
   )
 ```
 
@@ -51,8 +51,8 @@ You probably need `logger-f` for sbt plugin development.
 ```scala
 libraryDependencies ++=
   Seq(
-    "io.kevinlee" %% "logger-f-cats-effect" % "1.1.0",
-    "io.kevinlee" %% "logger-f-sbt-logging" % "1.1.0"
+    "io.kevinlee" %% "logger-f-cats-effect" % "1.2.0",
+    "io.kevinlee" %% "logger-f-sbt-logging" % "1.2.0"
   )
 ```
 
@@ -65,8 +65,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++= 
   Seq(
-    "io.kevinlee" %% "logger-f-scalaz-effect" % "1.1.0",
-    "io.kevinlee" %% "logger-f-slf4j" % "1.1.0"
+    "io.kevinlee" %% "logger-f-scalaz-effect" % "1.2.0",
+    "io.kevinlee" %% "logger-f-slf4j" % "1.2.0"
   )
 ```
 
@@ -77,8 +77,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++= 
   Seq(
-    "io.kevinlee" %% "logger-f-scalaz-effect" % "1.1.0",
-    "io.kevinlee" %% "logger-f-log4j" % "1.1.0"
+    "io.kevinlee" %% "logger-f-scalaz-effect" % "1.2.0",
+    "io.kevinlee" %% "logger-f-log4j" % "1.2.0"
   )
 ```
 
@@ -89,8 +89,8 @@ In `build.sbt`,
 ```scala
 libraryDependencies ++= 
   Seq(
-    "io.kevinlee" %% "logger-f-scalaz-effect" % "1.1.0",
-    "io.kevinlee" %% "logger-f-sbt-logging" % "1.1.0"
+    "io.kevinlee" %% "logger-f-scalaz-effect" % "1.2.0",
+    "io.kevinlee" %% "logger-f-sbt-logging" % "1.2.0"
   )
 ```
 
@@ -169,7 +169,7 @@ import loggerf.logger._
 import loggerf.syntax._
 
 // or Slf4JLogger.slf4JLogger[MyClass]
-implicit val logger = Slf4JLogger.slf4JLogger("MyLogger")
+implicit val logger: CanLog = Slf4JLogger.slf4JCanLog("MyLogger")
 
 def foo[F[_] : EffectConstructor : Monad : Log](n: Int): F[Option[Int]] =
   (for {
@@ -212,7 +212,7 @@ import loggerf.logger._
 import loggerf.syntax._
 
 // or Slf4JLogger.slf4JLogger[MyClass]
-implicit val logger = Slf4JLogger.slf4JLogger("MyLogger")
+implicit val logger: CanLog = Slf4JLogger.slf4JCanLog("MyLogger")
 
 def foo[F[_] : EffectConstructor : Monad : Log](n: Int): F[Either[String, Int]] =
   (for {
