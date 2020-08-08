@@ -254,6 +254,7 @@ lazy val testCatsEffectWithSlf4jLogger =
       description  := "Test Logger for F[_] - Logger with Slf4j"
     , libraryDependencies ++= Seq(slf4jApi, logbackClassic)
     )
+    .settings(noPublish)
     .dependsOn(core, slf4jLogger, catsEffect)
 
 lazy val testScalazEffectWithSlf4jLogger =
@@ -262,6 +263,7 @@ lazy val testScalazEffectWithSlf4jLogger =
       description  := "Test Logger for F[_] - Logger with Slf4j"
     , libraryDependencies ++= Seq(slf4jApi, logbackClassic)
     )
+    .settings(noPublish)
     .dependsOn(core, slf4jLogger, scalazEffect)
 
 lazy val testCatsEffectWithLog4jLogger =
@@ -270,6 +272,7 @@ lazy val testCatsEffectWithLog4jLogger =
       description  := "Test Logger for F[_] - Logger with Log4j"
     , libraryDependencies ++= Seq(log4jApi, log4jCore)
     )
+    .settings(noPublish)
     .dependsOn(core, log4jLogger, catsEffect)
 
 lazy val testScalazEffectWithLog4jLogger =
@@ -278,6 +281,7 @@ lazy val testScalazEffectWithLog4jLogger =
       description  := "Test Logger for F[_] - Logger with Log4j"
     , libraryDependencies ++= Seq(log4jApi, log4jCore)
     )
+    .settings(noPublish)
     .dependsOn(core, log4jLogger, scalazEffect)
 
 
@@ -285,7 +289,6 @@ lazy val docs = (project in file("generated-docs"))
   .enablePlugins(MdocPlugin, DocusaurPlugin)
   .settings(
       name := prefixedProjectName("docs")
-    , skip in publish := true
 
     , docusaurDir := (ThisBuild / baseDirectory).value / "website"
     , docusaurBuildDir := docusaurDir.value / "build"
@@ -304,15 +307,16 @@ lazy val loggerF = (project in file("."))
   , description := "Logger for F[_]"
   /* GitHub Release { */
   , gitTagFrom := "main"
-  , devOopsPackagedArtifacts := List(
-      s"core/target/scala-*/${name.value}*.jar"
-    , s"cats-effect/target/scala-*/${name.value}*.jar"
-    , s"scalaz-effect/target/scala-*/${name.value}*.jar"
-    , s"slf4j/target/scala-*/${name.value}*.jar"
-    , s"log4j/target/scala-*/${name.value}*.jar"
-    , s"sbt-logging/target/scala-*/${name.value}*.jar"
-    )
+  , devOopsPackagedArtifacts := List(s"*/target/scala-*/${name.value}*.jar")
   /* } GitHub Release */
   )
   .settings(noPublish)
-  .aggregate(core, slf4jLogger, log4jLogger, catsEffect, scalazEffect)
+  .aggregate(
+    core,
+    slf4jLogger,
+    log4jLogger,
+    sbtLogging,
+    catsEffect,
+    scalazEffect,
+    docs
+  )
