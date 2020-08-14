@@ -7,7 +7,7 @@ val ProjectScalaVersion: String = "2.13.3"
 val CrossScalaVersions: Seq[String] = Seq("2.11.12", "2.12.12", ProjectScalaVersion)
 val IncludeTest: String = "compile->compile;test->test"
 
-lazy val hedgehogVersion = "97854199ef795a5dfba15478fd9abe66035ddea2"
+lazy val hedgehogVersion = "0.4.2"
 lazy val hedgehogRepo: MavenRepository =
   "bintray-scala-hedgehog" at "https://dl.bintray.com/hedgehogqa/scala-hedgehog"
 
