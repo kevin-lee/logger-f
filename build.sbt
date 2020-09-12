@@ -29,6 +29,8 @@ lazy val libCatsEffect_2_0_0: ModuleID = "org.typelevel" %% "cats-effect" % "2.0
 lazy val slf4jApi: ModuleID = "org.slf4j" % "slf4j-api" % "1.7.30"
 lazy val logbackClassic: ModuleID =  "ch.qos.logback" % "logback-classic" % "1.2.3"
 
+lazy val log4sLib: ModuleID = "org.log4s" %% "log4s" % "1.8.2"
+
 lazy val log4jApi = "org.apache.logging.log4j" % "log4j-api" % "2.13.1"
 lazy val log4jCore = "org.apache.logging.log4j" % "log4j-core" % "2.13.1"
 
@@ -165,6 +167,16 @@ lazy val slf4jLogger =
   )
   .dependsOn(core)
 
+lazy val log4sLogger =
+  projectCommonSettings("log4sLogger", ProjectName("log4s"), file("log4s"))
+  .settings(
+    description  := "Logger for F[_] - Logger with Log4s"
+  , libraryDependencies ++= Seq(
+        log4sLib % Provided
+      )
+  )
+  .dependsOn(core)
+
 lazy val log4jLogger =
   projectCommonSettings("log4jLogger", ProjectName("log4j"), file("log4j"))
   .settings(
@@ -265,6 +277,24 @@ lazy val testScalazEffectWithSlf4jLogger =
     )
     .settings(noPublish)
     .dependsOn(core, slf4jLogger, scalazEffect)
+
+lazy val testCatsEffectWithLog4sLogger =
+  projectCommonSettings("testCatsEffectWithLog4sLogger", ProjectName("test-cats-effect-log4s"), file("test-cats-effect-log4s"))
+    .settings(
+      description  := "Test Logger for F[_] - Logger with Log4s"
+    , libraryDependencies ++= Seq(log4sLib, logbackClassic)
+    )
+    .settings(noPublish)
+    .dependsOn(core, log4sLogger, catsEffect)
+
+lazy val testScalazEffectWithLog4sLogger =
+  projectCommonSettings("testScalazEffectWithLog4sLogger", ProjectName("test-scalaz-effect-log4s"), file("test-scalaz-effect-log4s"))
+    .settings(
+      description  := "Test Logger for F[_] - Logger with Log4s"
+    , libraryDependencies ++= Seq(log4sLib, logbackClassic)
+    )
+    .settings(noPublish)
+    .dependsOn(core, log4sLogger, scalazEffect)
 
 lazy val testCatsEffectWithLog4jLogger =
   projectCommonSettings("testCatsEffectWithLog4jLogger", ProjectName("test-cats-effect-log4j"), file("test-cats-effect-log4j"))
