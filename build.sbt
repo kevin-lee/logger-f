@@ -54,6 +54,15 @@ ThisBuild / scmInfo :=
     browseUrl = url(s"https://github.com/$GitHubUsername/$RepoName")
   , connection = s"scm:git:git@github.com:$GitHubUsername/$RepoName.git"
   ))
+def scalacOptionsPostProcess(scalaSemVer: SemVer, options: Seq[String]): Seq[String] = scalaSemVer match {
+  case SemVer(SemVer.Major(2), SemVer.Minor(13), SemVer.Patch(patch), _, _) =>
+    if (patch >= 3)
+      options.filterNot(_ == "-Xlint:nullary-override")
+    else
+      options
+  case _: SemVer =>
+    options
+}
 
 def prefixedProjectName(name: String) = s"$RepoName${if (name.isEmpty) "" else s"-$name"}"
 
@@ -319,7 +328,10 @@ lazy val docs = (project in file("generated-docs"))
   .enablePlugins(MdocPlugin, DocusaurPlugin)
   .settings(
       name := prefixedProjectName("docs")
-
+    , scalacOptions := scalacOptionsPostProcess(SemVer.parseUnsafe(scalaVersion.value), scalacOptions.value)
+    , mdocVariables := Map(
+        "VERSION" -> (ThisBuild / version).value
+      )
     , docusaurDir := (ThisBuild / baseDirectory).value / "website"
     , docusaurBuildDir := docusaurDir.value / "build"
 
