@@ -356,6 +356,7 @@ lazy val loggerF = (project in file("."))
   .aggregate(
     core,
     slf4jLogger,
+    log4sLogger,
     log4jLogger,
     sbtLogging,
     catsEffect,
