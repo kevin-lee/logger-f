@@ -4,7 +4,7 @@ object ProjectInfo {
 
   final case class ProjectName(projectName: String) extends AnyVal
 
-  val ProjectVersion: String = "1.3.0"
+  val ProjectVersion: String = "1.3.1"
 
   def commonWarts(scalaBinaryVersion: String): Seq[wartremover.Wart] = scalaBinaryVersion match {
     case "2.10" =>
