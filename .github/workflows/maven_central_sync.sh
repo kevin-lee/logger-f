@@ -12,7 +12,7 @@ if [ "${GITHUB_TAG:-}" != "" ]; then
   echo "PROJECT_VERSION: $PROJECT_VERSION"
   echo "BINTRAY_SUBJECT: $BINTRAY_SUBJECT"
   echo "   BINTRAY_REPO: $BINTRAY_REPO"
-  BINTRAY_PACKAGES="logger-f-core logger-f-slf4j logger-f-log4j logger-f-sbt-logging logger-f-cats-effect logger-f-scalaz-effect"
+  BINTRAY_PACKAGES="logger-f-core logger-f-slf4j logger-f-log4s logger-f-log4j logger-f-sbt-logging logger-f-cats-effect logger-f-scalaz-effect"
   for bintray_package in $BINTRAY_PACKAGES
   do
     echo ""
