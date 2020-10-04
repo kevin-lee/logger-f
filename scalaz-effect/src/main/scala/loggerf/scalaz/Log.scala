@@ -3,7 +3,7 @@ package loggerf.scalaz
 import scalaz._
 import Scalaz._
 
-import effectie.Effectful._
+import effectie.scalaz.Effectful._
 import effectie.scalaz.EffectConstructor
 
 import loggerf.LeveledMessage
@@ -40,10 +40,10 @@ trait Log[F[_]] {
       case None =>
         ifEmpty match {
           case LeveledMessage.LogMessage(message, level) =>
-            effectOf(getLogger(logger0, level)(message)) *> effectOfPure(none[A])
+            effectOf(getLogger(logger0, level)(message)) *> pureOf(none[A])
 
           case LeveledMessage.Ignore =>
-            effectOfPure(none[A])
+            pureOf(none[A])
         }
       case Some(a) =>
         toLeveledMessage(a) match {

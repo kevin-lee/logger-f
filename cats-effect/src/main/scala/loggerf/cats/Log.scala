@@ -4,7 +4,7 @@ import cats._
 import cats.data.{EitherT, OptionT}
 import cats.implicits._
 
-import effectie.Effectful._
+import effectie.cats.Effectful._
 import effectie.cats.EffectConstructor
 
 import loggerf.LeveledMessage
@@ -41,10 +41,10 @@ trait Log[F[_]] {
       case None =>
         ifEmpty match {
           case LeveledMessage.Ignore =>
-            effectOfPure(none[A])
+            pureOf(none[A])
 
           case LeveledMessage.LogMessage(message, level) =>
-            effectOf(getLogger(canLog, level)(message)) *> effectOfPure(none[A])
+            effectOf(getLogger(canLog, level)(message)) *> pureOf(none[A])
         }
       case Some(a) =>
         toLeveledMessage(a) match {

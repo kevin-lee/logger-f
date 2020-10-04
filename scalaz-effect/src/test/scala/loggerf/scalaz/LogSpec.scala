@@ -3,7 +3,7 @@ package loggerf.scalaz
 import scalaz._
 import Scalaz._
 import scalaz.effect._
-import effectie.Effectful._
+import effectie.scalaz.Effectful._
 import effectie.scalaz.EffectConstructor
 import hedgehog._
 import hedgehog.runner._

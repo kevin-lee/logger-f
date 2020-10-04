@@ -75,7 +75,7 @@ lazy val noPublish: SettingsDefinition = Seq(
   skip in publish := true
 )
 
-val effectieVersion: String = "1.3.0"
+val effectieVersion: String = "1.4.0"
 lazy val effectieCatsEffect: ModuleID = "io.kevinlee" %% "effectie-cats-effect" % effectieVersion
 lazy val effectieScalazEffect: ModuleID = "io.kevinlee" %% "effectie-scalaz-effect" % effectieVersion
 
