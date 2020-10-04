@@ -2,7 +2,7 @@ package loggerf.cats
 
 import cats._
 import cats.effect._
-import effectie.Effectful._
+import effectie.cats.Effectful._
 import effectie.cats.EffectConstructor
 import hedgehog._
 import hedgehog.runner._
