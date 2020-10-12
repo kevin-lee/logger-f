@@ -38,7 +38,7 @@ import scalaz.effect._
 
 import effectie.scalaz.EffectConstructor
 import effectie.scalaz.ConsoleEffect
-import effectie.Effectful._
+import effectie.scalaz.Effectful._
 
 import loggerf.logger._
 import loggerf.scalaz._
@@ -55,7 +55,7 @@ object Greeting {
     new Greeting[F] {
       def greet[A: Named](a: A): F[String] = for {
         name <- log(effectOf(Named[A].name(a)))(x => info(s"The name is $x"))
-        greeting <- effectOfPure(s"Hello $name")
+        greeting <- pureOf(s"Hello $name")
       } yield greeting
     }
 

@@ -39,7 +39,7 @@ import cats.effect._
 
 import effectie.cats.EffectConstructor
 import effectie.cats.ConsoleEffect
-import effectie.Effectful._
+import effectie.cats.Effectful._
 
 import loggerf.cats._
 import loggerf.logger._
@@ -56,7 +56,7 @@ object Greeting {
     new Greeting[F] {
       def greet[A: Named](a: A): F[String] = for {
         name <- log(effectOf(Named[A].name(a)))(x => info(s"The name is $x"))
-        greeting <- effectOfPure(s"Hello $name")
+        greeting <- pureOf(s"Hello $name")
       } yield greeting
     }
 

@@ -1,6 +1,7 @@
 ---
 id: getting-started
 title: Getting Started
+slug: /
 ---
 
 [![Build Status](https://github.com/Kevin-Lee/logger-f/workflows/Build-All/badge.svg)](https://github.com/Kevin-Lee/logger-f/actions?workflow=Build-All)
@@ -15,7 +16,7 @@ title: Getting Started
 | logger-f-log4j | [![Download](https://api.bintray.com/packages/kevinlee/maven/logger-f-log4j/images/download.svg)](https://bintray.com/kevinlee/maven/logger-f-log4j/_latestVersion) | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-log4j_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-log4j_2.13) |
 | logger-f-sbt-logging | [![Download](https://api.bintray.com/packages/kevinlee/maven/logger-f-sbt-logging/images/download.svg)](https://bintray.com/kevinlee/maven/logger-f-sbt-logging/_latestVersion) | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-sbt-logging_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-sbt-logging_2.13) |
 
-## ![](../img/logger-f-logo-96x96.png) LoggerF - Logger for `F[_]`
+## ![](/img/logger-f-logo-96x96.png) LoggerF - Logger for `F[_]`
 
 LoggerF is a tool for logging tagless final with an effect library. LoggerF requires [Effectie](https://kevin-lee.github.io/effectie) to construct `F[_]`. All the example code in this doc site uses Effectie so if you're not familiar with it, please check out [Effectie](https://kevin-lee.github.io/effectie) website.
 
@@ -112,7 +113,7 @@ import cats._
 import cats.implicits._
 import cats.effect._
 
-import effectie.Effectful._
+import effectie.cats.Effectful._
 import effectie.cats._
 
 def foo[F[_] : EffectConstructor : Monad](n: Int): F[Option[Int]] = for {
@@ -139,7 +140,7 @@ import cats.data._
 import cats.implicits._
 import cats.effect._
 
-import effectie.Effectful._
+import effectie.cats.Effectful._
 import effectie.cats._
 
 def foo[F[_] : EffectConstructor : Monad](n: Int): F[Option[Int]] = (for {
@@ -161,7 +162,7 @@ import cats.data._
 import cats.implicits._
 import cats.effect._
 
-import effectie.Effectful._
+import effectie.cats.Effectful._
 import effectie.cats._
 
 import loggerf.cats._
@@ -204,7 +205,7 @@ import cats.data._
 import cats.implicits._
 import cats.effect._
 
-import effectie.Effectful._
+import effectie.cats.Effectful._
 import effectie.cats._
 
 import loggerf.cats._
