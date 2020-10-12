@@ -28,7 +28,7 @@ const websiteConfig = {
         alt: 'logger-f Logo',
         src: 'img/logger-f-logo-32x32.png',
       },
-      links: [
+      items: [
         {
           to: 'docs/',
           activeBasePath: 'docs',
@@ -90,7 +90,6 @@ const websiteConfig = {
         docs: {
           path: '../generated-docs/target/mdoc/',
           // It is recommended to set document id as docs home page (`docs/` path).
-          homePageId: 'getting-started',
           sidebarPath: require.resolve('./sidebars.js'),
         },
         theme: {
