@@ -12,6 +12,6 @@ addSbtPlugin("io.kevinlee" % "sbt-devoops" % "1.0.3")
 
 addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.2.8" )
 
-addSbtPlugin("io.kevinlee" % "sbt-docusaur" % "0.1.4")
+addSbtPlugin("io.kevinlee" % "sbt-docusaur" % "0.3.0")
 
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.5.1")
