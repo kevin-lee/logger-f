@@ -182,12 +182,12 @@ object Log {
   implicit def logF[F[_]](
     implicit EF: EffectConstructor[F], EM: Monad[F], logger: CanLog
   ): Log[F] =
-    new LogF[F]
+    new LogF[F](EF, EM, logger)
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   final class LogF[F[_]](
-    implicit override val EF0: EffectConstructor[F]
-  , implicit override val MF0: Monad[F]
+    override val EF0: EffectConstructor[F]
+  , override val MF0: Monad[F]
   , override val canLog: CanLog
   ) extends Log[F]
 

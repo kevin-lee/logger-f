@@ -10,8 +10,8 @@ addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.2.7")
 
 addSbtPlugin("io.kevinlee" % "sbt-devoops" % "1.0.3")
 
-addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.2.8" )
+addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.2.9" )
 
 addSbtPlugin("io.kevinlee" % "sbt-docusaur" % "0.3.0")
 
-addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.5.1")
+addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.4.6")
