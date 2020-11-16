@@ -129,7 +129,7 @@ def libraryDependenciesPostProcess(
     libraries
 )
 
-val effectieVersion: String = "1.5.0"
+val effectieVersion: String = "1.6.0"
 lazy val effectieCatsEffect: ModuleID = "io.kevinlee" %% "effectie-cats-effect" % effectieVersion
 lazy val effectieScalazEffect: ModuleID = "io.kevinlee" %% "effectie-scalaz-effect" % effectieVersion
 
@@ -366,7 +366,7 @@ lazy val catsEffect =
     description  := "Logger for F[_] - Core"
   , libraryDependencies :=
     crossVersionProps(
-      hedgehogLibs ++ Seq(effectieCatsEffect)
+      hedgehogLibs
       , SemVer.parseUnsafe(scalaVersion.value)
     ) {
       case (Major(2), Minor(10)) =>
@@ -382,6 +382,7 @@ lazy val catsEffect =
       isDotty.value,
       libraryDependencies.value
     )
+  , libraryDependencies ++= Seq(effectieCatsEffect)
   )
   .dependsOn(core % IncludeTest)
 
@@ -391,7 +392,7 @@ lazy val scalazEffect = projectCommonSettings("scalazEffect", ProjectName("scala
     description  := "Logger for F[_] - Scalaz"
   , libraryDependencies :=
     crossVersionProps(
-      hedgehogLibs ++ Seq(effectieScalazEffect)
+      hedgehogLibs
       , SemVer.parseUnsafe(scalaVersion.value)
     ) {
       case (Major(2), Minor(10)) =>
@@ -407,6 +408,7 @@ lazy val scalazEffect = projectCommonSettings("scalazEffect", ProjectName("scala
       isDotty.value,
       libraryDependencies.value
     )
+  , libraryDependencies ++= Seq(effectieScalazEffect)
   )
   .dependsOn(core % IncludeTest)
 
