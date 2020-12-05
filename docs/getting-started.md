@@ -14,7 +14,10 @@ slug: /
 | logger-f-scalaz-effect | [![Download](https://api.bintray.com/packages/kevinlee/maven/logger-f-scalaz-effect/images/download.svg)](https://bintray.com/kevinlee/maven/logger-f-scalaz-effect/_latestVersion) | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-scalaz-effect_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-scalaz-effect_2.13) |
 | logger-f-slf4j | [![Download](https://api.bintray.com/packages/kevinlee/maven/logger-f-slf4j/images/download.svg)](https://bintray.com/kevinlee/maven/logger-f-slf4j/_latestVersion) | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-slf4j_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-slf4j_2.13) |
 | logger-f-log4j | [![Download](https://api.bintray.com/packages/kevinlee/maven/logger-f-log4j/images/download.svg)](https://bintray.com/kevinlee/maven/logger-f-log4j/_latestVersion) | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-log4j_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-log4j_2.13) |
+| logger-f-log4s | [![Download](https://api.bintray.com/packages/kevinlee/maven/logger-f-log4s/images/download.svg)](https://bintray.com/kevinlee/maven/logger-f-log4s/_latestVersion) | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-log4s_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-log4s_2.13) |
 | logger-f-sbt-logging | [![Download](https://api.bintray.com/packages/kevinlee/maven/logger-f-sbt-logging/images/download.svg)](https://bintray.com/kevinlee/maven/logger-f-sbt-logging/_latestVersion) | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-sbt-logging_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-sbt-logging_2.13) |
+
+* Supported Scala Versions: @SUPPORTED_SCALA_VERSIONS@
 
 ## ![](/img/logger-f-logo-96x96.png) LoggerF - Logger for `F[_]`
 
@@ -43,6 +46,16 @@ libraryDependencies ++=
   Seq(
     "io.kevinlee" %% "logger-f-cats-effect" % "@VERSION@",
     "io.kevinlee" %% "logger-f-log4j" % "@VERSION@"
+  )
+```
+
+#### With Log4s
+
+```scala
+libraryDependencies ++=
+  Seq(
+    "io.kevinlee" %% "logger-f-cats-effect" % "@VERSION@",
+    "io.kevinlee" %% "logger-f-log4s" % "@VERSION@"
   )
 ```
 
@@ -80,6 +93,18 @@ libraryDependencies ++=
   Seq(
     "io.kevinlee" %% "logger-f-scalaz-effect" % "@VERSION@",
     "io.kevinlee" %% "logger-f-log4j" % "@VERSION@"
+  )
+```
+
+#### With Log4s
+
+In `build.sbt`,
+
+```scala
+libraryDependencies ++= 
+  Seq(
+    "io.kevinlee" %% "logger-f-scalaz-effect" % "@VERSION@",
+    "io.kevinlee" %% "logger-f-log4s" % "@VERSION@"
   )
 ```
 
