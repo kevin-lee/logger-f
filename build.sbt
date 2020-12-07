@@ -129,8 +129,9 @@ def libraryDependenciesPostProcess(
     libraries
 )
 
-val effectieVersion: String = "1.7.0"
+val effectieVersion: String = "1.8.0"
 lazy val effectieCatsEffect: ModuleID = "io.kevinlee" %% "effectie-cats-effect" % effectieVersion
+lazy val effectieMonix: ModuleID = "io.kevinlee" %% "effectie-monix" % effectieVersion
 lazy val effectieScalazEffect: ModuleID = "io.kevinlee" %% "effectie-scalaz-effect" % effectieVersion
 
 def projectCommonSettings(id: String, projectName: ProjectName, file: File): Project =
@@ -363,7 +364,7 @@ lazy val sbtLogging =
 lazy val catsEffect =
   projectCommonSettings("catsEffect", ProjectName("cats-effect"), file("cats-effect"))
   .settings(
-    description  := "Logger for F[_] - Core"
+    description  := "Logger for F[_] - Cats Effect"
   , libraryDependencies :=
     crossVersionProps(
       hedgehogLibs
@@ -387,6 +388,30 @@ lazy val catsEffect =
   .dependsOn(core % IncludeTest)
 
 
+lazy val monix =
+  projectCommonSettings("monix", ProjectName("monix"), file(s"$RepoName-monix"))
+  .settings(
+    description  := "Logger for F[_] - Monix"
+  , libraryDependencies :=
+    crossVersionProps(
+      hedgehogLibs
+    , SemVer.parseUnsafe(scalaVersion.value)
+    ) {
+      case (Major(2), Minor(10)) =>
+        libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover")
+      case _ =>
+        libraryDependencies.value
+    }
+  , libraryDependencies := libraryDependenciesPostProcess(
+      scalaVersion.value,
+      isDotty.value,
+      libraryDependencies.value
+    )
+  , libraryDependencies ++= Seq(effectieMonix)
+  )
+  .dependsOn(core % IncludeTest)
+
+
 lazy val scalazEffect = projectCommonSettings("scalazEffect", ProjectName("scalaz-effect"), file("scalaz-effect"))
   .settings(
     description  := "Logger for F[_] - Scalaz"
@@ -398,9 +423,7 @@ lazy val scalazEffect = projectCommonSettings("scalazEffect", ProjectName("scala
       case (Major(2), Minor(10)) =>
         libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover") ++
           Seq(libScalazCore, libScalazEffect)
-      case (Major(2), Minor(11)) =>
-        libraryDependencies.value ++ Seq(libScalazCore, libScalazEffect)
-      case x =>
+      case _ =>
         libraryDependencies.value ++ Seq(libScalazCore, libScalazEffect)
     }
   , libraryDependencies := libraryDependenciesPostProcess(
@@ -527,7 +550,15 @@ lazy val docs = (project in file("generated-docs"))
     , gitHubPagesRepoName := RepoName
   )
   .settings(noPublish)
-  .dependsOn(core, slf4jLogger, log4jLogger, sbtLogging, catsEffect, scalazEffect)
+  .dependsOn(
+    core,
+    slf4jLogger,
+    log4jLogger,
+    sbtLogging,
+    catsEffect,
+    scalazEffect,
+    monix,
+  )
 
 
 lazy val loggerF = (project in file("."))
@@ -554,4 +585,5 @@ lazy val loggerF = (project in file("."))
     sbtLogging,
     catsEffect,
     scalazEffect,
+    monix,
   )
