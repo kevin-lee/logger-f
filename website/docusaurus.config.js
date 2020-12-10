@@ -59,6 +59,10 @@ const websiteConfig = {
               to: 'docs/cats-effect/cats-effect',
             },
             {
+              label: 'For Monix',
+              to: 'docs/monix/monix',
+            },
+            {
               label: 'For Scalaz Effect',
               to: 'docs/scalaz-effect/scalaz-effect',
             },

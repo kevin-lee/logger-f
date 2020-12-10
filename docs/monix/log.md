@@ -1,9 +1,9 @@
 ---
 id: log
-title: "Log - Cats"
+title: "Log - Monix"
 ---
 
-## Log - Cats (WIP)
+## Log - Monix (WIP)
 
 `Log` is a typeclass to log `F[A]`, `F[Option[A]]`, `F[Either[A, B]]`, `OptionT[F, A]` and `EitherT[F, A, B]`.
 
@@ -35,46 +35,52 @@ object Person {
 
 import cats._
 import cats.syntax.all._
-import cats.effect._
+import cats.effect.ExitCode
 
-import effectie.cats.EffectConstructor
-import effectie.cats.ConsoleEffect
-import effectie.cats.Effectful._
+import effectie.monix.{ConsoleEffect, EffectConstructor}
+import effectie.monix.Effectful._
 
-import loggerf.cats._
 import loggerf.logger._
+import loggerf.monix._
 import loggerf.syntax._
+
+import monix.eval.Task
+import monix.eval.TaskApp
+
 
 trait Greeting[F[_]] {
   def greet[A: Named](a: A): F[String]
 }
 
 object Greeting {
-  def apply[F[_] : Greeting]: Greeting[F] = implicitly[Greeting[F]]
+  def apply[F[_]: Greeting]: Greeting[F] = implicitly[Greeting[F]]
 
   implicit def hello[F[_]: EffectConstructor: Monad: Log]: Greeting[F] =
     new Greeting[F] {
-      def greet[A: Named](a: A): F[String] = for {
-        name <- log(effectOf(Named[A].name(a)))(x => info(s"The name is $x"))
-        greeting <- pureOf(s"Hello $name")
-      } yield greeting
+      def greet[A: Named](a: A): F[String] =
+        for {
+          name <- log(effectOf(Named[A].name(a)))(x => info(s"The name is $x"))
+          greeting <- pureOf(s"Hello $name")
+        } yield greeting
     }
 
 }
 
-object MyApp extends IOApp {
+object TaskMainApp extends TaskApp {
 
   implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp")
 
-  def run(args: List[String]): IO[ExitCode] = for {
-    greetingMessage <- Greeting[IO].greet(Person(GivenName("Kevin"), Surname("Lee")))
-    _ <- ConsoleEffect[IO].putStrLn(greetingMessage)
-  } yield ExitCode.Success
+  def run(args: List[String]): Task[ExitCode] =
+    for {
+      greetingMessage <- Greeting[Task].greet(
+        Person(GivenName("Kevin"), Surname("Lee"))
+      )
+      _ <- ConsoleEffect[Task].putStrLn(greetingMessage)
+    } yield ExitCode.Success
 }
-
 ```
 ```
-21:02:15.323 [ioapp-compute-0] INFO MyApp - The name is Kevin Lee
+19:57:04.076 [scala-execution-context-global-21] INFO MyApp - The name is Kevin Lee
 Hello Kevin Lee
 ```
 

@@ -450,6 +450,20 @@ lazy val testCatsEffectWithSlf4jLogger =
     .settings(noPublish)
     .dependsOn(core, slf4jLogger, catsEffect)
 
+lazy val testMonixWithSlf4jLogger =
+  projectCommonSettings("testMonixWithSlf4jLogger", ProjectName("test-monix-slf4j"), file("test-monix-slf4j"))
+    .settings(
+      description  := "Test Logger for F[_] - Logger with Slf4j"
+    , libraryDependencies ++= Seq(slf4jApi, logbackClassic)
+    , libraryDependencies := libraryDependenciesPostProcess(
+        scalaVersion.value,
+        isDotty.value,
+        libraryDependencies.value
+      )
+    )
+    .settings(noPublish)
+    .dependsOn(core, slf4jLogger, monix)
+
 lazy val testScalazEffectWithSlf4jLogger =
   projectCommonSettings("testScalazEffectWithSlf4jLogger", ProjectName("test-scalaz-effect-slf4j"), file("test-scalaz-effect-slf4j"))
     .settings(
