@@ -138,7 +138,7 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
   Project(id, file)
     .settings(
       name := prefixedProjectName(projectName.projectName)
-    , addCompilerPlugin("org.typelevel" % "kind-projector" % "0.11.0" cross CrossVersion.full)
+    , addCompilerPlugin("org.typelevel" % "kind-projector" % "0.11.2" cross CrossVersion.full)
     , addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
     , scalacOptions := scalacOptionsPostProcess(
         SemVer.parseUnsafe(scalaVersion.value),
@@ -167,7 +167,7 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
         case "2.11" =>
           Seq("com.lihaoyi" % "ammonite" % "1.6.7" % Test cross CrossVersion.full)
         case "2.12" | "2.13" =>
-          Seq("com.lihaoyi" % "ammonite" % "2.3.8" % Test cross CrossVersion.full)
+          Seq("com.lihaoyi" % "ammonite" % "2.3.8-36-1cce53f3" % Test cross CrossVersion.full)
         case _ =>
           Seq.empty[ModuleID]
       })
