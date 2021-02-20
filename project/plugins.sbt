@@ -8,7 +8,7 @@ addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.0")
 
 addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.2.7")
 
-addSbtPlugin("io.kevinlee" % "sbt-devoops" % "1.0.3")
+addSbtPlugin("io.kevinlee" % "sbt-devoops" % "2.0.0")
 
 addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.2.13" )
 

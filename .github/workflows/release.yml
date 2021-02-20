@@ -6,7 +6,7 @@ on:
       - '*'
 
 jobs:
-  build:
+  github-release:
 
     runs-on: ubuntu-latest
     steps:
@@ -15,46 +15,32 @@ jobs:
         with:
           java-version: "11"
 
-      - name: Cache Coursier
-        uses: actions/cache@v1
+      - name: Cache SBT
+        uses: actions/cache@v2
         with:
-          path: ~/.cache/coursier
-          key: ${{ runner.os }}-coursier-scala-${{ matrix.scala.binary-version }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
+          path: |
+            ~/.ivy2/cache
+            ~/.cache/coursier
+            ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ matrix.scala.binary-version }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
           restore-keys: |
-            ${{ runner.os }}-coursier-scala-${{ matrix.scala.binary-version }}-
-
-      - name: Cache Ivy
-        uses: actions/cache@v1
-        with:
-          path: ~/.ivy2/cache
-          key: ${{ runner.os }}-ivy-scala-${{ matrix.scala.binary-version }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-ivy-scala-${{ matrix.scala.binary-version }}-
+            ${{ runner.os }}-sbt-${{ matrix.scala.binary-version }}-
 
       - name: sbt GitHub Release LoggerF
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_AUTH_TOKEN_GITHUB }}
         run: |
+          echo "======================="
           echo "Run] sbt GitHub release"
-          echo "mkdir -p dotty-docs"
-          mkdir -p dotty-docs
-          export SOURCE_DATE_EPOCH=$(date +%s)
-          echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
-          echo 'sbt -J-Xmx2048m clean +test +packagedArtifacts'
+          echo "-----------------------"
+          echo 'sbt -J-Xmx2048m devOopsGitHubRelease'
           sbt \
             -J-Xmx2048m \
-            clean \
-            +test \
-            +packagedArtifacts
-          echo "====================="
-          echo 'sbt -J-Xmx2048m gitHubRelease'
-          sbt \
-            -J-Xmx2048m \
-            gitHubRelease
+            devOopsGitHubRelease
 
 
-  publish:
-    needs: build
+  github-release-artifacts-and-publish:
+    needs: github-release
 
     runs-on: ubuntu-latest
 
@@ -64,7 +50,7 @@ jobs:
           - { name: "Scala 2", version: "2.11.12", binary-version: "2.11", java-version: "8" }
           - { name: "Scala 2", version: "2.12.12", binary-version: "2.12", java-version: "11" }
           - { name: "Scala 2", version: "2.13.3",  binary-version: "2.13", java-version: "11" }
-          - { name: "Scala 3", version: "3.0.0-M2",  binary-version: "3.0.0-M2", java-version: "11" }
+          - { name: "Scala 3", version: "3.0.0-M3",  binary-version: "3.0.0-M3", java-version: "11" }
 
     steps:
       - uses: actions/checkout@v2
@@ -72,24 +58,20 @@ jobs:
         with:
           java-version: ${{ matrix.scala.java-version }}
 
-      - name: Cache Coursier
-        uses: actions/cache@v1
+      - name: Cache SBT
+        uses: actions/cache@v2
         with:
-          path: ~/.cache/coursier
-          key: ${{ runner.os }}-coursier-scala-${{ matrix.scala.binary-version }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
+          path: |
+            ~/.ivy2/cache
+            ~/.cache/coursier
+            ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ matrix.scala.binary-version }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
           restore-keys: |
-            ${{ runner.os }}-coursier-scala-${{ matrix.scala.binary-version }}-
+            ${{ runner.os }}-sbt-${{ matrix.scala.binary-version }}-
 
-      - name: Cache Ivy
-        uses: actions/cache@v1
-        with:
-          path: ~/.ivy2/cache
-          key: ${{ runner.os }}-ivy-scala-${{ matrix.scala.binary-version }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-ivy-scala-${{ matrix.scala.binary-version }}-
-
-      - name: "sbt Publish for ${{ matrix.scala.name }} ${{ matrix.scala.version }} - ${{ github.run_number }}"
+      - name: "sbt GitHub Release - Upload Artifacts for ${{ matrix.scala.name }} ${{ matrix.scala.version }} - ${{ github.run_number }}"
         env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_AUTH_TOKEN_GITHUB }}
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
           BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
         run: |
@@ -104,10 +86,13 @@ jobs:
             ++${{ matrix.scala.version }}! \
             -v \
             clean \
+            test \
+            packagedArtifacts \
+            devOopsGitHubReleaseUploadArtifacts \
             publish
 
   publish_maven:
-    needs: publish
+    needs: github-release-artifacts-and-publish
     if: startsWith(github.ref, 'refs/tags/v')
 
     runs-on: ubuntu-latest
