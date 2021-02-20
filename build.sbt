@@ -3,7 +3,7 @@ import kevinlee.sbt.SbtCommon.crossVersionProps
 import just.semver.SemVer
 import SemVer.{Major, Minor}
 
-val DottyVersion = "3.0.0-M2"
+val DottyVersion = "3.0.0-M3"
 val ProjectScalaVersion = "2.13.3"
 
 val removeDottyIncompatible: ModuleID => Boolean =
@@ -18,7 +18,7 @@ val CrossScalaVersions: Seq[String] = Seq(
 ).distinct
 val IncludeTest: String = "compile->compile;test->test"
 
-lazy val hedgehogVersion = "0.5.1"
+lazy val hedgehogVersion = "0.6.2"
 lazy val hedgehogRepo: MavenRepository =
   "bintray-scala-hedgehog" at "https://dl.bintray.com/hedgehogqa/scala-hedgehog"
 
@@ -41,7 +41,7 @@ lazy val slf4jApi: ModuleID = "org.slf4j" % "slf4j-api" % "1.7.30"
 lazy val logbackClassic: ModuleID =  "ch.qos.logback" % "logback-classic" % "1.2.3"
 
 lazy val log4sLib: ModuleID = "org.log4s" %% "log4s" % "1.9.0"
-lazy val log4sLibForScala3: ModuleID = "org.log4s" %% "log4s" % "1.10.0-M3"
+lazy val log4sLibForScala3: ModuleID = "org.log4s" %% "log4s" % "1.10.0-M4"
 
 lazy val log4jApi = "org.apache.logging.log4j" % "log4j-api" % "2.13.1"
 lazy val log4jCore = "org.apache.logging.log4j" % "log4j-core" % "2.13.1"
@@ -129,7 +129,7 @@ def libraryDependenciesPostProcess(
     libraries
 )
 
-val effectieVersion: String = "1.8.0"
+val effectieVersion: String = "1.8.1"
 lazy val effectieCatsEffect: ModuleID = "io.kevinlee" %% "effectie-cats-effect" % effectieVersion
 lazy val effectieMonix: ModuleID = "io.kevinlee" %% "effectie-monix" % effectieVersion
 lazy val effectieScalazEffect: ModuleID = "io.kevinlee" %% "effectie-scalaz-effect" % effectieVersion
@@ -339,15 +339,15 @@ lazy val sbtLogging =
         List.empty
       , SemVer.parseUnsafe(scalaVersion.value)
     ) {
-      case (Major(2), Minor(11)) =>
+      case (Major(2), Minor(11), _) =>
         Seq(
           sbtLoggingLib % "1.2.4"
         ).map(_ % Provided)
-      case (Major(2), Minor(12)) =>
+      case (Major(2), Minor(12), _) =>
         Seq(
           sbtLoggingLib % "1.3.3"
         ).map(_ % Provided)
-      case (Major(2), Minor(13)) | (Major(3), Minor(0)) =>
+      case (Major(2), Minor(13), _) | (Major(3), Minor(0), _) =>
         Seq(
           sbtLoggingLib % "1.4.2"
         ).map(_ % Provided)
@@ -370,10 +370,10 @@ lazy val catsEffect =
       hedgehogLibs
       , SemVer.parseUnsafe(scalaVersion.value)
     ) {
-      case (Major(2), Minor(10)) =>
+      case (Major(2), Minor(10), _) =>
         libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover") ++
           Seq(libCatsCore, libCatsEffect)
-      case (Major(2), Minor(11)) =>
+      case (Major(2), Minor(11), _) =>
         libraryDependencies.value ++ Seq(libCatsCore_2_0_0, libCatsEffect_2_0_0)
       case x =>
         libraryDependencies.value ++ Seq(libCatsCore, libCatsEffect)
@@ -397,7 +397,7 @@ lazy val monix =
       hedgehogLibs
     , SemVer.parseUnsafe(scalaVersion.value)
     ) {
-      case (Major(2), Minor(10)) =>
+      case (Major(2), Minor(10), _) =>
         libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover")
       case _ =>
         libraryDependencies.value
@@ -420,7 +420,7 @@ lazy val scalazEffect = projectCommonSettings("scalazEffect", ProjectName("scala
       hedgehogLibs
       , SemVer.parseUnsafe(scalaVersion.value)
     ) {
-      case (Major(2), Minor(10)) =>
+      case (Major(2), Minor(10), _) =>
         libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover") ++
           Seq(libScalazCore, libScalazEffect)
       case _ =>
@@ -576,7 +576,7 @@ lazy val docs = (project in file("generated-docs"))
 
 
 lazy val loggerF = (project in file("."))
-  .enablePlugins(DevOopsGitReleasePlugin)
+  .enablePlugins(DevOopsGitHubReleasePlugin)
   .settings(
     name := prefixedProjectName("")
   , description := "Logger for F[_]"
@@ -586,7 +586,6 @@ lazy val loggerF = (project in file("."))
       libraryDependencies.value,
     )
   /* GitHub Release { */
-  , gitTagFrom := "main"
   , devOopsPackagedArtifacts := List(s"*/target/scala-*/${name.value}*.jar")
   /* } GitHub Release */
   )
