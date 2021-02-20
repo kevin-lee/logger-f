@@ -167,7 +167,7 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
         case "2.11" =>
           Seq("com.lihaoyi" % "ammonite" % "1.6.7" % Test cross CrossVersion.full)
         case "2.12" | "2.13" =>
-          Seq("com.lihaoyi" % "ammonite" % "2.2.0" % Test cross CrossVersion.full)
+          Seq("com.lihaoyi" % "ammonite" % "2.3.8" % Test cross CrossVersion.full)
         case _ =>
           Seq.empty[ModuleID]
       })
