@@ -3,7 +3,7 @@ import kevinlee.sbt.SbtCommon.crossVersionProps
 import just.semver.SemVer
 import SemVer.{Major, Minor}
 
-val DottyVersion = "3.0.0-M3"
+val DottyVersion = "3.0.0-RC1"
 val ProjectScalaVersion = "2.13.3"
 
 val removeDottyIncompatible: ModuleID => Boolean =
@@ -14,7 +14,7 @@ val removeDottyIncompatible: ModuleID => Boolean =
       m.name == "mdoc"
 
 val CrossScalaVersions: Seq[String] = Seq(
-  "2.11.12", "2.12.12", "2.13.3", DottyVersion
+  "2.11.12", "2.12.12", ProjectScalaVersion, DottyVersion
 ).distinct
 val IncludeTest: String = "compile->compile;test->test"
 
@@ -41,7 +41,7 @@ lazy val slf4jApi: ModuleID = "org.slf4j" % "slf4j-api" % "1.7.30"
 lazy val logbackClassic: ModuleID =  "ch.qos.logback" % "logback-classic" % "1.2.3"
 
 lazy val log4sLib: ModuleID = "org.log4s" %% "log4s" % "1.9.0"
-lazy val log4sLibForScala3: ModuleID = "org.log4s" %% "log4s" % "1.10.0-M4"
+lazy val log4sLibForScala3: ModuleID = "org.log4s" %% "log4s" % "1.10.0-M5"
 
 lazy val log4jApi = "org.apache.logging.log4j" % "log4j-api" % "2.13.1"
 lazy val log4jCore = "org.apache.logging.log4j" % "log4j-core" % "2.13.1"
@@ -129,7 +129,7 @@ def libraryDependenciesPostProcess(
     libraries
 )
 
-val effectieVersion: String = "1.8.1"
+val effectieVersion: String = "1.9.0"
 lazy val effectieCatsEffect: ModuleID = "io.kevinlee" %% "effectie-cats-effect" % effectieVersion
 lazy val effectieMonix: ModuleID = "io.kevinlee" %% "effectie-monix" % effectieVersion
 lazy val effectieScalazEffect: ModuleID = "io.kevinlee" %% "effectie-scalaz-effect" % effectieVersion
