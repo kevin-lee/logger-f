@@ -4,7 +4,7 @@ import just.semver.SemVer
 import SemVer.{Major, Minor}
 
 val DottyVersion = "3.0.0-RC1"
-val ProjectScalaVersion = "2.13.3"
+val ProjectScalaVersion = "2.13.4"
 
 val removeDottyIncompatible: ModuleID => Boolean =
   m =>
@@ -48,6 +48,15 @@ lazy val log4jCore = "org.apache.logging.log4j" % "log4j-core" % "2.13.1"
 
 lazy val sbtLoggingLib = "org.scala-sbt" %% "util-logging"
 
+lazy val scala3cLanguageOptions = "-language:" + List(
+  "dynamics",
+  "existentials",
+  "higherKinds",
+  "reflectiveCalls",
+  "experimental.macros",
+  "implicitConversions"
+).mkString(",")
+
 ThisBuild / scalaVersion     := ProjectScalaVersion
 ThisBuild / version          := ProjectVersion
 ThisBuild / organization     := "io.kevinlee"
@@ -82,14 +91,7 @@ def scalacOptionsPostProcess(scalaSemVer: SemVer, isDotty: Boolean, options: Seq
   if (isDotty || (scalaSemVer.major, scalaSemVer.minor) == (SemVer.Major(3), SemVer.Minor(0))) {
     Seq(
       "-source:3.0-migration",
-      "-language:" + List(
-        "dynamics",
-        "existentials",
-        "higherKinds",
-        "reflectiveCalls",
-        "experimental.macros",
-        "implicitConversions"
-      ).mkString(","),
+      scala3cLanguageOptions,
       "-Ykind-projector",
       "-siteroot", "./dotty-docs",
     )
@@ -145,6 +147,27 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
         isDotty.value,
         scalacOptions.value
       )
+    , Compile / doc / scalacOptions := ((Compile / doc / scalacOptions).value.filterNot(
+        if (isDotty.value) {
+          Set(
+            "-source:3.0-migration",
+            "-scalajs",
+            "-deprecation",
+            "-explain-types",
+            "-explain",
+            "-feature",
+            scala3cLanguageOptions,
+            "-unchecked",
+            "-Xfatal-warnings",
+            "-Ykind-projector",
+            "-from-tasty",
+            "-encoding",
+            "utf8",
+          )
+        } else {
+          Set.empty[String]
+        }
+      ))
     , resolvers ++= Seq(
         Resolver.sonatypeRepo("releases")
         , hedgehogRepo
