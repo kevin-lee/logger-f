@@ -79,7 +79,6 @@ lazy val scala3cLanguageOptions =
   ).mkString(",")
 
 ThisBuild / scalaVersion := ProjectScalaVersion
-ThisBuild / version := ProjectVersion
 ThisBuild / organization := "io.kevinlee"
 ThisBuild / organizationName := "Kevin's Code"
 ThisBuild / crossScalaVersions := CrossScalaVersions
@@ -109,6 +108,8 @@ def scalacOptionsPostProcess(scalaSemVer: SemVer, options: Seq[String]): Seq[Str
     case SemVer(SemVer.Major(3), SemVer.Minor(0), _, _, _) =>
       Seq(
         "-source:3.0-migration",
+        "-unchecked",
+        "-Xfatal-warnings",
         scala3cLanguageOptions,
         "-Ykind-projector",
         "-siteroot",
@@ -200,25 +201,11 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
       Test / console / scalacOptions :=
         (console / scalacOptions)
           .value
-          .filterNot(option => option.contains("wartremover") || option.contains("import"))
-      /* } WartRemover and scalacOptions */,
-      testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework"))
-      /* Bintray { */,
-      bintrayPackageLabels := Seq(
-        "Scala",
-        "Logger",
-        "Tagless Final",
-        "Finally Tagless",
-        "Functional Programming",
-        "FP"
-      ),
-      bintrayVcsUrl := Some(s"""https://github.com/$GitHubUsername/$RepoName"""),
-      licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
-      /* } Bintray */,
-      console / initialCommands :=
-        """"""
+          .filterNot(option => option.contains("wartremover") || option.contains("import")),
+      /* } WartRemover and scalacOptions */
+      testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework")),
 
-      /* Coveralls { */,
+      /* Coveralls { */
       coverageHighlighting := (CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 10)) =>
           false
@@ -258,22 +245,10 @@ lazy val log4sLogger = projectCommonSettings("log4sLogger", ProjectName("log4s")
       libraryDependencies.value
     ),
     libraryDependencies ++= List(
-      (SemVer.parseUnsafe(scalaVersion.value) match {
-        case SemVer(
-              Major(3),
-              Minor(0),
-              Patch(0),
-              Some(PreRelease(List(Dsv(List(Anh.Alphabet("RC"), Anh.Num("1")))))),
-              _
-            ) =>
+      (scalaVersion.value match {
+        case "3.0.0-RC1" =>
           log4sLibForScala3 % Provided
-        case SemVer(
-              Major(3),
-              Minor(0),
-              Patch(0),
-              _,
-              _
-            ) =>
+        case "3.0.0-RC2" | "3.0.0-RC3" =>
           log4sLibForScala3Latest % Provided
         case _ =>
           (log4sLib % Provided).cross(CrossVersion.for3Use2_13)
