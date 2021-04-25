@@ -5,7 +5,7 @@ import SemVer.{Major, Minor, Patch}
 import just.semver.AdditionalInfo.PreRelease
 
 val DottyVersions       = List("3.0.0-RC1", "3.0.0-RC2", "3.0.0-RC3")
-val ProjectScalaVersion = "2.13.4"
+val ProjectScalaVersion = "2.13.5"
 
 val removeDottyIncompatible: ModuleID => Boolean =
   m =>
@@ -18,7 +18,7 @@ val removeDottyIncompatible: ModuleID => Boolean =
 val CrossScalaVersions: Seq[String] =
   (List(
     "2.11.12",
-    "2.12.12",
+    "2.12.13",
     ProjectScalaVersion
   ) ++ DottyVersions).distinct
 val IncludeTest: String             = "compile->compile;test->test"
