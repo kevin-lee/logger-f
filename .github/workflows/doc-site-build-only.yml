@@ -1,9 +1,9 @@
-name: "Doc Site Build Only"
+name: "[Doc][A] Build Only"
 
 on:
   push:
-    branches-ignore:
-      - publish-docs
+    branches:
+      - "**"
 
 jobs:
   build-docusaurus:
@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         scala:
-          - { version: "2.13.4", binary-version: "2.13", java-version: "11" }
+          - { version: "2.13.5", binary-version: "2.13", java-version: "11" }
 
     steps:
       - uses: actions/checkout@v2
