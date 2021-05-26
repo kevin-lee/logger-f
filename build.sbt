@@ -313,10 +313,6 @@ lazy val docs = (project in file("generated-docs"))
   .enablePlugins(MdocPlugin, DocusaurPlugin)
   .settings(
     name := prefixedProjectName("docs"),
-    scalacOptions := scalacOptionsPostProcess(
-      SemVer.parseUnsafe(scalaVersion.value),
-      scalacOptions.value
-    ),
     libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
       scalaVersion.value,
       libraryDependencies.value
@@ -459,27 +455,6 @@ def prefixedProjectName(name: String) = s"${props.RepoName}${if (name.isEmpty)
 else
   s"-$name"}"
 
-def scalacOptionsPostProcess(scalaSemVer: SemVer, options: Seq[String]): Seq[String] =
-  scalaSemVer match {
-    case SemVer(SemVer.Major(3), SemVer.Minor(0), _, _, _)                    =>
-      Seq(
-        "-source:3.0-migration",
-        "-unchecked",
-        "-Xfatal-warnings",
-        props.scala3cLanguageOptions,
-        "-Ykind-projector",
-        "-siteroot",
-        "./dotty-docs",
-      )
-    case SemVer(SemVer.Major(2), SemVer.Minor(13), SemVer.Patch(patch), _, _) =>
-      if (patch >= 3)
-        options.filterNot(_ == "-Xlint:nullary-override")
-      else
-        options
-    case _: SemVer                                                            =>
-      options
-  }
-
 def libraryDependenciesRemoveScala3Incompatible(
   scalaVersion: String,
   libraries: Seq[ModuleID]
@@ -497,33 +472,6 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
     .settings(
       name := prefixedProjectName(projectName.projectName),
       licenses := props.licenses,
-      scalacOptions := scalacOptionsPostProcess(
-        SemVer.parseUnsafe(scalaVersion.value),
-        scalacOptions.value
-      ),
-      Compile / doc / scalacOptions := ((Compile / doc / scalacOptions)
-        .value
-        .filterNot(
-          if (scalaVersion.value.startsWith("3.0")) {
-            Set(
-              "-source:3.0-migration",
-              "-scalajs",
-              "-deprecation",
-              "-explain-types",
-              "-explain",
-              "-feature",
-              props.scala3cLanguageOptions,
-              "-unchecked",
-              "-Xfatal-warnings",
-              "-Ykind-projector",
-              "-from-tasty",
-              "-encoding",
-              "utf8",
-            )
-          } else {
-            Set.empty[String]
-          }
-        )),
       /* WartRemover and scalacOptions { */
       //      , Compile / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       //      , Test / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
