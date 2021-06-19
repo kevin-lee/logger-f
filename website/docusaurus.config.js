@@ -1,6 +1,9 @@
 const algoliaConfig = require('./algolia.config.json');
 const googleAnalyticsConfig = require('./google-analytics.config.json');
 
+const lightCodeTheme = require('prism-react-renderer/themes/nightOwlLight');
+const darkCodeTheme = require('prism-react-renderer/themes/nightOwl');
+
 const isEmptyObject = obj => {
   for (field in obj) return false;
   return true;
@@ -22,9 +25,12 @@ const websiteConfig = {
   themeConfig: {
     sidebarCollapsible: false,
     prism: {
-      theme: require('prism-react-renderer/themes/nightOwl'),
-      darkTheme: require('prism-react-renderer/themes/nightOwl'),
-      additionalLanguages: ['scala'],
+      theme: lightCodeTheme,
+      darkTheme: darkCodeTheme,
+      additionalLanguages: [
+        'java',
+        'scala',
+      ],
     },
     navbar: {
       title: 'logger-f',
@@ -37,11 +43,12 @@ const websiteConfig = {
           to: 'docs/',
           activeBasePath: 'docs',
           label: 'Docs',
-          position: 'right',
+          position: 'left',
         },
         {
           href: 'https://github.com/Kevin-Lee/logger-f',
-          label: 'GitHub',
+          className: 'header-github-link',
+          'aria-label': 'GitHub',
           position: 'right',
         },
       ],
