@@ -6,7 +6,7 @@ title: "Log - Scalaz"
 
 `Log` is a typeclass to log `F[A]`, `F[Option[A]]`, `F[A \/ B]`, `OptionT[F, A]` and `EitherT[F, A, B]`.
 
-It requires `EffectConstructor` from [Effectie](https://kevin-lee.github.io/effectie) and `Monad` from [Scalaz](https://github.com/scalaz/scalaz).
+It requires `Fx` from [Effectie](https://kevin-lee.github.io/effectie) and `Monad` from [Scalaz](https://github.com/scalaz/scalaz).
 
 ## Log `F[A]`
 ```scala
@@ -36,7 +36,7 @@ import scalaz._
 import Scalaz._
 import scalaz.effect._
 
-import effectie.scalaz.EffectConstructor
+import effectie.scalaz.Fx
 import effectie.scalaz.ConsoleEffect
 import effectie.scalaz.Effectful._
 
@@ -51,7 +51,7 @@ trait Greeting[F[_]] {
 object Greeting {
   def apply[F[_] : Greeting]: Greeting[F] = implicitly[Greeting[F]]
 
-  implicit def hello[F[_]: EffectConstructor: Monad: Log]: Greeting[F] =
+  implicit def hello[F[_]: Fx: Monad: Log]: Greeting[F] =
     new Greeting[F] {
       def greet[A: Named](a: A): F[String] = for {
         name <- log(effectOf(Named[A].name(a)))(x => info(s"The name is $x"))

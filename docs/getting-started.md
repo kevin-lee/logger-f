@@ -187,7 +187,7 @@ import cats.effect._
 import effectie.cats.Effectful._
 import effectie.cats._
 
-def foo[F[_] : EffectConstructor : Monad](n: Int): F[Option[Int]] = for {
+def foo[F[_] : Fx : Monad](n: Int): F[Option[Int]] = for {
   a <- effectOf(n.some)
   b <- effectOf(none[Int])
   c <- effectOf(123.some)
@@ -214,7 +214,7 @@ import cats.effect._
 import effectie.cats.Effectful._
 import effectie.cats._
 
-def foo[F[_] : EffectConstructor : Monad](n: Int): F[Option[Int]] = (for {
+def foo[F[_] : Fx : Monad](n: Int): F[Option[Int]] = (for {
   a <- OptionT(effectOf(n.some))
   b <- OptionT(effectOf(none[Int]))
   c <- OptionT(effectOf(123.some))
@@ -243,7 +243,7 @@ import loggerf.syntax._
 // or Slf4JLogger.slf4JLogger[MyClass]
 implicit val logger: CanLog = Slf4JLogger.slf4JCanLog("MyLogger")
 
-def foo[F[_] : EffectConstructor : Monad : Log](n: Int): F[Option[Int]] =
+def foo[F[_] : Fx : Monad : Log](n: Int): F[Option[Int]] =
   (for {
     a <- log(OptionT(effectOf(n.some)))(
         ifEmpty = error("a is empty"),
@@ -286,7 +286,7 @@ import loggerf.syntax._
 // or Slf4JLogger.slf4JLogger[MyClass]
 implicit val logger: CanLog = Slf4JLogger.slf4JCanLog("MyLogger")
 
-def foo[F[_] : EffectConstructor : Monad : Log](n: Int): F[Either[String, Int]] =
+def foo[F[_] : Fx : Monad : Log](n: Int): F[Either[String, Int]] =
   (for {
     a <- log(EitherT(effectOf(n.asRight[String])))(
         err => error(s"Error: $err"),
