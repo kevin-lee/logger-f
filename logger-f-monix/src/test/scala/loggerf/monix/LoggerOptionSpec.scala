@@ -2,7 +2,7 @@ package loggerf.monix
 
 import cats._
 
-import effectie.monix.EffectConstructor
+import effectie.monix.Fx
 import effectie.monix.Effectful._
 
 import hedgehog._
@@ -35,7 +35,7 @@ object LoggerOptionSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_] : EffectConstructor : Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_] : Fx : Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOption[F].debugOption(effectOf(oa))(ifEmpty = emptyMsg, a => s"$logMsg - $a")
 
     val result = runLog[Task](oa).runSyncUnsafe()
@@ -76,7 +76,7 @@ object LoggerOptionSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_] : EffectConstructor : Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_] : Fx : Monad](oa: Option[Int]): F[Option[Int]] =
      LoggerOption[F].infoOption(effectOf(oa))(ifEmpty = emptyMsg, a => s"$logMsg - $a")
 
     val result = runLog[Task](oa).runSyncUnsafe()
@@ -117,7 +117,7 @@ object LoggerOptionSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_] : EffectConstructor : Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_] : Fx : Monad](oa: Option[Int]): F[Option[Int]] =
      LoggerOption[F].warnOption(effectOf(oa))(ifEmpty = emptyMsg, a => s"$logMsg - $a")
 
     val result = runLog[Task](oa).runSyncUnsafe()
@@ -158,7 +158,7 @@ object LoggerOptionSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_] : EffectConstructor : Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_] : Fx : Monad](oa: Option[Int]): F[Option[Int]] =
      LoggerOption[F].errorOption(effectOf(oa))(ifEmpty = emptyMsg, a => s"$logMsg - $a")
 
     val result = runLog[Task](oa).runSyncUnsafe()

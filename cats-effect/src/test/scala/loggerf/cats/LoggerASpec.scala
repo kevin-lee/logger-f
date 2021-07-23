@@ -3,7 +3,7 @@ package loggerf.cats
 import cats._
 import cats.effect._
 import effectie.cats.Effectful._
-import effectie.cats.EffectConstructor
+import effectie.cats.Fx
 import hedgehog._
 import hedgehog.runner._
 import loggerf.logger.LoggerForTesting
@@ -32,7 +32,7 @@ object LoggerASpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_] : EffectConstructor : Monad]: F[Int] =
+    def runLog[F[_] : Fx : Monad]: F[Int] =
       LoggerA[F].debugA(effectOf(n))(a => s"$debugMsg - $a")
 
     val result = runLog[IO].unsafeRunSync()
@@ -59,7 +59,7 @@ object LoggerASpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_] : EffectConstructor : Monad]: F[String] =
+    def runLog[F[_] : Fx : Monad]: F[String] =
       LoggerA[F].debugS(effectOf(s))
 
     val result = runLog[IO].unsafeRunSync()
@@ -88,7 +88,7 @@ object LoggerASpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_] : EffectConstructor : Monad]: F[Int] =
+    def runLog[F[_] : Fx : Monad]: F[Int] =
       LoggerA[F].infoA(effectOf(n))(a => s"$infoMsg - $a")
 
     val result = runLog[IO].unsafeRunSync()
@@ -115,7 +115,7 @@ object LoggerASpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_] : EffectConstructor : Monad]: F[String] =
+    def runLog[F[_] : Fx : Monad]: F[String] =
       LoggerA[F].infoS(effectOf(s))
 
     val result = runLog[IO].unsafeRunSync()
@@ -144,7 +144,7 @@ object LoggerASpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_] : EffectConstructor : Monad]: F[Int] =
+    def runLog[F[_] : Fx : Monad]: F[Int] =
       LoggerA[F].warnA(effectOf(n))(a => s"$warnMsg - $n")
 
     val result = runLog[IO].unsafeRunSync()
@@ -171,7 +171,7 @@ object LoggerASpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_] : EffectConstructor : Monad]: F[String] =
+    def runLog[F[_] : Fx : Monad]: F[String] =
       LoggerA[F].warnS(effectOf(s))
 
     val result = runLog[IO].unsafeRunSync()
@@ -200,7 +200,7 @@ object LoggerASpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_] : EffectConstructor : Monad]: F[Int] =
+    def runLog[F[_] : Fx : Monad]: F[Int] =
       LoggerA[F].errorA(effectOf(n))(a => s"$errorMsg - $n")
 
     val result = runLog[IO].unsafeRunSync()
@@ -227,7 +227,7 @@ object LoggerASpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_] : EffectConstructor : Monad]: F[String] =
+    def runLog[F[_] : Fx : Monad]: F[String] =
       LoggerA[F].errorS(effectOf(s))
 
     val result = runLog[IO].unsafeRunSync()

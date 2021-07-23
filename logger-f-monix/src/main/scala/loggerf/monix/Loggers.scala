@@ -1,7 +1,7 @@
 package loggerf.monix
 
 import cats.Monad
-import effectie.monix.EffectConstructor
+import effectie.monix.Fx
 import loggerf.logger.CanLog
 
 /**
@@ -21,12 +21,12 @@ object Loggers {
   def apply[F[_] : Loggers]: Loggers[F] = implicitly[Loggers[F]]
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-  implicit def loggers[F[_]](implicit EF: EffectConstructor[F], MF: Monad[F], logger: CanLog): Loggers[F] =
+  implicit def loggers[F[_]](implicit EF: Fx[F], MF: Monad[F], logger: CanLog): Loggers[F] =
     new LoggersF[F]
 
-  final class LoggersF[F[_] : EffectConstructor : Monad](
+  final class LoggersF[F[_] : Fx : Monad](
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-    implicit override val EF0: EffectConstructor[F]
+    implicit override val EF0: Fx[F]
   , override val MF0: Monad[F]
   , override val canLog: CanLog
   ) extends Loggers[F]
