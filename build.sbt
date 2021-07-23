@@ -318,14 +318,15 @@ lazy val docs = (project in file("generated-docs"))
       libraryDependencies.value
     ),
     mdocVariables := Map(
-      "VERSION" -> {
+      "VERSION"                  -> {
         import sys.process._
         "git fetch --tags".!
         val tag = "git rev-list --tags --max-count=1".!!.trim
         s"git describe --tags $tag".!!.trim.stripPrefix("v")
       },
       "SUPPORTED_SCALA_VERSIONS" -> {
-        val versions = props.CrossScalaVersions
+        val versions = props
+          .CrossScalaVersions
           .map(CrossVersion.binaryScalaVersion)
           .map(binVer => s"`$binVer`")
         if (versions.length > 1)
@@ -401,21 +402,11 @@ lazy val props =
         ProjectScalaVersion
       ) ++ DottyVersions).distinct
 
-    final val scala3cLanguageOptions =
-      "-language:" + List(
-        "dynamics",
-        "existentials",
-        "higherKinds",
-        "reflectiveCalls",
-        "experimental.macros",
-        "implicitConversions"
-      ).mkString(",")
-
     final val IncludeTest = "compile->compile;test->test"
 
     final val hedgehogVersion = "0.7.0"
 
-    final val effectieVersion = "1.11.0"
+    final val effectieVersion = "1.12.0"
 
     final val slf4JVersion   = "1.7.30"
     final val logbackVersion = "1.2.3"

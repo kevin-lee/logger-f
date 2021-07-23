@@ -4,7 +4,7 @@ import cats._
 import cats.data.OptionT
 import cats.effect._
 import effectie.cats.Effectful._
-import effectie.cats.EffectConstructor
+import effectie.cats.Fx
 import hedgehog._
 import hedgehog.runner._
 import loggerf.logger.LoggerForTesting
@@ -31,7 +31,7 @@ object LoggerOptionTSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_] : EffectConstructor : Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_] : Fx : Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOptionT[F].debugOptionT(OptionT(effectOf(oa)))(ifEmpty = emptyMsg, a => s"$logMsg - $a").value
 
     val result = runLog[IO](oa).unsafeRunSync()
@@ -72,7 +72,7 @@ object LoggerOptionTSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_] : EffectConstructor : Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_] : Fx : Monad](oa: Option[Int]): F[Option[Int]] =
      LoggerOptionT[F].infoOptionT(OptionT(effectOf(oa)))(ifEmpty = emptyMsg, a => s"$logMsg - $a").value
 
     val result = runLog[IO](oa).unsafeRunSync()
@@ -113,7 +113,7 @@ object LoggerOptionTSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_] : EffectConstructor : Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_] : Fx : Monad](oa: Option[Int]): F[Option[Int]] =
      LoggerOptionT[F].warnOptionT(OptionT(effectOf(oa)))(ifEmpty = emptyMsg, a => s"$logMsg - $a").value
 
     val result = runLog[IO](oa).unsafeRunSync()
@@ -154,7 +154,7 @@ object LoggerOptionTSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_] : EffectConstructor : Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_] : Fx : Monad](oa: Option[Int]): F[Option[Int]] =
      LoggerOptionT[F].errorOptionT(OptionT(effectOf(oa)))(ifEmpty = emptyMsg, a => s"$logMsg - $a").value
 
     val result = runLog[IO](oa).unsafeRunSync()

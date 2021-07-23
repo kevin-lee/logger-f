@@ -5,7 +5,7 @@ import cats.data.{EitherT, OptionT}
 import cats.implicits._
 
 import effectie.cats.Effectful._
-import effectie.cats.EffectConstructor
+import effectie.cats.Fx
 
 import loggerf.LeveledMessage
 import loggerf.LeveledMessage.{MaybeIgnorable, NotIgnorable}
@@ -18,7 +18,7 @@ import loggerf.syntax._
  */
 trait Log[F[_]] {
 
-  implicit val EF0: EffectConstructor[F]
+  implicit val EF0: Fx[F]
   implicit val MF0: Monad[F]
 
   val canLog: CanLog
@@ -180,13 +180,13 @@ object Log {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def logF[F[_]](
-    implicit EF: EffectConstructor[F], EM: Monad[F], logger: CanLog
+    implicit EF: Fx[F], EM: Monad[F], logger: CanLog
   ): Log[F] =
     new LogF[F](EF, EM, logger)
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   final class LogF[F[_]](
-    override val EF0: EffectConstructor[F]
+    override val EF0: Fx[F]
   , override val MF0: Monad[F]
   , override val canLog: CanLog
   ) extends Log[F]

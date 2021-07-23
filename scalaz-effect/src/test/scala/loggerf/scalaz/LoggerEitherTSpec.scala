@@ -4,7 +4,7 @@ import scalaz._
 import Scalaz._
 import scalaz.effect._
 import effectie.scalaz.Effectful._
-import effectie.scalaz.EffectConstructor
+import effectie.scalaz.Fx
 import hedgehog._
 import hedgehog.runner._
 import loggerf.logger.LoggerForTesting
@@ -30,7 +30,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_] : EffectConstructor : Monad](eab: String \/ Int): F[String \/ Int] =
+    def runLog[F[_] : Fx : Monad](eab: String \/ Int): F[String \/ Int] =
       LoggerEitherT[F].debugEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).run
 
     val eab = if (isRight) rightInt.right[String] else leftString.left[Int]
@@ -71,7 +71,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_] : EffectConstructor : Monad](eab: String \/ Int): F[String \/ Int] =
+    def runLog[F[_] : Fx : Monad](eab: String \/ Int): F[String \/ Int] =
      LoggerEitherT[F].infoEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).run
 
     val eab = if (isRight) rightInt.right[String] else leftString.left[Int]
@@ -112,7 +112,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_] : EffectConstructor : Monad](eab: String \/ Int): F[String \/ Int] =
+    def runLog[F[_] : Fx : Monad](eab: String \/ Int): F[String \/ Int] =
      LoggerEitherT[F].warnEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).run
 
     val eab = if (isRight) rightInt.right[String] else leftString.left[Int]
@@ -153,7 +153,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_] : EffectConstructor : Monad](eab: String \/ Int): F[String \/ Int] =
+    def runLog[F[_] : Fx : Monad](eab: String \/ Int): F[String \/ Int] =
      LoggerEitherT[F].errorEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).run
 
     val eab = if (isRight) rightInt.right[String] else leftString.left[Int]
