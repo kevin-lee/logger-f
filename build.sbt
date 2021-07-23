@@ -337,8 +337,6 @@ lazy val docs = (project in file("generated-docs"))
     ),
     docusaurDir := (ThisBuild / baseDirectory).value / "website",
     docusaurBuildDir := docusaurDir.value / "build",
-    gitHubPagesOrgName := props.GitHubUsername,
-    gitHubPagesRepoName := props.RepoName
   )
   .settings(noPublish)
   .dependsOn(
