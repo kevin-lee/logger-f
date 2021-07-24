@@ -394,11 +394,11 @@ lazy val props =
           m.name == "mdoc"
 
     final val CrossScalaVersions =
-      (List(
-        "2.11.12",
+      (DottyVersions ++ List(
+        ProjectScalaVersion,
         "2.12.13",
-        ProjectScalaVersion
-      ) ++ DottyVersions).distinct
+        "2.11.12",
+      )).distinct
 
     final val IncludeTest = "compile->compile;test->test"
 
