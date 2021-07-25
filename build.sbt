@@ -37,19 +37,18 @@ lazy val core =
       )
     )
 
-lazy val slf4jLogger =
-  projectCommonSettings("slf4jLogger", ProjectName("slf4j"), file("slf4j"))
-    .settings(
-      description := "Logger for F[_] - Logger with Slf4j",
-      libraryDependencies ++= Seq(
-        libs.slf4jApi % Provided
-      ),
-      libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
-        scalaVersion.value,
-        libraryDependencies.value
-      )
+lazy val slf4jLogger = projectCommonSettings("slf4jLogger", ProjectName("slf4j"), file("slf4j"))
+  .settings(
+    description := "Logger for F[_] - Logger with Slf4j",
+    libraryDependencies ++= Seq(
+      libs.slf4jApi % Provided
+    ),
+    libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+      scalaVersion.value,
+      libraryDependencies.value
     )
-    .dependsOn(core)
+  )
+  .dependsOn(core)
 
 lazy val log4sLogger =
   projectCommonSettings("log4sLogger", ProjectName("log4s"), file("log4s"))
@@ -163,6 +162,19 @@ lazy val catsEffect                    =
         libraryDependencies.value
       ),
       libraryDependencies ++= Seq(libs.effectieCatsEffect)
+    )
+    .dependsOn(core % props.IncludeTest)
+
+lazy val catsEffect3                   =
+  projectCommonSettings("catsEffect3", ProjectName("cats-effect3"), file("cats-effect3"))
+    .settings(
+      description := "Logger for F[_] - Cats Effect 3",
+      libraryDependencies ++= libs.hedgehogLibs,
+      libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+        scalaVersion.value,
+        libraryDependencies.value
+      ),
+      libraryDependencies ++= Seq(libs.effectieCatsEffect3)
     )
     .dependsOn(core % props.IncludeTest)
 
@@ -381,6 +393,7 @@ lazy val loggerF = (project in file("."))
     log4jLogger,
     sbtLogging,
     catsEffect,
+    catsEffect3,
     scalazEffect,
     monix,
   )
@@ -443,17 +456,17 @@ lazy val libs =
 
     lazy val sbtLoggingLib = "org.scala-sbt" %% "util-logging"
 
-    lazy val effectieCatsEffect: ModuleID = "io.kevinlee" %% "effectie-cats-effect" % props.effectieVersion
+    lazy val effectieCatsEffect: ModuleID  = "io.kevinlee" %% "effectie-cats-effect"  % props.effectieVersion
+    lazy val effectieCatsEffect3: ModuleID = "io.kevinlee" %% "effectie-cats-effect3" % props.effectieVersion
 
     lazy val effectieMonix: ModuleID        = "io.kevinlee" %% "effectie-monix"         % props.effectieVersion
     lazy val effectieScalazEffect: ModuleID = "io.kevinlee" %% "effectie-scalaz-effect" % props.effectieVersion
 
   }
 
-def prefixedProjectName(name: String) = s"${props.RepoName}${if (name.isEmpty)
-  ""
-else
-  s"-$name"}"
+// scalafmt: off
+def prefixedProjectName(name: String) = s"${props.RepoName}${if (name.isEmpty) "" else s"-$name"}"
+// scalafmt: on
 
 def libraryDependenciesRemoveScala3Incompatible(
   scalaVersion: String,
