@@ -37,9 +37,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.RELEASE_AUTH_TOKEN_GITHUB }}
         run: |
           echo "Run] sbt GitHub release"
-          echo 'sbt -J-XX:MaxMetaspaceSize=1024m -J-Xmx2048m devOopsGitHubRelease'
+          echo 'sbt -J-XX:MaxMetaspaceSize=1024m -J-Xmx4096m devOopsGitHubRelease'
           sbt \
-            -J-Xmx2048m \
+            -J-Xmx4096m \
             -J-XX:MaxMetaspaceSize=1024m \
             devOopsGitHubRelease
 
@@ -80,10 +80,10 @@ jobs:
           echo "Run] sbt ci-release"
           export SOURCE_DATE_EPOCH=$(date +%s)
           echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
-          echo 'sbt -J-XX:MaxMetaspaceSize=1024m -J-Xmx2048m -v clean +test +packagedArtifacts ci-release devOopsGitHubReleaseUploadArtifacts'
+          echo 'sbt -J-XX:MaxMetaspaceSize=1024m -J-Xmx4096m -v clean +test +packagedArtifacts ci-release devOopsGitHubReleaseUploadArtifacts'
           sbt \
           -J-XX:MaxMetaspaceSize=1024m \
-          -J-Xmx2048m \
+          -J-Xmx4096m \
           -v \
           clean \
           +test \
@@ -128,10 +128,10 @@ jobs:
           echo "Run] sbt ci-release"
           export SOURCE_DATE_EPOCH=$(date +%s)
           echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
-          echo 'sbt -J-XX:MaxMetaspaceSize=1024m -J-Xmx2048m -v clean +test +packagedArtifacts ci-release'
+          echo 'sbt -J-XX:MaxMetaspaceSize=1024m -J-Xmx4096m -v clean +test +packagedArtifacts ci-release'
           sbt \
             -J-XX:MaxMetaspaceSize=1024m \
-            -J-Xmx2048m \
+            -J-Xmx4096m \
             -v \
             clean \
             +test \
