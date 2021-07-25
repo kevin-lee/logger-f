@@ -39,7 +39,7 @@ jobs:
           echo "Run] sbt GitHub release"
           echo 'sbt -J-XX:MaxMetaspaceSize=1024m -J-Xmx4096m devOopsGitHubRelease'
           sbt \
-            -Xss64m \
+            -J-Xss64m \
             -J-Xmx4096m \
             -J-XX:MaxMetaspaceSize=1024m \
             devOopsGitHubRelease
@@ -83,7 +83,7 @@ jobs:
           echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
           echo 'sbt -J-XX:MaxMetaspaceSize=1024m -J-Xmx4096m -v clean +test +packagedArtifacts ci-release devOopsGitHubReleaseUploadArtifacts'
           sbt \
-          -Xss64m \
+          -J-Xss64m \
           -J-XX:MaxMetaspaceSize=1024m \
           -J-Xmx4096m \
           -v \
@@ -132,7 +132,7 @@ jobs:
           echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
           echo 'sbt -J-XX:MaxMetaspaceSize=1024m -J-Xmx4096m -v clean +test +packagedArtifacts ci-release'
           sbt \
-            -Xss64m \
+            -J-Xss64m \
             -J-XX:MaxMetaspaceSize=1024m \
             -J-Xmx4096m \
             -v \
