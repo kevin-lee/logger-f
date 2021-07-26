@@ -3,6 +3,8 @@ id: getting-started
 title: Getting Started
 slug: /
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 [![Build Status](https://github.com/Kevin-Lee/logger-f/workflows/Build-All/badge.svg)](https://github.com/Kevin-Lee/logger-f/actions?workflow=Build-All)
 [![Release Status](https://github.com/Kevin-Lee/logger-f/workflows/Release/badge.svg)](https://github.com/Kevin-Lee/logger-f/actions?workflow=Release)
@@ -10,6 +12,7 @@ slug: /
 
 | Project | Maven Central |
 | ------: | ------------- |
+| logger-f-cats-effect3 | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-cats-effect3_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-cats-effect3_2.13) |
 | logger-f-cats-effect | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-cats-effect_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-cats-effect_2.13) |
 | logger-f-monix | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-monix_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-monix_2.13) |
 | logger-f-scalaz-effect | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-scalaz-effect_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-scalaz-effect_2.13) |
@@ -32,6 +35,27 @@ Why LoggerF? Why not just log with `map` or `flatMap`? Please read ["Why?"](#why
 
 In `build.sbt`,
 
+<Tabs
+groupId="cats-effect"
+defaultValue="cats-effect"
+values={[
+{label: 'Cats Effect 3', value: 'cats-effect3'},
+{label: 'Cats Effect 2', value: 'cats-effect'},
+]}>
+<TabItem value="cats-effect3">
+
+```scala
+libraryDependencies ++=
+  Seq(
+    "io.kevinlee" %% "logger-f-cats-effect3" % "@VERSION@",
+    "io.kevinlee" %% "logger-f-slf4j" % "@VERSION@"
+  )
+```
+
+  </TabItem>
+
+  <TabItem value="cats-effect">
+
 ```scala
 libraryDependencies ++=
   Seq(
@@ -40,7 +64,32 @@ libraryDependencies ++=
   )
 ```
 
+  </TabItem>
+</Tabs>
+
+
 #### With Log4j
+
+<Tabs
+groupId="cats-effect"
+defaultValue="cats-effect"
+values={[
+{label: 'Cats Effect 3', value: 'cats-effect3'},
+{label: 'Cats Effect 2', value: 'cats-effect'},
+]}>
+<TabItem value="cats-effect3">
+
+```scala
+libraryDependencies ++=
+  Seq(
+    "io.kevinlee" %% "logger-f-cats-effect3" % "@VERSION@",
+    "io.kevinlee" %% "logger-f-log4j" % "@VERSION@"
+  )
+```
+
+  </TabItem>
+
+  <TabItem value="cats-effect">
 
 ```scala
 libraryDependencies ++=
@@ -50,7 +99,32 @@ libraryDependencies ++=
   )
 ```
 
+  </TabItem>
+</Tabs>
+
+
 #### With Log4s
+
+<Tabs
+groupId="cats-effect"
+defaultValue="cats-effect"
+values={[
+{label: 'Cats Effect 3', value: 'cats-effect3'},
+{label: 'Cats Effect 2', value: 'cats-effect'},
+]}>
+<TabItem value="cats-effect3">
+
+```scala
+libraryDependencies ++=
+  Seq(
+    "io.kevinlee" %% "logger-f-cats-effect3" % "@VERSION@",
+    "io.kevinlee" %% "logger-f-log4s" % "@VERSION@"
+  )
+```
+
+  </TabItem>
+
+  <TabItem value="cats-effect">
 
 ```scala
 libraryDependencies ++=
@@ -60,8 +134,33 @@ libraryDependencies ++=
   )
 ```
 
+  </TabItem>
+</Tabs>
+
+
 #### With sbt Logging Util
 You probably need `logger-f` for sbt plugin development.
+
+<Tabs
+groupId="cats-effect"
+defaultValue="cats-effect"
+values={[
+{label: 'Cats Effect 3', value: 'cats-effect3'},
+{label: 'Cats Effect 2', value: 'cats-effect'},
+]}>
+<TabItem value="cats-effect3">
+
+```scala
+libraryDependencies ++=
+  Seq(
+    "io.kevinlee" %% "logger-f-cats-effect3" % "@VERSION@",
+    "io.kevinlee" %% "logger-f-sbt-logging" % "@VERSION@"
+  )
+```
+
+  </TabItem>
+
+  <TabItem value="cats-effect">
 
 ```scala
 libraryDependencies ++=
@@ -70,6 +169,9 @@ libraryDependencies ++=
     "io.kevinlee" %% "logger-f-sbt-logging" % "@VERSION@"
   )
 ```
+
+  </TabItem>
+</Tabs>
 
 
 ### Get LoggerF For Monix
