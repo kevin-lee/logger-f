@@ -427,7 +427,7 @@ lazy val props =
 
     final val hedgehogVersion = "0.7.0"
 
-    final val effectieVersion = "1.13.0"
+    final val effectieVersion = "1.14.0"
 
     final val slf4JVersion   = "1.7.30"
     final val logbackVersion = "1.2.3"
@@ -507,7 +507,7 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
       coverageHighlighting := (CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 10)) | Some((2, 11)) =>
           false
-        case _                              =>
+        case _                             =>
           true
       })
       /* } Coveralls */
