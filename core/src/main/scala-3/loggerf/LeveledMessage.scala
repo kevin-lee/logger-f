@@ -10,7 +10,6 @@ enum LeveledMessage {
 }
 
 object LeveledMessage {
-  sealed trait MaybeIgnorable
-  sealed trait Ignorable extends MaybeIgnorable
-  sealed trait NotIgnorable extends MaybeIgnorable
+  sealed trait Ignorable
+  sealed trait NotIgnorable
 }
