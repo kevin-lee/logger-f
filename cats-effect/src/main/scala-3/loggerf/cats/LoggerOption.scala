@@ -7,55 +7,57 @@ import loggerf.logger.CanLog
 
 trait LoggerOption[F[_]] {
 
-  given EF0: Fx[F]
-  given MF0: Monad[F]
+  given EF: Fx[F]
+  given MF: Monad[F]
 
-  given canLog: CanLog
+  def canLog: CanLog
 
   def debugOption[A](fa: F[Option[A]])(ifEmpty: => String, a2String: A => String): F[Option[A]] =
-    MF0.flatMap(fa) {
+    MF.flatMap(fa) {
       case Some(a) =>
-        EF0.effectOf(canLog.debug(a2String(a))) *> EF0.effectOf(a.some)
-      case None =>
-        EF0.effectOf(canLog.debug(ifEmpty)) *> EF0.effectOf(none[A])
+        EF.effectOf(canLog.debug(a2String(a))) *> EF.effectOf(a.some)
+      case None    =>
+        EF.effectOf(canLog.debug(ifEmpty)) *> EF.effectOf(none[A])
     }
 
   def infoOption[A](fa: F[Option[A]])(ifEmpty: => String, a2String: A => String): F[Option[A]] =
-    MF0.flatMap(fa) {
+    MF.flatMap(fa) {
       case Some(a) =>
-        EF0.effectOf(canLog.info(a2String(a))) *> EF0.effectOf(a.some)
-      case None =>
-        EF0.effectOf(canLog.info(ifEmpty)) *> EF0.effectOf(none[A])
+        EF.effectOf(canLog.info(a2String(a))) *> EF.effectOf(a.some)
+      case None    =>
+        EF.effectOf(canLog.info(ifEmpty)) *> EF.effectOf(none[A])
     }
 
   def warnOption[A](fa: F[Option[A]])(ifEmpty: => String, a2String: A => String): F[Option[A]] =
-    MF0.flatMap(fa) {
+    MF.flatMap(fa) {
       case Some(a) =>
-        EF0.effectOf(canLog.warn(a2String(a))) *> EF0.effectOf(a.some)
-      case None =>
-        EF0.effectOf(canLog.warn(ifEmpty)) *> EF0.effectOf(none[A])
+        EF.effectOf(canLog.warn(a2String(a))) *> EF.effectOf(a.some)
+      case None    =>
+        EF.effectOf(canLog.warn(ifEmpty)) *> EF.effectOf(none[A])
     }
 
   def errorOption[A](fa: F[Option[A]])(ifEmpty: => String, a2String: A => String): F[Option[A]] =
-    MF0.flatMap(fa) {
+    MF.flatMap(fa) {
       case Some(a) =>
-        EF0.effectOf(canLog.error(a2String(a))) *> EF0.effectOf(a.some)
-      case None =>
-        EF0.effectOf(canLog.error(ifEmpty)) *> EF0.effectOf(none[A])
+        EF.effectOf(canLog.error(a2String(a))) *> EF.effectOf(a.some)
+      case None    =>
+        EF.effectOf(canLog.error(ifEmpty)) *> EF.effectOf(none[A])
     }
 }
 
 object LoggerOption {
-  def apply[F[_] : LoggerOption]: LoggerOption[F] = summon[LoggerOption[F]]
+  def apply[F[_]: LoggerOption]: LoggerOption[F] = summon[LoggerOption[F]]
 
   given loggerOption[F[_]](
-    using EF: Fx[F], MF: Monad[F], logger: CanLog
-  ): LoggerOption[F] = new LoggerOptionF[F]
+    using EF: Fx[F],
+    MF: Monad[F],
+    canLog: CanLog
+  ): LoggerOption[F] = new LoggerOptionF[F](EF, MF, canLog)
 
   final class LoggerOptionF[F[_]](
-    using override val EF0: Fx[F]
-  , override val MF0: Monad[F]
-  , override val canLog: CanLog
+    override val EF: Fx[F],
+    override val MF: Monad[F],
+    override val canLog: CanLog
   ) extends LoggerOption[F]
 
 }
