@@ -17,13 +17,13 @@ import loggerf.syntax._
  */
 trait Log[F[_]] {
 
-  implicit val EF0: Fx[F]
-  implicit val MF0: Monad[F]
+  implicit val EF: Fx[F]
+  implicit val MF: Monad[F]
 
   val logger0: CanLog
 
   def log[A](fa: F[A])(toLeveledMessage: A => LeveledMessage with NotIgnorable): F[A] =
-    MF0.bind(fa) { a =>
+    MF.bind(fa) { a =>
       toLeveledMessage(a) match {
         case LeveledMessage.LogMessage(message, level) =>
           effectOf(getLogger(logger0, level)(message)) *> effectOf(a)
@@ -36,7 +36,7 @@ trait Log[F[_]] {
       ifEmpty: => LeveledMessage with MaybeIgnorable
     , toLeveledMessage: A => LeveledMessage with MaybeIgnorable
     ): F[Option[A]] =
-    MF0.bind(foa) {
+    MF.bind(foa) {
       case None =>
         ifEmpty match {
           case LeveledMessage.LogMessage(message, level) =>
@@ -62,7 +62,7 @@ trait Log[F[_]] {
       leftToMessage: A => LeveledMessage with MaybeIgnorable
     , rightToMessage: B => LeveledMessage with MaybeIgnorable
     ): F[A \/ B] =
-    MF0.bind(feab) {
+    MF.bind(feab) {
     case -\/(a) =>
       leftToMessage(a) match {
         case LeveledMessage.LogMessage(message, level) =>
@@ -106,14 +106,14 @@ object Log {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def logF[F[_]](
-    implicit EF: Fx[F], EM: Monad[F], logger: CanLog
+    implicit EF: Fx[F], MF: Monad[F], canLog: CanLog
   ): Log[F] =
-    new LogF[F](EF, EM, logger)
+    new LogF[F](EF, MF, canLog)
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   final class LogF[F[_]](
-    override val EF0: Fx[F]
-  , override val MF0: Monad[F]
+    override val EF: Fx[F]
+  , override val MF: Monad[F]
   , override val logger0: CanLog
   ) extends Log[F]
 

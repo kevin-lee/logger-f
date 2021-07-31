@@ -103,9 +103,9 @@ object Log {
   def apply[F[_] : Log]: Log[F] = summon[Log[F]]
 
   given logF[F[_]](
-    using EF: Fx[F], EM: Monad[F], canLog: CanLog
+    using EF: Fx[F], MF: Monad[F], canLog: CanLog
   ): Log[F] =
-    new LogF[F](EF, EM, canLog)
+    new LogF[F](EF, MF, canLog)
 
   final class LogF[F[_]](
     override val EF: Fx[F]
