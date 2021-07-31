@@ -7,41 +7,41 @@ import loggerf.logger.CanLog
 
 trait LoggerEither[F[_]] {
 
-  implicit val EF0: Fx[F]
-  implicit val MF0: Monad[F]
+  implicit val EF: Fx[F]
+  implicit val MF: Monad[F]
 
-  implicit val canLog: CanLog
+  def canLog: CanLog
 
   def debugEither[A, B](fab: F[Either[A, B]])(a2String: A => String, b2String: B => String): F[Either[A, B]] =
-    MF0.flatMap(fab) {
+    MF.flatMap(fab) {
       case Left(a)  =>
-        EF0.effectOf(canLog.debug(a2String(a))) *> EF0.effectOf(a.asLeft[B])
+        EF.effectOf(canLog.debug(a2String(a))) *> EF.effectOf(a.asLeft[B])
       case Right(b) =>
-        EF0.effectOf(canLog.debug(b2String(b))) *> EF0.effectOf(b.asRight[A])
+        EF.effectOf(canLog.debug(b2String(b))) *> EF.effectOf(b.asRight[A])
     }
 
   def infoEither[A, B](fab: F[Either[A, B]])(a2String: A => String, b2String: B => String): F[Either[A, B]] =
-    MF0.flatMap(fab) {
+    MF.flatMap(fab) {
       case Left(a)  =>
-        EF0.effectOf(canLog.info(a2String(a))) *> EF0.effectOf(a.asLeft[B])
+        EF.effectOf(canLog.info(a2String(a))) *> EF.effectOf(a.asLeft[B])
       case Right(b) =>
-        EF0.effectOf(canLog.info(b2String(b))) *> EF0.effectOf(b.asRight[A])
+        EF.effectOf(canLog.info(b2String(b))) *> EF.effectOf(b.asRight[A])
     }
 
   def warnEither[A, B](fab: F[Either[A, B]])(a2String: A => String, b2String: B => String): F[Either[A, B]] =
-    MF0.flatMap(fab) {
+    MF.flatMap(fab) {
       case Left(a)  =>
-        EF0.effectOf(canLog.warn(a2String(a))) *> EF0.effectOf(a.asLeft[B])
+        EF.effectOf(canLog.warn(a2String(a))) *> EF.effectOf(a.asLeft[B])
       case Right(b) =>
-        EF0.effectOf(canLog.warn(b2String(b))) *> EF0.effectOf(b.asRight[A])
+        EF.effectOf(canLog.warn(b2String(b))) *> EF.effectOf(b.asRight[A])
     }
 
   def errorEither[A, B](fab: F[Either[A, B]])(a2String: A => String, b2String: B => String): F[Either[A, B]] =
-    MF0.flatMap(fab) {
+    MF.flatMap(fab) {
       case Left(a)  =>
-        EF0.effectOf(canLog.error(a2String(a))) *> EF0.effectOf(a.asLeft[B])
+        EF.effectOf(canLog.error(a2String(a))) *> EF.effectOf(a.asLeft[B])
       case Right(b) =>
-        EF0.effectOf(canLog.error(b2String(b))) *> EF0.effectOf(b.asRight[A])
+        EF.effectOf(canLog.error(b2String(b))) *> EF.effectOf(b.asRight[A])
     }
 }
 
@@ -52,13 +52,13 @@ object LoggerEither {
   implicit def loggerEither[F[_]](
     implicit EF: Fx[F],
     MF: Monad[F],
-    logger: CanLog
+    canLog: CanLog
   ): LoggerEither[F] = new LoggerEitherF[F]
 
   final class LoggerEitherF[F[_]](
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-    implicit override val EF0: Fx[F],
-    override val MF0: Monad[F],
+    implicit override val EF: Fx[F],
+    override val MF: Monad[F],
     override val canLog: CanLog
   ) extends LoggerEither[F]
 

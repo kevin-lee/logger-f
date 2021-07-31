@@ -7,10 +7,10 @@ import loggerf.logger.CanLog
 
 trait LoggerEitherT[F[_]] {
 
-  implicit val EF0: Fx[F]
-  implicit val MF0: Monad[F]
+  implicit val EF: Fx[F]
+  implicit val MF: Monad[F]
 
-  implicit val canLog: CanLog
+  implicit def canLog: CanLog
 
   def debugEitherT[A, B](
     efab: EitherT[F, A, B]
@@ -58,13 +58,13 @@ object LoggerEitherT {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def loggerEitherT[F[_]](
-    implicit EF: Fx[F], MF: Monad[F], logger: CanLog
+    implicit EF: Fx[F], MF: Monad[F], canLog: CanLog
   ): LoggerEitherT[F] = new LoggerEitherTF[F]
 
   final class LoggerEitherTF[F[_]](
       @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-      implicit override val EF0: Fx[F]
-    , override val MF0: Monad[F]
+      implicit override val EF: Fx[F]
+    , override val MF: Monad[F]
     , override val canLog: CanLog
   ) extends LoggerEitherT[F]
 

@@ -343,7 +343,7 @@ import loggerf.logger._
 import loggerf.syntax._
 
 // or Slf4JLogger.slf4JLogger[MyClass]
-implicit val logger: CanLog = Slf4JLogger.slf4JCanLog("MyLogger")
+implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyLogger")
 
 def foo[F[_] : Fx : Monad : Log](n: Int): F[Option[Int]] =
   (for {
@@ -386,7 +386,7 @@ import loggerf.logger._
 import loggerf.syntax._
 
 // or Slf4JLogger.slf4JLogger[MyClass]
-implicit val logger: CanLog = Slf4JLogger.slf4JCanLog("MyLogger")
+implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyLogger")
 
 def foo[F[_] : Fx : Monad : Log](n: Int): F[Either[String, Int]] =
   (for {

@@ -18,13 +18,13 @@ import loggerf.syntax._
  */
 trait Log[F[_]] {
 
-  implicit val EF0: Fx[F]
-  implicit val MF0: Monad[F]
+  implicit val EF: Fx[F]
+  implicit val MF: Monad[F]
 
-  val canLog: CanLog
+  def canLog: CanLog
 
   def log[A](fa: F[A])(toLeveledMessage: A => LeveledMessage with NotIgnorable): F[A] =
-    MF0.flatMap(fa) { a =>
+    MF.flatMap(fa) { a =>
       toLeveledMessage(a) match {
         case LeveledMessage.LogMessage(message, level) =>
           effectOf(getLogger(canLog, level)(message)) *> effectOf(a)
@@ -32,7 +32,7 @@ trait Log[F[_]] {
     }
 
   def logPure[A](fa: F[A])(toLeveledMessage: A => LeveledMessage with NotIgnorable): F[A] =
-    MF0.flatMap(fa) { a =>
+    MF.flatMap(fa) { a =>
       toLeveledMessage(a) match {
         case LeveledMessage.LogMessage(message, level) =>
           effectOf(getLogger(canLog, level)(message)) *> pureOf(a)
@@ -45,7 +45,7 @@ trait Log[F[_]] {
       ifEmpty: => LeveledMessage with MaybeIgnorable
     , toLeveledMessage: A => LeveledMessage with MaybeIgnorable
     ): F[Option[A]] =
-    MF0.flatMap(foa) {
+    MF.flatMap(foa) {
       case None =>
         ifEmpty match {
           case LeveledMessage.Ignore =>
@@ -70,7 +70,7 @@ trait Log[F[_]] {
       ifEmpty: => LeveledMessage with MaybeIgnorable
     , toLeveledMessage: A => LeveledMessage with MaybeIgnorable
     ): F[Option[A]] =
-    MF0.flatMap(foa) {
+    MF.flatMap(foa) {
       case None =>
         ifEmpty match {
           case LeveledMessage.Ignore =>
@@ -95,7 +95,7 @@ trait Log[F[_]] {
       leftToMessage: A => LeveledMessage with MaybeIgnorable
     , rightToMessage: B => LeveledMessage with MaybeIgnorable
     ): F[Either[A, B]] =
-    MF0.flatMap(feab) {
+    MF.flatMap(feab) {
     case Left(l) =>
       leftToMessage(l) match {
         case LeveledMessage.LogMessage(message, level) =>
@@ -120,7 +120,7 @@ trait Log[F[_]] {
       leftToMessage: A => LeveledMessage with MaybeIgnorable
     , rightToMessage: B => LeveledMessage with MaybeIgnorable
     ): F[Either[A, B]] =
-    MF0.flatMap(feab) {
+    MF.flatMap(feab) {
     case Left(l) =>
       leftToMessage(l) match {
         case LeveledMessage.LogMessage(message, level) =>
@@ -180,14 +180,14 @@ object Log {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def logF[F[_]](
-    implicit EF: Fx[F], EM: Monad[F], logger: CanLog
+    implicit EF: Fx[F], MF: Monad[F], canLog: CanLog
   ): Log[F] =
-    new LogF[F](EF, EM, logger)
+    new LogF[F](EF, MF, canLog)
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   final class LogF[F[_]](
-    override val EF0: Fx[F]
-  , override val MF0: Monad[F]
+    override val EF: Fx[F]
+  , override val MF: Monad[F]
   , override val canLog: CanLog
   ) extends Log[F]
 

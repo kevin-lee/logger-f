@@ -176,10 +176,10 @@ object Log {
 
   given logF[F[_]](
     using EF: Fx[F],
-    EM: Monad[F],
+    MF: Monad[F],
     canLog: CanLog
   ): Log[F] =
-    new LogF[F](EF, EM, canLog)
+    new LogF[F](EF, MF, canLog)
 
   final class LogF[F[_]](
     override val EF: Fx[F],

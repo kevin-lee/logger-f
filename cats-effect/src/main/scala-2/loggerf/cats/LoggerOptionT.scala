@@ -7,10 +7,10 @@ import loggerf.logger.CanLog
 
 trait LoggerOptionT[F[_]] {
 
-  implicit val EF0: Fx[F]
-  implicit val MF0: Monad[F]
+  implicit val EF: Fx[F]
+  implicit val MF: Monad[F]
 
-  implicit val canLog: CanLog
+  implicit def canLog: CanLog
 
   def debugOptionT[A](
     ofa: OptionT[F, A]
@@ -59,13 +59,13 @@ object LoggerOptionT {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def loggerOptionT[F[_]](
-    implicit EF: Fx[F], MF: Monad[F], logger: CanLog
+    implicit EF: Fx[F], MF: Monad[F], canLog: CanLog
   ): LoggerOptionT[F] = new LoggerOptionTF[F]
 
   final class LoggerOptionTF[F[_]](
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-    implicit override val EF0: Fx[F]
-  , override val MF0: Monad[F]
+    implicit override val EF: Fx[F]
+  , override val MF: Monad[F]
   , override val canLog: CanLog
   ) extends LoggerOptionT[F]
 
