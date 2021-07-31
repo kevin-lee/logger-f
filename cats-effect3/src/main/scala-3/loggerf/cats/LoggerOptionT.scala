@@ -7,8 +7,8 @@ import loggerf.logger.CanLog
 
 trait LoggerOptionT[F[_]] {
 
-  given EF0: Fx[F]
-  given MF0: Monad[F]
+  given EF: Fx[F]
+  given MF: Monad[F]
 
   given canLog: CanLog
 
@@ -60,12 +60,12 @@ object LoggerOptionT {
   given loggerOptionT[F[_]](
     using EF: Fx[F],
     MF: Monad[F],
-    logger: CanLog
-  ): LoggerOptionT[F] = new LoggerOptionTF[F]
+    canLog: CanLog
+  ): LoggerOptionT[F] = new LoggerOptionTF[F](EF, MF, canLog)
 
   final class LoggerOptionTF[F[_]](
-    using override val EF0: Fx[F],
-    override val MF0: Monad[F],
+    override val EF: Fx[F],
+    override val MF: Monad[F],
     override val canLog: CanLog
   ) extends LoggerOptionT[F]
 

@@ -15,13 +15,13 @@ import loggerf.syntax.*
   */
 trait Log[F[_]] {
 
-  given EF0: Fx[F]
-  given MF0: Monad[F]
+  given EF: Fx[F]
+  given MF: Monad[F]
 
-  val canLog: CanLog
+  def canLog: CanLog
 
   def log[A](fa: F[A])(toLeveledMessage: A => LeveledMessage & NotIgnorable): F[A] =
-    MF0.flatMap(fa) { a =>
+    MF.flatMap(fa) { a =>
       toLeveledMessage(a) match {
         case LeveledMessage.LogMessage(message, level) =>
           effectOf(getLogger(canLog, level)(message)) *> effectOf(a)
@@ -29,7 +29,7 @@ trait Log[F[_]] {
     }
 
   def logPure[A](fa: F[A])(toLeveledMessage: A => LeveledMessage & NotIgnorable): F[A] =
-    MF0.flatMap(fa) { a =>
+    MF.flatMap(fa) { a =>
       toLeveledMessage(a) match {
         case LeveledMessage.LogMessage(message, level) =>
           effectOf(getLogger(canLog, level)(message)) *> pureOf(a)
@@ -42,7 +42,7 @@ trait Log[F[_]] {
     ifEmpty: => LeveledMessage | Ignorable,
     toLeveledMessage: A => LeveledMessage | Ignorable
   ): F[Option[A]] =
-    MF0.flatMap(foa) {
+    MF.flatMap(foa) {
       case None    =>
         ifEmpty match {
           case LeveledMessage.Ignore =>
@@ -67,7 +67,7 @@ trait Log[F[_]] {
     ifEmpty: => LeveledMessage | Ignorable,
     toLeveledMessage: A => LeveledMessage | Ignorable
   ): F[Option[A]] =
-    MF0.flatMap(foa) {
+    MF.flatMap(foa) {
       case None    =>
         ifEmpty match {
           case LeveledMessage.Ignore =>
@@ -92,7 +92,7 @@ trait Log[F[_]] {
     leftToMessage: A => LeveledMessage | Ignorable,
     rightToMessage: B => LeveledMessage | Ignorable
   ): F[Either[A, B]] =
-    MF0.flatMap(feab) {
+    MF.flatMap(feab) {
       case Left(l)  =>
         leftToMessage(l) match {
           case LeveledMessage.LogMessage(message, level) =>
@@ -117,7 +117,7 @@ trait Log[F[_]] {
     leftToMessage: A => LeveledMessage | Ignorable,
     rightToMessage: B => LeveledMessage | Ignorable
   ): F[Either[A, B]] =
-    MF0.flatMap(feab) {
+    MF.flatMap(feab) {
       case Left(l)  =>
         leftToMessage(l) match {
           case LeveledMessage.LogMessage(message, level) =>
@@ -176,14 +176,14 @@ object Log {
 
   given logF[F[_]](
     using EF: Fx[F],
-    EM: Monad[F],
-    logger: CanLog
+    MF: Monad[F],
+    canLog: CanLog
   ): Log[F] =
-    new LogF[F]
+    new LogF[F](EF, MF, canLog)
 
   final class LogF[F[_]](
-    using override val EF0: Fx[F],
-    override val MF0: Monad[F],
+    override val EF: Fx[F],
+    override val MF: Monad[F],
     override val canLog: CanLog
   ) extends Log[F]
 
