@@ -7,16 +7,16 @@ import loggerf.logger.CanLog
 
 trait LoggerOptionT[F[_]] {
 
-  given EF0: Fx[F]
-  given MF0: Monad[F]
+  given EF: Fx[F]
+  given MF: Monad[F]
 
   given canLog: CanLog
 
   def debugOptionT[A](
     ofa: OptionT[F, A]
   )(
-    ifEmpty: => String
-  , a2String: A => String
+    ifEmpty: => String,
+    a2String: A => String
   ): OptionT[F, A] =
     OptionT(
       LoggerOption[F].debugOption(ofa.value)(ifEmpty, a2String)
@@ -25,8 +25,8 @@ trait LoggerOptionT[F[_]] {
   def infoOptionT[A](
     ofa: OptionT[F, A]
   )(
-    ifEmpty: => String
-  , a2String: A => String
+    ifEmpty: => String,
+    a2String: A => String
   ): OptionT[F, A] =
     OptionT(
       LoggerOption[F].infoOption(ofa.value)(ifEmpty, a2String)
@@ -35,8 +35,8 @@ trait LoggerOptionT[F[_]] {
   def warnOptionT[A](
     ofa: OptionT[F, A]
   )(
-    ifEmpty: => String
-  , a2String: A => String
+    ifEmpty: => String,
+    a2String: A => String
   ): OptionT[F, A] =
     OptionT(
       LoggerOption[F].warnOption(ofa.value)(ifEmpty, a2String)
@@ -45,8 +45,8 @@ trait LoggerOptionT[F[_]] {
   def errorOptionT[A](
     ofa: OptionT[F, A]
   )(
-    ifEmpty: => String
-  , a2String: A => String
+    ifEmpty: => String,
+    a2String: A => String
   ): OptionT[F, A] =
     OptionT(
       LoggerOption[F].errorOption(ofa.value)(ifEmpty, a2String)
@@ -55,16 +55,18 @@ trait LoggerOptionT[F[_]] {
 }
 
 object LoggerOptionT {
-  def apply[F[_] : LoggerOptionT]: LoggerOptionT[F] = summon[LoggerOptionT[F]]
+  def apply[F[_]: LoggerOptionT]: LoggerOptionT[F] = summon[LoggerOptionT[F]]
 
   given loggerOptionT[F[_]](
-    using EF: Fx[F], MF: Monad[F], logger: CanLog
-  ): LoggerOptionT[F] = new LoggerOptionTF[F]
+    using EF: Fx[F],
+    MF: Monad[F],
+    canLog: CanLog
+  ): LoggerOptionT[F] = new LoggerOptionTF[F](EF, MF, canLog)
 
   final class LoggerOptionTF[F[_]](
-    using override val EF0: Fx[F]
-  , override val MF0: Monad[F]
-  , override val canLog: CanLog
+    override val EF: Fx[F],
+    override val MF: Monad[F],
+    override val canLog: CanLog
   ) extends LoggerOptionT[F]
 
 }
