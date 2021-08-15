@@ -5,7 +5,7 @@ import cats.data.EitherT
 import cats.implicits._
 import cats.effect._
 import effectie.cats.Effectful._
-import effectie.cats.Fx
+import effectie.cats.FxCtor
 import hedgehog._
 import hedgehog.runner._
 import loggerf.logger.LoggerForTesting
@@ -31,7 +31,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_] : Fx : Monad](eab: Either[String, Int]): F[Either[String, Int]] =
+    def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Int]] =
       LoggerEitherT[F].debugEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).value
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
@@ -72,7 +72,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_] : Fx : Monad](eab: Either[String, Int]): F[Either[String, Int]] =
+    def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Int]] =
      LoggerEitherT[F].infoEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).value
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
@@ -113,7 +113,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_] : Fx : Monad](eab: Either[String, Int]): F[Either[String, Int]] =
+    def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Int]] =
      LoggerEitherT[F].warnEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).value
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
@@ -154,7 +154,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_] : Fx : Monad](eab: Either[String, Int]): F[Either[String, Int]] =
+    def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Int]] =
      LoggerEitherT[F].errorEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).value
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]

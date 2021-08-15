@@ -2,12 +2,12 @@ package loggerf.cats
 
 import cats._
 import cats.data.EitherT
-import effectie.cats.Fx
+import effectie.cats.FxCtor
 import loggerf.logger.CanLog
 
 trait LoggerEitherT[F[_]] {
 
-  implicit val EF: Fx[F]
+  implicit val EF: FxCtor[F]
   implicit val MF: Monad[F]
 
   implicit def canLog: CanLog
@@ -58,12 +58,12 @@ object LoggerEitherT {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def loggerEitherT[F[_]](
-    implicit EF: Fx[F], MF: Monad[F], canLog: CanLog
+    implicit EF: FxCtor[F], MF: Monad[F], canLog: CanLog
   ): LoggerEitherT[F] = new LoggerEitherTF[F]
 
   final class LoggerEitherTF[F[_]](
       @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-      implicit override val EF: Fx[F]
+      implicit override val EF: FxCtor[F]
     , override val MF: Monad[F]
     , override val canLog: CanLog
   ) extends LoggerEitherT[F]
