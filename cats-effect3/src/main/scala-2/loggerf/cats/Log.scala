@@ -39,10 +39,10 @@ trait Log[F[_]] {
     }
 
   def log[A](
-    foa: F[Option[A]]
+    foa: F[Option[A]],
   )(
     ifEmpty: => LeveledMessage with MaybeIgnorable,
-    toLeveledMessage: A => LeveledMessage with MaybeIgnorable
+    toLeveledMessage: A => LeveledMessage with MaybeIgnorable,
   ): F[Option[A]] =
     MF.flatMap(foa) {
       case None    =>
@@ -64,10 +64,10 @@ trait Log[F[_]] {
     }
 
   def logPure[A](
-    foa: F[Option[A]]
+    foa: F[Option[A]],
   )(
     ifEmpty: => LeveledMessage with MaybeIgnorable,
-    toLeveledMessage: A => LeveledMessage with MaybeIgnorable
+    toLeveledMessage: A => LeveledMessage with MaybeIgnorable,
   ): F[Option[A]] =
     MF.flatMap(foa) {
       case None    =>
@@ -89,10 +89,10 @@ trait Log[F[_]] {
     }
 
   def log[A, B](
-    feab: F[Either[A, B]]
+    feab: F[Either[A, B]],
   )(
     leftToMessage: A => LeveledMessage with MaybeIgnorable,
-    rightToMessage: B => LeveledMessage with MaybeIgnorable
+    rightToMessage: B => LeveledMessage with MaybeIgnorable,
   ): F[Either[A, B]] =
     MF.flatMap(feab) {
       case Left(l)  =>
@@ -114,10 +114,10 @@ trait Log[F[_]] {
     }
 
   def logPure[A, B](
-    feab: F[Either[A, B]]
+    feab: F[Either[A, B]],
   )(
     leftToMessage: A => LeveledMessage with MaybeIgnorable,
-    rightToMessage: B => LeveledMessage with MaybeIgnorable
+    rightToMessage: B => LeveledMessage with MaybeIgnorable,
   ): F[Either[A, B]] =
     MF.flatMap(feab) {
       case Left(l)  =>
@@ -139,34 +139,34 @@ trait Log[F[_]] {
     }
 
   def log[A](
-    otfa: OptionT[F, A]
+    otfa: OptionT[F, A],
   )(
     ifEmpty: => LeveledMessage with MaybeIgnorable,
-    toLeveledMessage: A => LeveledMessage with MaybeIgnorable
+    toLeveledMessage: A => LeveledMessage with MaybeIgnorable,
   ): OptionT[F, A] =
     OptionT(log(otfa.value)(ifEmpty, toLeveledMessage))
 
   def logPure[A](
-    otfa: OptionT[F, A]
+    otfa: OptionT[F, A],
   )(
     ifEmpty: => LeveledMessage with MaybeIgnorable,
-    toLeveledMessage: A => LeveledMessage with MaybeIgnorable
+    toLeveledMessage: A => LeveledMessage with MaybeIgnorable,
   ): OptionT[F, A] =
     OptionT(logPure(otfa.value)(ifEmpty, toLeveledMessage))
 
   def log[A, B](
-    etfab: EitherT[F, A, B]
+    etfab: EitherT[F, A, B],
   )(
     leftToMessage: A => LeveledMessage with MaybeIgnorable,
-    rightToMessage: B => LeveledMessage with MaybeIgnorable
+    rightToMessage: B => LeveledMessage with MaybeIgnorable,
   ): EitherT[F, A, B] =
     EitherT(log(etfab.value)(leftToMessage, rightToMessage))
 
   def logPure[A, B](
-    etfab: EitherT[F, A, B]
+    etfab: EitherT[F, A, B],
   )(
     leftToMessage: A => LeveledMessage with MaybeIgnorable,
-    rightToMessage: B => LeveledMessage with MaybeIgnorable
+    rightToMessage: B => LeveledMessage with MaybeIgnorable,
   ): EitherT[F, A, B] =
     EitherT(logPure(etfab.value)(leftToMessage, rightToMessage))
 
@@ -180,7 +180,7 @@ object Log {
   implicit def logF[F[_]](
     implicit EF: Fx[F],
     MF: Monad[F],
-    canLog: CanLog
+    canLog: CanLog,
   ): Log[F] =
     new LogF[F](EF, MF, canLog)
 
@@ -188,7 +188,7 @@ object Log {
   final class LogF[F[_]](
     override val EF: Fx[F],
     override val MF: Monad[F],
-    override val canLog: CanLog
+    override val canLog: CanLog,
   ) extends Log[F]
 
 }

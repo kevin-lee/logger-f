@@ -4,10 +4,9 @@ import org.log4s.Logger
 
 import scala.reflect.ClassTag
 
-/**
- * @author Kevin Lee
- * @since 2020-09-12
- */
+/** @author Kevin Lee
+  * @since 2020-09-12
+  */
 final class Log4sLogger(val logger: Logger) extends CanLog {
 
   override def debug(message: => String): Unit = logger.debug(message)

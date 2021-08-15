@@ -44,27 +44,27 @@ trait Logful {
     LoggerOption[F].errorOption(fa)(ifEmpty, a2String)
 
   def debugEither[F[_]: LoggerEither, A, B](
-    fab: F[Either[A, B]]
+    fab: F[Either[A, B]],
   )(a2String: A => String, b2String: B => String): F[Either[A, B]] =
     LoggerEither[F].debugEither(fab)(a2String, b2String)
 
   def infoEither[F[_]: LoggerEither, A, B](
-    fab: F[Either[A, B]]
+    fab: F[Either[A, B]],
   )(a2String: A => String, b2String: B => String): F[Either[A, B]] =
     LoggerEither[F].infoEither(fab)(a2String, b2String)
 
   def warnEither[F[_]: LoggerEither, A, B](
-    fab: F[Either[A, B]]
+    fab: F[Either[A, B]],
   )(a2String: A => String, b2String: B => String): F[Either[A, B]] =
     LoggerEither[F].warnEither(fab)(a2String, b2String)
 
   def errorEither[F[_]: LoggerEither, A, B](
-    fab: F[Either[A, B]]
+    fab: F[Either[A, B]],
   )(a2String: A => String, b2String: B => String): F[Either[A, B]] =
     LoggerEither[F].errorEither(fab)(a2String, b2String)
 
   def debugOptionT[F[_]: LoggerOptionT, A](
-    fa: OptionT[F, A]
+    fa: OptionT[F, A],
   )(ifEmpty: => String, a2String: A => String): OptionT[F, A] =
     LoggerOptionT[F].debugOptionT(fa)(ifEmpty, a2String)
 
@@ -75,27 +75,27 @@ trait Logful {
     LoggerOptionT[F].warnOptionT(fa)(ifEmpty, a2String)
 
   def errorOptionT[F[_]: LoggerOptionT, A](
-    fa: OptionT[F, A]
+    fa: OptionT[F, A],
   )(ifEmpty: => String, a2String: A => String): OptionT[F, A] =
     LoggerOptionT[F].errorOptionT(fa)(ifEmpty, a2String)
 
   def debugEitherT[F[_]: LoggerEitherT, A, B](
-    efab: EitherT[F, A, B]
+    efab: EitherT[F, A, B],
   )(a2String: A => String, b2String: B => String): EitherT[F, A, B] =
     LoggerEitherT[F].debugEitherT(efab)(a2String, b2String)
 
   def infoEitherT[F[_]: LoggerEitherT, A, B](
-    efab: EitherT[F, A, B]
+    efab: EitherT[F, A, B],
   )(a2String: A => String, b2String: B => String): EitherT[F, A, B] =
     LoggerEitherT[F].infoEitherT(efab)(a2String, b2String)
 
   def warnEitherT[F[_]: LoggerEitherT, A, B](
-    efab: EitherT[F, A, B]
+    efab: EitherT[F, A, B],
   )(a2String: A => String, b2String: B => String): EitherT[F, A, B] =
     LoggerEitherT[F].warnEitherT(efab)(a2String, b2String)
 
   def errorEitherT[F[_]: LoggerEitherT, A, B](
-    efab: EitherT[F, A, B]
+    efab: EitherT[F, A, B],
   )(a2String: A => String, b2String: B => String): EitherT[F, A, B] =
     LoggerEitherT[F].errorEitherT(efab)(a2String, b2String)
 
@@ -103,34 +103,34 @@ trait Logful {
     Log[F].log(fa)(toLeveledMessage)
 
   def log[F[_]: Log, A](
-    foa: F[Option[A]]
+    foa: F[Option[A]],
   )(
     ifEmpty: => LeveledMessage with MaybeIgnorable,
-    toLeveledMessage: A => LeveledMessage with MaybeIgnorable
+    toLeveledMessage: A => LeveledMessage with MaybeIgnorable,
   ): F[Option[A]] =
     Log[F].log(foa)(ifEmpty, toLeveledMessage)
 
   def log[F[_]: Log, A, B](
-    feab: F[Either[A, B]]
+    feab: F[Either[A, B]],
   )(
     leftToMessage: A => LeveledMessage with MaybeIgnorable,
-    rightToMessage: B => LeveledMessage with MaybeIgnorable
+    rightToMessage: B => LeveledMessage with MaybeIgnorable,
   ): F[Either[A, B]] =
     Log[F].log(feab)(leftToMessage, rightToMessage)
 
   def log[F[_]: Log, A](
-    otfa: OptionT[F, A]
+    otfa: OptionT[F, A],
   )(
     ifEmpty: => LeveledMessage with MaybeIgnorable,
-    toLeveledMessage: A => LeveledMessage with MaybeIgnorable
+    toLeveledMessage: A => LeveledMessage with MaybeIgnorable,
   ): OptionT[F, A] =
     Log[F].log(otfa)(ifEmpty, toLeveledMessage)
 
   def log[F[_]: Log, A, B](
-    etfab: EitherT[F, A, B]
+    etfab: EitherT[F, A, B],
   )(
     leftToMessage: A => LeveledMessage with MaybeIgnorable,
-    rightToMessage: B => LeveledMessage with MaybeIgnorable
+    rightToMessage: B => LeveledMessage with MaybeIgnorable,
   ): EitherT[F, A, B] =
     Log[F].log(etfab)(leftToMessage, rightToMessage)
 

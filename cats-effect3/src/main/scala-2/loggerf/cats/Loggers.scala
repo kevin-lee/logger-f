@@ -27,7 +27,7 @@ object Loggers {
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
     implicit override val EF: Fx[F],
     override val MF: Monad[F],
-    override val canLog: CanLog
+    override val canLog: CanLog,
   ) extends Loggers[F]
       with LoggerA[F]
       with LoggerOption[F]

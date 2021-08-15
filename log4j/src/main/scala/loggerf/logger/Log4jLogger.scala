@@ -5,7 +5,7 @@ import org.apache.logging.log4j.{LogManager, Logger}
 import scala.reflect.ClassTag
 
 final class Log4jLogger(
-  val logger: Logger
+  val logger: Logger,
 ) extends CanLog {
 
   override def debug(message: => String): Unit =
@@ -42,7 +42,7 @@ object Log4jLogger {
 
   @deprecated(
     message = "Use Log4jLogger.log4jCanLogWith(org.apache.logging.log4j.Logger) instead",
-    since = "1.2.0"
+    since = "1.2.0",
   )
   def log4jLoggerWith(logger: Logger): CanLog =
     log4jCanLogWith(logger)
