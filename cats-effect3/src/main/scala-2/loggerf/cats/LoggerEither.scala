@@ -52,14 +52,14 @@ object LoggerEither {
   implicit def loggerEither[F[_]](
     implicit EF: Fx[F],
     MF: Monad[F],
-    canLog: CanLog
+    canLog: CanLog,
   ): LoggerEither[F] = new LoggerEitherF[F]
 
   final class LoggerEitherF[F[_]](
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
     implicit override val EF: Fx[F],
     override val MF: Monad[F],
-    override val canLog: CanLog
+    override val canLog: CanLog,
   ) extends LoggerEither[F]
 
 }

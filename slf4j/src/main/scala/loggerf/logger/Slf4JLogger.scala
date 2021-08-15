@@ -45,7 +45,7 @@ object Slf4JLogger {
   def slf4JCanLogWith(logger: Logger): CanLog =
     new Slf4JLogger(logger)
 
-  @deprecated(message = "Use Slf4JLogger.slf4JCanLog[A] instead", since ="1.2.0")
+  @deprecated(message = "Use Slf4JLogger.slf4JCanLog[A] instead", since = "1.2.0")
   def slf4JLogger[A](implicit aClass: ClassTag[A]): CanLog =
     slf4JCanLog[A]
 

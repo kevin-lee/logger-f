@@ -44,7 +44,7 @@ object LoggerA {
   implicit def loggerA[F[_]](
     implicit EF: Fx[F],
     MF: Monad[F],
-    canLog: CanLog
+    canLog: CanLog,
   ): LoggerA[F] =
     new LoggerAF[F]
 
@@ -52,7 +52,7 @@ object LoggerA {
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
     implicit override val EF: Fx[F],
     override val MF: Monad[F],
-    override val canLog: CanLog
+    override val canLog: CanLog,
   ) extends LoggerA[F]
 
 }

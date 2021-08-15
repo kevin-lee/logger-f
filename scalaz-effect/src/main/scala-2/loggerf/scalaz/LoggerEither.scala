@@ -46,18 +46,20 @@ trait LoggerEither[F[_]] {
 }
 
 object LoggerEither {
-  def apply[F[_] : LoggerEither]: LoggerEither[F] = implicitly[LoggerEither[F]]
+  def apply[F[_]: LoggerEither]: LoggerEither[F] = implicitly[LoggerEither[F]]
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def loggerEither[F[_]](
-    implicit EF: Fx[F], MF: Monad[F], canLog: CanLog
+    implicit EF: Fx[F],
+    MF: Monad[F],
+    canLog: CanLog,
   ): LoggerEither[F] = new LoggerEitherF[F]
 
   final class LoggerEitherF[F[_]](
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-    implicit override val EF: Fx[F]
-  , override val MF: Monad[F]
-  , override val logger0: CanLog
+    implicit override val EF: Fx[F],
+    override val MF: Monad[F],
+    override val logger0: CanLog,
   ) extends LoggerEither[F]
 
 }
