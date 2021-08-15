@@ -4,7 +4,7 @@ import cats.*
 import cats.data.{EitherT, OptionT}
 import cats.syntax.all.*
 import effectie.cats.Effectful.*
-import effectie.cats.Fx
+import effectie.cats.FxCtor
 import loggerf.LeveledMessage
 import loggerf.LeveledMessage.{Ignorable, NotIgnorable}
 import loggerf.logger.CanLog
@@ -15,7 +15,7 @@ import loggerf.syntax.*
   */
 trait Log[F[_]] {
 
-  given EF: Fx[F]
+  given EF: FxCtor[F]
   given MF: Monad[F]
 
   def canLog: CanLog
@@ -175,14 +175,14 @@ object Log {
   def apply[F[_]: Log]: Log[F] = summon[Log[F]]
 
   given logF[F[_]](
-    using EF: Fx[F],
+    using EF: FxCtor[F],
     MF: Monad[F],
     canLog: CanLog
   ): Log[F] =
     new LogF[F](EF, MF, canLog)
 
   final class LogF[F[_]](
-    override val EF: Fx[F],
+    override val EF: FxCtor[F],
     override val MF: Monad[F],
     override val canLog: CanLog
   ) extends Log[F]

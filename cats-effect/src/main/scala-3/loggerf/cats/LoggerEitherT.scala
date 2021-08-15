@@ -2,12 +2,12 @@ package loggerf.cats
 
 import cats.*
 import cats.data.EitherT
-import effectie.cats.Fx
+import effectie.cats.FxCtor
 import loggerf.logger.CanLog
 
 trait LoggerEitherT[F[_]] {
 
-  given EF: Fx[F]
+  given EF: FxCtor[F]
   given MF: Monad[F]
 
   given canLog: CanLog
@@ -57,13 +57,13 @@ object LoggerEitherT {
   def apply[F[_]: LoggerEitherT]: LoggerEitherT[F] = summon[LoggerEitherT[F]]
 
   given loggerEitherT[F[_]](
-    using EF: Fx[F],
+    using EF: FxCtor[F],
     MF: Monad[F],
     canLog: CanLog
   ): LoggerEitherT[F] = new LoggerEitherTF[F](EF, MF, canLog)
 
   final class LoggerEitherTF[F[_]](
-    override val EF: Fx[F],
+    override val EF: FxCtor[F],
     override val MF: Monad[F],
     override val canLog: CanLog
   ) extends LoggerEitherT[F]

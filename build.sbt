@@ -407,8 +407,8 @@ lazy val props =
     final val Scala3Versions = List("3.0.0")
     final val Scala2Versions = List("2.13.5", "2.12.13")
 
-    final val ProjectScalaVersion = Scala3Versions.head
-//    final val ProjectScalaVersion = Scala2Versions.head
+//    final val ProjectScalaVersion = Scala3Versions.head
+    final val ProjectScalaVersion = Scala2Versions.head
 
     lazy val licenses = List("MIT" -> url("http://opensource.org/licenses/MIT"))
 
@@ -427,7 +427,7 @@ lazy val props =
 
     final val hedgehogVersion = "0.7.0"
 
-    final val effectieVersion = "1.14.0"
+    final val effectieVersion = "1.15.0"
 
     final val slf4JVersion   = "1.7.30"
     final val logbackVersion = "1.2.3"

@@ -2,12 +2,12 @@ package loggerf.cats
 
 import cats._
 import cats.implicits._
-import effectie.cats.Fx
+import effectie.cats.FxCtor
 import loggerf.logger.CanLog
 
 trait LoggerA[F[_]] {
 
-  implicit val EF: Fx[F]
+  implicit val EF: FxCtor[F]
   implicit val MF: Monad[F]
 
   def canLog: CanLog
@@ -42,13 +42,13 @@ object LoggerA {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def loggerA[F[_]](
-    implicit EF: Fx[F], MF: Monad[F], canLog: CanLog
+    implicit EF: FxCtor[F], MF: Monad[F], canLog: CanLog
   ): LoggerA[F] =
     new LoggerAF[F]
 
   final class LoggerAF[F[_]](
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-    implicit override val EF: Fx[F]
+    implicit override val EF: FxCtor[F]
   , override val MF: Monad[F]
   , override val canLog: CanLog
   ) extends LoggerA[F]
