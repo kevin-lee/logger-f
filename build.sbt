@@ -427,7 +427,7 @@ lazy val props =
 
     final val hedgehogVersion = "0.7.0"
 
-    final val effectieVersion = "1.15.0"
+    final val effectieVersion = "1.16.0"
 
     final val slf4JVersion   = "1.7.30"
     final val logbackVersion = "1.2.3"
