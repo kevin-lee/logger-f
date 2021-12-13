@@ -70,7 +70,7 @@ lazy val log4jLogger =
       description := "Logger for F[_] - Logger with Log4j",
       Compile / unmanagedSourceDirectories ++= {
         val sharedSourceDir = baseDirectory.value / "src/main"
-        if (scalaVersion.value.startsWith("3.0"))
+        if (scalaVersion.value.startsWith("3."))
           Seq(
             sharedSourceDir / "scala-2.12_3.0",
             sharedSourceDir / "scala-2.13_3.0",
@@ -92,7 +92,7 @@ lazy val log4jLogger =
       },
       Test / unmanagedSourceDirectories ++= {
         val sharedSourceDir = baseDirectory.value / "src/test"
-        if (scalaVersion.value.startsWith("3.0"))
+        if (scalaVersion.value.startsWith("3."))
           Seq(
             sharedSourceDir / "scala-2.12_3.0",
             sharedSourceDir / "scala-2.13_3.0",
@@ -142,7 +142,7 @@ lazy val sbtLogging =
 
         case (Major(2), Minor(13), _) | (Major(3), Minor(0), _) =>
           List(
-            libs.sbtLoggingLib % "1.5.2"
+            libs.sbtLoggingLib % "1.5.6"
           ).map(_ % Provided).map(_.cross(CrossVersion.for3Use2_13))
       },
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
@@ -425,7 +425,7 @@ lazy val props =
 
     final val IncludeTest = "compile->compile;test->test"
 
-    final val hedgehogVersion = "0.7.0"
+    final val hedgehogVersion = "0.8.0"
 
     final val effectieVersion = "1.16.0"
 
@@ -434,7 +434,7 @@ lazy val props =
 
     final val log4sVersion = "1.10.0"
 
-    final val log4JVersion = "2.13.1"
+    final val log4JVersion = "2.15.0"
   }
 
 lazy val libs =
@@ -473,7 +473,7 @@ def libraryDependenciesRemoveScala3Incompatible(
   libraries: Seq[ModuleID]
 ): Seq[ModuleID] =
   (
-    if (scalaVersion.startsWith("3.0"))
+    if (scalaVersion.startsWith("3."))
       libraries
         .filterNot(props.removeDottyIncompatible)
     else
