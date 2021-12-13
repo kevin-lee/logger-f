@@ -144,8 +144,7 @@ jobs:
             -v \
             clean \
             +packagedArtifacts \
-            ci-release \
-            devOopsGitHubReleaseUploadArtifacts
+            ci-release
 
 
   publish-snapshot:
