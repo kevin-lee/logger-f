@@ -25,7 +25,7 @@ ThisBuild / scmInfo    :=
 
 ThisBuild / licenses   := props.licenses
 
-ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
+ThisBuild / resolvers += "sonatype-snapshots" at s"https://${props.SonatypeCredentialHost}/content/repositories/snapshots"
 
 lazy val loggerF = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin)
@@ -40,8 +40,8 @@ lazy val loggerF = (project in file("."))
     devOopsPackagedArtifacts := List(s"*/target/scala-*/${name.value}*.jar"),
     /* } GitHub Release */
   )
-  .settings(noPublish)
   .settings(mavenCentralPublishSettings)
+  .settings(noPublish)
   .aggregate(
     core,
     slf4jLogger,
@@ -413,6 +413,9 @@ lazy val props =
 
     lazy val licenses = List("MIT" -> url("http://opensource.org/licenses/MIT"))
 
+    val SonatypeCredentialHost = "s01.oss.sonatype.org"
+    val SonatypeRepository     = s"https://$SonatypeCredentialHost/service/local"
+
     val removeDottyIncompatible: ModuleID => Boolean =
       m =>
         m.name == "wartremover" ||
@@ -483,8 +486,8 @@ def libraryDependenciesRemoveScala3Incompatible(
 
 lazy val mavenCentralPublishSettings: SettingsDefinition = List(
   /* Publish to Maven Central { */
-  sonatypeCredentialHost := "s01.oss.sonatype.org",
-  sonatypeRepository     := "https://s01.oss.sonatype.org/service/local",
+  sonatypeCredentialHost := props.SonatypeCredentialHost,
+  sonatypeRepository     := props.SonatypeRepository,
   /* } Publish to Maven Central */
 )
 
