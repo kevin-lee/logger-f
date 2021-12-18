@@ -438,7 +438,7 @@ lazy val props =
 
     final val log4sVersion = "1.10.0"
 
-    final val log4JVersion = "2.16.0"
+    final val log4JVersion = "2.17.0"
   }
 
 lazy val libs =
