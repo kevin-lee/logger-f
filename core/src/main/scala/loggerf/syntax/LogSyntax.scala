@@ -11,8 +11,8 @@ trait LogSyntax {
 
   def getLogger(canLog: CanLog, level: Level): (=> String) => Unit = level match {
     case Level.Debug => canLog.debug
-    case Level.Info  => canLog.info
-    case Level.Warn  => canLog.warn
+    case Level.Info => canLog.info
+    case Level.Warn => canLog.warn
     case Level.Error => canLog.error
   }
 

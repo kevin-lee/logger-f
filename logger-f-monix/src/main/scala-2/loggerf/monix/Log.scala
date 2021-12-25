@@ -45,7 +45,7 @@ trait Log[F[_]] {
     toLeveledMessage: A => LeveledMessage with MaybeIgnorable,
   ): F[Option[A]] =
     MF.flatMap(foa) {
-      case None    =>
+      case None =>
         ifEmpty match {
           case LeveledMessage.Ignore =>
             pureOf(none[A])
@@ -70,7 +70,7 @@ trait Log[F[_]] {
     toLeveledMessage: A => LeveledMessage with MaybeIgnorable,
   ): F[Option[A]] =
     MF.flatMap(foa) {
-      case None    =>
+      case None =>
         ifEmpty match {
           case LeveledMessage.Ignore =>
             pureOf(none[A])
@@ -95,7 +95,7 @@ trait Log[F[_]] {
     rightToMessage: B => LeveledMessage with MaybeIgnorable,
   ): F[Either[A, B]] =
     MF.flatMap(feab) {
-      case Left(l)  =>
+      case Left(l) =>
         leftToMessage(l) match {
           case LeveledMessage.LogMessage(message, level) =>
             effectOf(getLogger(canLog, level)(message)) *> effectOf(l.asLeft[B])
@@ -120,7 +120,7 @@ trait Log[F[_]] {
     rightToMessage: B => LeveledMessage with MaybeIgnorable,
   ): F[Either[A, B]] =
     MF.flatMap(feab) {
-      case Left(l)  =>
+      case Left(l) =>
         leftToMessage(l) match {
           case LeveledMessage.LogMessage(message, level) =>
             effectOf(getLogger(canLog, level)(message)) *> pureOf(l.asLeft[B])
