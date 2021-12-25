@@ -16,7 +16,7 @@ trait LoggerOption[F[_]] {
     MF.bind(fa) {
       case Some(a) =>
         EF.effectOf(logger0.debug(a2String(a))) *> EF.effectOf(a.some)
-      case None    =>
+      case None =>
         EF.effectOf(logger0.debug(ifEmpty)) *> EF.effectOf(none[A])
     }
 
@@ -24,7 +24,7 @@ trait LoggerOption[F[_]] {
     MF.bind(fa) {
       case Some(a) =>
         EF.effectOf(logger0.info(a2String(a))) *> EF.effectOf(a.some)
-      case None    =>
+      case None =>
         EF.effectOf(logger0.info(ifEmpty)) *> EF.effectOf(none[A])
     }
 
@@ -32,7 +32,7 @@ trait LoggerOption[F[_]] {
     MF.bind(fa) {
       case Some(a) =>
         EF.effectOf(logger0.warn(a2String(a))) *> EF.effectOf(a.some)
-      case None    =>
+      case None =>
         EF.effectOf(logger0.warn(ifEmpty)) *> EF.effectOf(none[A])
     }
 
@@ -40,7 +40,7 @@ trait LoggerOption[F[_]] {
     MF.bind(fa) {
       case Some(a) =>
         EF.effectOf(logger0.error(a2String(a))) *> EF.effectOf(a.some)
-      case None    =>
+      case None =>
         EF.effectOf(logger0.error(ifEmpty)) *> EF.effectOf(none[A])
     }
 }

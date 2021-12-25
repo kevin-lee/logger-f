@@ -7,9 +7,9 @@ sealed trait LeveledMessage
 
 object LeveledMessage {
   sealed trait MaybeIgnorable
-  sealed trait Ignorable    extends MaybeIgnorable
+  sealed trait Ignorable extends MaybeIgnorable
   sealed trait NotIgnorable extends MaybeIgnorable
 
   final case class LogMessage(message: String, level: Level) extends LeveledMessage with NotIgnorable
-  case object Ignore                                         extends LeveledMessage with Ignorable
+  case object Ignore extends LeveledMessage with Ignorable
 }

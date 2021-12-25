@@ -16,7 +16,7 @@ trait LoggerOption[F[_]] {
     MF.flatMap(fa) {
       case Some(a) =>
         EF.effectOf(canLog.debug(a2String(a))) *> EF.effectOf(a.some)
-      case None    =>
+      case None =>
         EF.effectOf(canLog.debug(ifEmpty)) *> EF.effectOf(none[A])
     }
 
@@ -24,7 +24,7 @@ trait LoggerOption[F[_]] {
     MF.flatMap(fa) {
       case Some(a) =>
         EF.effectOf(canLog.info(a2String(a))) *> EF.effectOf(a.some)
-      case None    =>
+      case None =>
         EF.effectOf(canLog.info(ifEmpty)) *> EF.effectOf(none[A])
     }
 
@@ -32,7 +32,7 @@ trait LoggerOption[F[_]] {
     MF.flatMap(fa) {
       case Some(a) =>
         EF.effectOf(canLog.warn(a2String(a))) *> EF.effectOf(a.some)
-      case None    =>
+      case None =>
         EF.effectOf(canLog.warn(ifEmpty)) *> EF.effectOf(none[A])
     }
 
@@ -40,7 +40,7 @@ trait LoggerOption[F[_]] {
     MF.flatMap(fa) {
       case Some(a) =>
         EF.effectOf(canLog.error(a2String(a))) *> EF.effectOf(a.some)
-      case None    =>
+      case None =>
         EF.effectOf(canLog.error(ifEmpty)) *> EF.effectOf(none[A])
     }
 }

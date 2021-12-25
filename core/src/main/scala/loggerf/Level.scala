@@ -8,8 +8,8 @@ sealed trait Level
 object Level {
 
   case object Debug extends Level
-  case object Info  extends Level
-  case object Warn  extends Level
+  case object Info extends Level
+  case object Warn extends Level
   case object Error extends Level
 
   def debug: Level = Debug

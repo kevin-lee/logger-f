@@ -36,7 +36,7 @@ trait Log[F[_]] {
     toLeveledMessage: A => LeveledMessage with MaybeIgnorable,
   ): F[Option[A]] =
     MF.bind(foa) {
-      case None    =>
+      case None =>
         ifEmpty match {
           case LeveledMessage.LogMessage(message, level) =>
             effectOf(getLogger(logger0, level)(message)) *> pureOf(none[A])
