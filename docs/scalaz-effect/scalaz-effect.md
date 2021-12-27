@@ -4,4 +4,4 @@ title: "For Scalaz Effect"
 ---
 ## LoggerF for Scalaz Effect (WIP)
 
-### [Log](log)
+### [Log](log.md)

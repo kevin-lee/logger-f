@@ -415,6 +415,6 @@ With logs like
 ### Usage
 
 Pleae check out
-* [LoggerF for Cats Effect](cats-effect/cats-effect)
-* [LoggerF for Monix](monix/monix)
-* [LoggerF for Scalaz Effect](scalaz-effect/scalaz-effect)
+* [LoggerF for Cats Effect](cats-effect)
+* [LoggerF for Monix](monix)
+* [LoggerF for Scalaz Effect](scalaz-effect)
