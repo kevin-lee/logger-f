@@ -14,7 +14,7 @@ const hasGoogleAnalytics = !isEmptyObject(googleAnalyticsConfig);
 
 const websiteConfig = {
   title: 'logger-f',
-  tagline: 'Logger for <code>F[_]</code>',
+  tagline: 'Logger for <code class="kev-title-code">F[_]</code>',
   url: 'https://logger-f.kevinly.dev',
   baseUrl: '/',
   onBrokenLinks: 'throw',
