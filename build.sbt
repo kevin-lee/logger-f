@@ -169,7 +169,7 @@ lazy val sbtLogging =
 
         case (Major(2), Minor(13), _) | (Major(3), Minor(0), _) =>
           List(
-            libs.sbtLoggingLib % "1.5.6"
+            libs.sbtLoggingLib % "1.5.8"
           ).map(_ % Provided).map(_.cross(CrossVersion.for3Use2_13))
       },
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
