@@ -4,4 +4,4 @@ title: "For Monix"
 ---
 ## LoggerF for Monix (WIP)
 
-### [Log](log)
+### [Log](log.md)
