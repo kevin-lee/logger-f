@@ -216,7 +216,7 @@ lazy val monix =
         ) {
           case (Major(2), Minor(10), _) =>
             libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover")
-          case _                        =>
+          case _ =>
             libraryDependencies.value
         },
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
@@ -368,7 +368,7 @@ lazy val docs = (project in file("generated-docs"))
       libraryDependencies.value
     ),
     mdocVariables       := Map(
-      "VERSION"                  -> {
+      "VERSION" -> {
         import sys.process._
         "git fetch --tags".!
         val tag = "git rev-list --tags --max-count=1".!!.trim
@@ -518,7 +518,7 @@ def projectCommonSettings(id: String, projectName: ProjectName, file: File): Pro
       coverageHighlighting                    := (CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 10)) | Some((2, 11)) =>
           false
-        case _                             =>
+        case _ =>
           true
       })
       /* } Coveralls */
