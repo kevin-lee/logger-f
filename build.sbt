@@ -55,7 +55,7 @@ lazy val loggerF = (project in file("."))
   )
 
 lazy val core =
-  projectCommonSettings("core", ProjectName("core"), file("core"))
+  subProject("core", ProjectName("core"))
     .settings(
       description         := "Logger for F[_] - Core",
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
@@ -64,7 +64,7 @@ lazy val core =
       )
     )
 
-lazy val slf4jLogger = projectCommonSettings("slf4jLogger", ProjectName("slf4j"), file("slf4j"))
+lazy val slf4jLogger = subProject("slf4jLogger", ProjectName("slf4j"))
   .settings(
     description         := "Logger for F[_] - Logger with Slf4j",
     libraryDependencies ++= Seq(
@@ -78,7 +78,7 @@ lazy val slf4jLogger = projectCommonSettings("slf4jLogger", ProjectName("slf4j")
   .dependsOn(core)
 
 lazy val log4sLogger =
-  projectCommonSettings("log4sLogger", ProjectName("log4s"), file("log4s"))
+  subProject("log4sLogger", ProjectName("log4s"))
     .settings(
       description         := "Logger for F[_] - Logger with Log4s",
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
@@ -92,7 +92,7 @@ lazy val log4sLogger =
     .dependsOn(core)
 
 lazy val log4jLogger =
-  projectCommonSettings("log4jLogger", ProjectName("log4j"), file("log4j"))
+  subProject("log4jLogger", ProjectName("log4j"))
     .settings(
       description         := "Logger for F[_] - Logger with Log4j",
       Compile / unmanagedSourceDirectories ++= {
@@ -150,7 +150,7 @@ lazy val log4jLogger =
     .dependsOn(core)
 
 lazy val sbtLogging =
-  projectCommonSettings("sbtLogging", ProjectName("sbt-logging"), file("sbt-logging"))
+  subProject("sbtLogging", ProjectName("sbt-logging"))
     .settings(
       description         := "Logger for F[_] - Logger with sbt logging",
       libraryDependencies ++= crossVersionProps(
@@ -180,7 +180,7 @@ lazy val sbtLogging =
     .dependsOn(core)
 
 lazy val catsEffect =
-  projectCommonSettings("catsEffect", ProjectName("cats-effect"), file("cats-effect"))
+  subProject("catsEffect", ProjectName("cats-effect"))
     .settings(
       description         := "Logger for F[_] - Cats Effect",
       libraryDependencies ++= libs.hedgehogLibs,
@@ -193,7 +193,7 @@ lazy val catsEffect =
     .dependsOn(core % props.IncludeTest)
 
 lazy val catsEffect3 =
-  projectCommonSettings("catsEffect3", ProjectName("cats-effect3"), file("cats-effect3"))
+  subProject("catsEffect3", ProjectName("cats-effect3"))
     .settings(
       description         := "Logger for F[_] - Cats Effect 3",
       libraryDependencies ++= libs.hedgehogLibs,
@@ -206,7 +206,7 @@ lazy val catsEffect3 =
     .dependsOn(core % props.IncludeTest)
 
 lazy val monix =
-  projectCommonSettings("monix", ProjectName("monix"), file(s"${props.RepoName}-monix"))
+  subProject("monix", ProjectName("monix"))
     .settings(
       description         := "Logger for F[_] - Monix",
       libraryDependencies :=
@@ -228,7 +228,7 @@ lazy val monix =
     .dependsOn(core % props.IncludeTest)
 
 lazy val scalazEffect =
-  projectCommonSettings("scalazEffect", ProjectName("scalaz-effect"), file("scalaz-effect"))
+  subProject("scalazEffect", ProjectName("scalaz-effect"))
     .settings(
       description         := "Logger for F[_] - Scalaz",
       libraryDependencies ++= libs.hedgehogLibs,
@@ -241,10 +241,9 @@ lazy val scalazEffect =
     .dependsOn(core % props.IncludeTest)
 
 lazy val testCatsEffectWithSlf4jLogger =
-  projectCommonSettings(
+  testProject(
     "testCatsEffectWithSlf4jLogger",
-    ProjectName("test-cats-effect-slf4j"),
-    file("test-cats-effect-slf4j")
+    ProjectName("cats-effect-slf4j"),
   )
     .settings(
       description         := "Test Logger for F[_] - Logger with Slf4j",
@@ -258,10 +257,9 @@ lazy val testCatsEffectWithSlf4jLogger =
     .dependsOn(core, slf4jLogger, catsEffect)
 
 lazy val testMonixWithSlf4jLogger =
-  projectCommonSettings(
+  testProject(
     "testMonixWithSlf4jLogger",
-    ProjectName("test-monix-slf4j"),
-    file("test-monix-slf4j")
+    ProjectName("monix-slf4j"),
   )
     .settings(
       description         := "Test Logger for F[_] - Logger with Slf4j",
@@ -275,10 +273,9 @@ lazy val testMonixWithSlf4jLogger =
     .dependsOn(core, slf4jLogger, monix)
 
 lazy val testScalazEffectWithSlf4jLogger =
-  projectCommonSettings(
+  testProject(
     "testScalazEffectWithSlf4jLogger",
-    ProjectName("test-scalaz-effect-slf4j"),
-    file("test-scalaz-effect-slf4j")
+    ProjectName("scalaz-effect-slf4j"),
   )
     .settings(
       description         := "Test Logger for F[_] - Logger with Slf4j",
@@ -292,10 +289,9 @@ lazy val testScalazEffectWithSlf4jLogger =
     .dependsOn(core, slf4jLogger, scalazEffect)
 
 lazy val testCatsEffectWithLog4sLogger =
-  projectCommonSettings(
+  testProject(
     "testCatsEffectWithLog4sLogger",
-    ProjectName("test-cats-effect-log4s"),
-    file("test-cats-effect-log4s")
+    ProjectName("cats-effect-log4s"),
   )
     .settings(
       description         := "Test Logger for F[_] - Logger with Log4s",
@@ -309,10 +305,9 @@ lazy val testCatsEffectWithLog4sLogger =
     .dependsOn(core, log4sLogger, catsEffect)
 
 lazy val testScalazEffectWithLog4sLogger =
-  projectCommonSettings(
+  testProject(
     "testScalazEffectWithLog4sLogger",
-    ProjectName("test-scalaz-effect-log4s"),
-    file("test-scalaz-effect-log4s")
+    ProjectName("scalaz-effect-log4s"),
   )
     .settings(
       description         := "Test Logger for F[_] - Logger with Log4s",
@@ -326,10 +321,9 @@ lazy val testScalazEffectWithLog4sLogger =
     .dependsOn(core, log4sLogger, scalazEffect)
 
 lazy val testCatsEffectWithLog4jLogger =
-  projectCommonSettings(
+  testProject(
     "testCatsEffectWithLog4jLogger",
-    ProjectName("test-cats-effect-log4j"),
-    file("test-cats-effect-log4j")
+    ProjectName("cats-effect-log4j"),
   )
     .settings(
       description         := "Test Logger for F[_] - Logger with Log4j",
@@ -343,10 +337,9 @@ lazy val testCatsEffectWithLog4jLogger =
     .dependsOn(core, log4jLogger, catsEffect)
 
 lazy val testScalazEffectWithLog4jLogger =
-  projectCommonSettings(
+  testProject(
     "testScalazEffectWithLog4jLogger",
-    ProjectName("test-scalaz-effect-log4j"),
-    file("test-scalaz-effect-log4j")
+    ProjectName("scalaz-effect-log4j"),
   )
     .settings(
       description         := "Test Logger for F[_] - Logger with Log4j",
@@ -491,31 +484,41 @@ lazy val mavenCentralPublishSettings: SettingsDefinition = List(
   /* } Publish to Maven Central */
 )
 
-def projectCommonSettings(id: String, projectName: ProjectName, file: File): Project =
+def subProject(id: String, projectName: ProjectName): Project = {
+  val prefixedName = prefixedProjectName(projectName.projectName)
+  projectCommonSettings(id, prefixedName, file(s"modules/$prefixedName"))
+}
+
+def testProject(id: String, projectName: ProjectName): Project = {
+  val prefixedName = s"test-${prefixedProjectName(projectName.projectName)}"
+  projectCommonSettings(id, prefixedName, file(s"modules/$prefixedName"))
+}
+
+def projectCommonSettings(id: String, projectName: String, file: File): Project =
   Project(id, file)
     .settings(
-      name                                    := prefixedProjectName(projectName.projectName),
-      licenses                                := props.licenses,
+      name := projectName,
+      licenses := props.licenses,
       /* WartRemover and scalacOptions { */
       //      , Compile / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       //      , Test / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value),
-      Compile / console / wartremoverErrors   := List.empty,
+      Compile / console / wartremoverErrors := List.empty,
       Compile / console / wartremoverWarnings := List.empty,
-      Compile / console / scalacOptions       :=
+      Compile / console / scalacOptions :=
         (console / scalacOptions)
           .value
           .filterNot(option => option.contains("wartremover") || option.contains("import")),
-      Test / console / wartremoverErrors      := List.empty,
-      Test / console / wartremoverWarnings    := List.empty,
-      Test / console / scalacOptions          :=
+      Test / console / wartremoverErrors := List.empty,
+      Test / console / wartremoverWarnings := List.empty,
+      Test / console / scalacOptions :=
         (console / scalacOptions)
           .value
           .filterNot(option => option.contains("wartremover") || option.contains("import")),
       /* } WartRemover and scalacOptions */
       testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework")),
       /* Coveralls { */
-      coverageHighlighting                    := (CrossVersion.partialVersion(scalaVersion.value) match {
+      coverageHighlighting := (CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 10)) | Some((2, 11)) =>
           false
         case _ =>
