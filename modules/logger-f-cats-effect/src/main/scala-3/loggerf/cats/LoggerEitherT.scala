@@ -2,7 +2,7 @@ package loggerf.cats
 
 import cats.*
 import cats.data.EitherT
-import effectie.cats.FxCtor
+import effectie.core.FxCtor
 import loggerf.logger.CanLog
 
 trait LoggerEitherT[F[_]] {

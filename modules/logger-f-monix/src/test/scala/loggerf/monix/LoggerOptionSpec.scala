@@ -2,8 +2,8 @@ package loggerf.monix
 
 import cats._
 
-import effectie.monix.Fx
-import effectie.monix.Effectful._
+import effectie.core.FxCtor
+import effectie.syntax.all._
 
 import hedgehog._
 import hedgehog.runner._
@@ -34,9 +34,10 @@ object LoggerOptionSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_]: Fx: Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOption[F].debugOption(effectOf(oa))(ifEmpty = emptyMsg, a => s"$logMsg - $a")
 
+    import effectie.monix.fx._
     val result = runLog[Task](oa).runSyncUnsafe()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
@@ -75,9 +76,10 @@ object LoggerOptionSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_]: Fx: Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOption[F].infoOption(effectOf(oa))(ifEmpty = emptyMsg, a => s"$logMsg - $a")
 
+    import effectie.monix.fx._
     val result = runLog[Task](oa).runSyncUnsafe()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
@@ -116,9 +118,10 @@ object LoggerOptionSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_]: Fx: Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOption[F].warnOption(effectOf(oa))(ifEmpty = emptyMsg, a => s"$logMsg - $a")
 
+    import effectie.monix.fx._
     val result = runLog[Task](oa).runSyncUnsafe()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
@@ -157,9 +160,10 @@ object LoggerOptionSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_]: Fx: Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOption[F].errorOption(effectOf(oa))(ifEmpty = emptyMsg, a => s"$logMsg - $a")
 
+    import effectie.monix.fx._
     val result = runLog[Task](oa).runSyncUnsafe()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))

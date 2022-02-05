@@ -3,8 +3,8 @@ package loggerf.cats
 import cats.*
 import cats.data.{EitherT, OptionT}
 import cats.syntax.all.*
-import effectie.cats.Effectful.*
-import effectie.cats.FxCtor
+import effectie.syntax.all.*
+import effectie.core.FxCtor
 import loggerf.LeveledMessage
 import loggerf.LeveledMessage.{Ignorable, NotIgnorable}
 import loggerf.logger.CanLog

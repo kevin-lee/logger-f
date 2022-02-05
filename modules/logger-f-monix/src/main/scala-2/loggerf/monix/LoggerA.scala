@@ -1,13 +1,13 @@
 package loggerf.monix
 
 import cats._
-import cats.implicits._
-import effectie.monix.Fx
+import cats.syntax.all._
+import effectie.core.FxCtor
 import loggerf.logger.CanLog
 
 trait LoggerA[F[_]] {
 
-  implicit val EF: Fx[F]
+  implicit val EF: FxCtor[F]
   implicit val MF: Monad[F]
 
   def canLog: CanLog
@@ -32,7 +32,7 @@ trait LoggerA[F[_]] {
 
   def errorA[A](fa: F[A])(a2String: A => String): F[A] =
     MF.flatMap(fa) { a =>
-      EF.effectOf(canLog.error(a2String(a))) *> EF.effectOf(a)
+      EF.effectOf(canLog.error(a2String(a))) >> EF.effectOf(a)
     }
   def errorS(message: F[String]): F[String]            = errorA(message)(identity)
 }
@@ -42,7 +42,7 @@ object LoggerA {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def loggerA[F[_]](
-    implicit EF: Fx[F],
+    implicit EF: FxCtor[F],
     MF: Monad[F],
     canLog: CanLog,
   ): LoggerA[F] =
@@ -50,7 +50,7 @@ object LoggerA {
 
   final class LoggerAF[F[_]](
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-    implicit override val EF: Fx[F],
+    implicit override val EF: FxCtor[F],
     override val MF: Monad[F],
     override val canLog: CanLog,
   ) extends LoggerA[F]

@@ -1,8 +1,8 @@
 package loggerf.cats
 
 import cats._
-import cats.implicits._
-import effectie.cats.FxCtor
+import cats.syntax.all._
+import effectie.core.FxCtor
 import loggerf.logger.CanLog
 
 trait LoggerOption[F[_]] {

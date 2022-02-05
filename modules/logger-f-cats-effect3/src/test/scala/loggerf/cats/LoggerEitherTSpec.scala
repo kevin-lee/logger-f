@@ -2,11 +2,11 @@ package loggerf.cats
 
 import cats._
 import cats.data.EitherT
-import cats.implicits._
+import cats.syntax.all._
 import cats.effect._
 import cats.effect.unsafe.IORuntime
-import effectie.cats.Effectful._
-import effectie.cats.Fx
+import effectie.syntax.all._
+import effectie.core.FxCtor
 import hedgehog._
 import hedgehog.runner._
 import loggerf.cats.testing.ConcurrentSupport
@@ -33,7 +33,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
       LoggerEitherT[F].debugEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).value
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
@@ -41,6 +41,7 @@ object LoggerEitherTSpec extends Properties {
     val es: ExecutorService    = ConcurrentSupport.newExecutorService()
     implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -77,7 +78,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
       LoggerEitherT[F].infoEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).value
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
@@ -85,6 +86,7 @@ object LoggerEitherTSpec extends Properties {
     val es: ExecutorService    = ConcurrentSupport.newExecutorService()
     implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -121,7 +123,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
       LoggerEitherT[F].warnEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).value
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
@@ -129,6 +131,7 @@ object LoggerEitherTSpec extends Properties {
     val es: ExecutorService    = ConcurrentSupport.newExecutorService()
     implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -165,7 +168,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
       LoggerEitherT[F].errorEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).value
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
@@ -173,6 +176,7 @@ object LoggerEitherTSpec extends Properties {
     val es: ExecutorService    = ConcurrentSupport.newExecutorService()
     implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {

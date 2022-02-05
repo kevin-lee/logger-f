@@ -4,8 +4,8 @@ import cats._
 import cats.data.OptionT
 import cats.effect._
 import cats.effect.unsafe.IORuntime
-import effectie.cats.Effectful._
-import effectie.cats.Fx
+import effectie.syntax.all._
+import effectie.core.FxCtor
 import hedgehog._
 import hedgehog.runner._
 import loggerf.cats.testing.ConcurrentSupport
@@ -33,12 +33,13 @@ object LoggerOptionTSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_]: Fx: Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOptionT[F].debugOptionT(OptionT(effectOf(oa)))(ifEmpty = emptyMsg, a => s"$logMsg - $a").value
 
     val es: ExecutorService    = ConcurrentSupport.newExecutorService()
     implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](oa).unsafeRunSync()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
@@ -77,12 +78,13 @@ object LoggerOptionTSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_]: Fx: Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOptionT[F].infoOptionT(OptionT(effectOf(oa)))(ifEmpty = emptyMsg, a => s"$logMsg - $a").value
 
     val es: ExecutorService    = ConcurrentSupport.newExecutorService()
     implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](oa).unsafeRunSync()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
@@ -121,12 +123,13 @@ object LoggerOptionTSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_]: Fx: Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOptionT[F].warnOptionT(OptionT(effectOf(oa)))(ifEmpty = emptyMsg, a => s"$logMsg - $a").value
 
     val es: ExecutorService    = ConcurrentSupport.newExecutorService()
     implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](oa).unsafeRunSync()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
@@ -165,12 +168,13 @@ object LoggerOptionTSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_]: Fx: Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOptionT[F].errorOptionT(OptionT(effectOf(oa)))(ifEmpty = emptyMsg, a => s"$logMsg - $a").value
 
     val es: ExecutorService    = ConcurrentSupport.newExecutorService()
     implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](oa).unsafeRunSync()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))

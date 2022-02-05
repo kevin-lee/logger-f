@@ -1,10 +1,10 @@
 package loggerf.cats
 
 import cats._
-import cats.implicits._
+import cats.syntax.all._
 import cats.effect._
-import effectie.cats.Effectful._
-import effectie.cats.FxCtor
+import effectie.syntax.all._
+import effectie.core.FxCtor
 import hedgehog._
 import hedgehog.runner._
 import loggerf.logger.LoggerForTesting
@@ -33,6 +33,7 @@ object LoggerEitherSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -74,6 +75,7 @@ object LoggerEitherSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -115,6 +117,7 @@ object LoggerEitherSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -156,6 +159,7 @@ object LoggerEitherSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {

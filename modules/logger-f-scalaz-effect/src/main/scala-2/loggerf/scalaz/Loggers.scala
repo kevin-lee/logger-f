@@ -20,12 +20,12 @@ object Loggers {
   def apply[F[_]: Loggers]: Loggers[F] = implicitly[Loggers[F]]
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-  implicit def loggers[F[_]](implicit EF: Fx[F], MF: Monad[F], canLog: CanLog): Loggers[F] =
+  implicit def loggers[F[_]](implicit EF: FxCtor[F], MF: Monad[F], canLog: CanLog): Loggers[F] =
     new LoggersF[F]
 
-  final class LoggersF[F[_]: Fx: Monad](
+  final class LoggersF[F[_]: FxCtor: Monad](
     @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-    implicit override val EF: Fx[F],
+    implicit override val EF: FxCtor[F],
     override val MF: Monad[F],
     override val logger0: CanLog,
   ) extends Loggers[F]

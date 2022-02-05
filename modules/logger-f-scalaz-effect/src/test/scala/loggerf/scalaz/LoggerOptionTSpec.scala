@@ -28,7 +28,7 @@ object LoggerOptionTSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_]: Fx: Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOptionT[F].debugOptionT(OptionT(effectOf(oa)))(ifEmpty = emptyMsg, a => s"$logMsg - $a").run
 
     val result = runLog[IO](oa).unsafePerformIO()
@@ -69,7 +69,7 @@ object LoggerOptionTSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_]: Fx: Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOptionT[F].infoOptionT(OptionT(effectOf(oa)))(ifEmpty = emptyMsg, a => s"$logMsg - $a").run
 
     val result = runLog[IO](oa).unsafePerformIO()
@@ -110,7 +110,7 @@ object LoggerOptionTSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_]: Fx: Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOptionT[F].warnOptionT(OptionT(effectOf(oa)))(ifEmpty = emptyMsg, a => s"$logMsg - $a").run
 
     val result = runLog[IO](oa).unsafePerformIO()
@@ -151,7 +151,7 @@ object LoggerOptionTSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
-    def runLog[F[_]: Fx: Monad](oa: Option[Int]): F[Option[Int]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOptionT[F].errorOptionT(OptionT(effectOf(oa)))(ifEmpty = emptyMsg, a => s"$logMsg - $a").run
 
     val result = runLog[IO](oa).unsafePerformIO()

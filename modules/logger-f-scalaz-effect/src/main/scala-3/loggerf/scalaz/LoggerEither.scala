@@ -7,7 +7,7 @@ import loggerf.logger.CanLog
 
 trait LoggerEither[F[_]] {
 
-  given EF: Fx[F]
+  given EF: FxCtor[F]
   given MF: Monad[F]
 
   def canLog: CanLog
@@ -49,11 +49,11 @@ object LoggerEither {
   def apply[F[_] : LoggerEither]: LoggerEither[F] = summon[LoggerEither[F]]
 
   given loggerEither[F[_]](
-    using EF: Fx[F], MF: Monad[F], canLog: CanLog
+    using EF: FxCtor[F], MF: Monad[F], canLog: CanLog
   ): LoggerEither[F] = new LoggerEitherF[F](EF, MF, canLog)
 
   final class LoggerEitherF[F[_]](
-    override val EF: Fx[F]
+    override val EF: FxCtor[F]
   , override val MF: Monad[F]
   , override val canLog: CanLog
   ) extends LoggerEither[F]

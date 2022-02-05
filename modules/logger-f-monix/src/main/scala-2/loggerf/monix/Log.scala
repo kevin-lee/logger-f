@@ -2,11 +2,9 @@ package loggerf.monix
 
 import cats._
 import cats.data.{EitherT, OptionT}
-import cats.implicits._
-
-import effectie.monix.Effectful._
-import effectie.monix.Fx
-
+import cats.syntax.all._
+import effectie.core.FxCtor
+import effectie.syntax.all._
 import loggerf.LeveledMessage
 import loggerf.LeveledMessage.{MaybeIgnorable, NotIgnorable}
 import loggerf.logger.CanLog
@@ -17,7 +15,7 @@ import loggerf.syntax._
   */
 trait Log[F[_]] {
 
-  implicit val EF: Fx[F]
+  implicit val EF: FxCtor[F]
   implicit val MF: Monad[F]
 
   def canLog: CanLog
@@ -178,7 +176,7 @@ object Log {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def logF[F[_]](
-    implicit EF: Fx[F],
+    implicit EF: FxCtor[F],
     MF: Monad[F],
     canLog: CanLog,
   ): Log[F] =
@@ -186,7 +184,7 @@ object Log {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   final class LogF[F[_]](
-    override val EF: Fx[F],
+    override val EF: FxCtor[F],
     override val MF: Monad[F],
     override val canLog: CanLog,
   ) extends Log[F]

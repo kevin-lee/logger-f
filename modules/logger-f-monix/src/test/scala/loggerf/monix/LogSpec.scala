@@ -4,8 +4,8 @@ import cats._
 import cats.data.{EitherT, OptionT}
 import cats.syntax.all._
 
-import effectie.monix.Fx
-import effectie.monix.Effectful._
+import effectie.core.FxCtor
+import effectie.syntax.all._
 
 import hedgehog._
 import hedgehog.runner._
@@ -59,7 +59,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad]: F[Unit] =
+    def runLog[F[_]: FxCtor: Monad]: F[Unit] =
       (for {
         _ <- Log[F].log(effectOf(debugMsg))(debug)
         _ <- Log[F].log(effectOf(infoMsg))(info)
@@ -67,6 +67,7 @@ object LogSpec extends Properties {
         _ <- Log[F].log(effectOf(errorMsg))(error)
       } yield ())
 
+    import effectie.monix.fx._
     runLog[Task].runSyncUnsafe()
 
     val expected = LoggerForTesting(
@@ -88,7 +89,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad]: F[Unit] =
+    def runLog[F[_]: FxCtor: Monad]: F[Unit] =
       (for {
         _ <- Log[F].logPure(pureOf(debugMsg))(debug)
         _ <- Log[F].logPure(pureOf(infoMsg))(info)
@@ -96,6 +97,7 @@ object LogSpec extends Properties {
         _ <- Log[F].logPure(pureOf(errorMsg))(error)
       } yield ())
 
+    import effectie.monix.fx._
     runLog[Task].runSyncUnsafe()
 
     val expected = LoggerForTesting(
@@ -115,7 +117,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](oa: Option[String]): F[Option[Unit]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] =
       (for {
         _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), debug)
         _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), info)
@@ -123,6 +125,7 @@ object LogSpec extends Properties {
         _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), error)
       } yield ().some)
 
+    import effectie.monix.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -153,7 +156,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](oa: Option[String]): F[Option[Unit]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] =
       (for {
         _ <- Log[F].logPure(pureOf(oa))(error(ifEmptyMsg), debug)
         _ <- Log[F].logPure(pureOf(oa))(error(ifEmptyMsg), info)
@@ -161,6 +164,7 @@ object LogSpec extends Properties {
         _ <- Log[F].logPure(pureOf(oa))(error(ifEmptyMsg), error)
       } yield ().some)
 
+    import effectie.monix.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -190,7 +194,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](oa: Option[String]): F[Option[Unit]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] =
       (for {
         _ <- Log[F].log(effectOf(oa))(ignore, debug)
         _ <- Log[F].log(effectOf(oa))(ignore, info)
@@ -198,6 +202,7 @@ object LogSpec extends Properties {
         _ <- Log[F].log(effectOf(oa))(ignore, error)
       } yield ().some)
 
+    import effectie.monix.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -227,7 +232,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](oa: Option[String]): F[Option[Unit]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] =
       (for {
         _ <- Log[F].logPure(pureOf(oa))(ignore, debug)
         _ <- Log[F].logPure(pureOf(oa))(ignore, info)
@@ -235,6 +240,7 @@ object LogSpec extends Properties {
         _ <- Log[F].logPure(pureOf(oa))(ignore, error)
       } yield ().some)
 
+    import effectie.monix.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -265,7 +271,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](oa: Option[String]): F[Option[Unit]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] =
       (for {
         _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
         _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
@@ -273,6 +279,7 @@ object LogSpec extends Properties {
         _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
       } yield ().some)
 
+    import effectie.monix.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -303,7 +310,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](oa: Option[String]): F[Option[Unit]] =
+    def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] =
       (for {
         _ <- Log[F].logPure(pureOf(oa))(error(ifEmptyMsg), _ => ignore)
         _ <- Log[F].logPure(pureOf(oa))(error(ifEmptyMsg), _ => ignore)
@@ -311,6 +318,7 @@ object LogSpec extends Properties {
         _ <- Log[F].logPure(pureOf(oa))(error(ifEmptyMsg), _ => ignore)
       } yield ().some)
 
+    import effectie.monix.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -342,7 +350,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
       _ <- Log[F].log(effectOf(eab))(error, b => debug(b.toString))
       _ <- Log[F].log(effectOf(eab))(error, b => info(b.toString))
       _ <- Log[F].log(effectOf(eab))(error, b => warn(b.toString))
@@ -351,6 +359,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -382,7 +391,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
       _ <- Log[F].logPure(pureOf(eab))(error, b => debug(b.toString))
       _ <- Log[F].logPure(pureOf(eab))(error, b => info(b.toString))
       _ <- Log[F].logPure(pureOf(eab))(error, b => warn(b.toString))
@@ -391,6 +400,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -422,7 +432,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
       _ <- Log[F].log(effectOf(eab))(_ => ignore, b => debug(b.toString))
       _ <- Log[F].log(effectOf(eab))(_ => ignore, b => info(b.toString))
       _ <- Log[F].log(effectOf(eab))(_ => ignore, b => warn(b.toString))
@@ -431,6 +441,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -462,7 +473,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
       _ <- Log[F].logPure(pureOf(eab))(_ => ignore, b => debug(b.toString))
       _ <- Log[F].logPure(pureOf(eab))(_ => ignore, b => info(b.toString))
       _ <- Log[F].logPure(pureOf(eab))(_ => ignore, b => warn(b.toString))
@@ -471,6 +482,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -502,7 +514,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
       _ <- Log[F].log(effectOf(eab))(error, _ => ignore)
       _ <- Log[F].log(effectOf(eab))(error, _ => ignore)
       _ <- Log[F].log(effectOf(eab))(error, _ => ignore)
@@ -511,6 +523,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -542,7 +555,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
       _ <- Log[F].logPure(pureOf(eab))(error, _ => ignore)
       _ <- Log[F].logPure(pureOf(eab))(error, _ => ignore)
       _ <- Log[F].logPure(pureOf(eab))(error, _ => ignore)
@@ -551,6 +564,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -581,13 +595,14 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+    def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] = (for {
       _ <- Log[F].log(OptionT(effectOf(oa)))(error(ifEmptyMsg), debug)
       _ <- Log[F].log(OptionT(effectOf(oa)))(error(ifEmptyMsg), info)
       _ <- Log[F].log(OptionT(effectOf(oa)))(error(ifEmptyMsg), warn)
       _ <- Log[F].log(OptionT(effectOf(oa)))(error(ifEmptyMsg), error)
     } yield ()).value
 
+    import effectie.monix.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -618,13 +633,14 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+    def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] = (for {
       _ <- Log[F].logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), debug)
       _ <- Log[F].logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), info)
       _ <- Log[F].logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), warn)
       _ <- Log[F].logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), error)
     } yield ()).value
 
+    import effectie.monix.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -655,13 +671,14 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+    def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] = (for {
       _ <- Log[F].log(OptionT(effectOf(oa)))(ignore, debug)
       _ <- Log[F].log(OptionT(effectOf(oa)))(ignore, info)
       _ <- Log[F].log(OptionT(effectOf(oa)))(ignore, warn)
       _ <- Log[F].log(OptionT(effectOf(oa)))(ignore, error)
     } yield ()).value
 
+    import effectie.monix.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -692,13 +709,14 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+    def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] = (for {
       _ <- Log[F].logPure(OptionT(pureOf(oa)))(ignore, debug)
       _ <- Log[F].logPure(OptionT(pureOf(oa)))(ignore, info)
       _ <- Log[F].logPure(OptionT(pureOf(oa)))(ignore, warn)
       _ <- Log[F].logPure(OptionT(pureOf(oa)))(ignore, error)
     } yield ()).value
 
+    import effectie.monix.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -729,13 +747,14 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+    def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] = (for {
       _ <- Log[F].log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
       _ <- Log[F].log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
       _ <- Log[F].log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
       _ <- Log[F].log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
     } yield ()).value
 
+    import effectie.monix.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -766,13 +785,14 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+    def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] = (for {
       _ <- Log[F].logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), _ => ignore)
       _ <- Log[F].logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), _ => ignore)
       _ <- Log[F].logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), _ => ignore)
       _ <- Log[F].logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), _ => ignore)
     } yield ()).value
 
+    import effectie.monix.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -804,7 +824,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
       _ <- Log[F].log(EitherT(effectOf(eab)))(error, b => debug(b.toString))
       _ <- Log[F].log(EitherT(effectOf(eab)))(error, b => info(b.toString))
       _ <- Log[F].log(EitherT(effectOf(eab)))(error, b => warn(b.toString))
@@ -813,6 +833,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -844,7 +865,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
       _ <- Log[F].logPure(EitherT(pureOf(eab)))(error, b => debug(b.toString))
       _ <- Log[F].logPure(EitherT(pureOf(eab)))(error, b => info(b.toString))
       _ <- Log[F].logPure(EitherT(pureOf(eab)))(error, b => warn(b.toString))
@@ -853,6 +874,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -884,7 +906,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
       _ <- Log[F].log(EitherT(effectOf(eab)))(_ => ignore, b => debug(b.toString))
       _ <- Log[F].log(EitherT(effectOf(eab)))(_ => ignore, b => info(b.toString))
       _ <- Log[F].log(EitherT(effectOf(eab)))(_ => ignore, b => warn(b.toString))
@@ -893,6 +915,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -924,7 +947,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
       _ <- Log[F].logPure(EitherT(pureOf(eab)))(_ => ignore, b => debug(b.toString))
       _ <- Log[F].logPure(EitherT(pureOf(eab)))(_ => ignore, b => info(b.toString))
       _ <- Log[F].logPure(EitherT(pureOf(eab)))(_ => ignore, b => warn(b.toString))
@@ -933,6 +956,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -964,7 +988,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
       _ <- Log[F].log(EitherT(effectOf(eab)))(error, _ => ignore)
       _ <- Log[F].log(EitherT(effectOf(eab)))(error, _ => ignore)
       _ <- Log[F].log(EitherT(effectOf(eab)))(error, _ => ignore)
@@ -973,6 +997,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -1004,7 +1029,7 @@ object LogSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
       _ <- Log[F].logPure(EitherT(pureOf(eab)))(error, _ => ignore)
       _ <- Log[F].logPure(EitherT(pureOf(eab)))(error, _ => ignore)
       _ <- Log[F].logPure(EitherT(pureOf(eab)))(error, _ => ignore)
@@ -1013,6 +1038,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {

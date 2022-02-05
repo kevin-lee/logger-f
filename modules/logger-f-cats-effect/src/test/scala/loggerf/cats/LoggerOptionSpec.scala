@@ -2,8 +2,8 @@ package loggerf.cats
 
 import cats._
 import cats.effect._
-import effectie.cats.Effectful._
-import effectie.cats.FxCtor
+import effectie.syntax.all._
+import effectie.core.FxCtor
 import hedgehog._
 import hedgehog.runner._
 import loggerf.logger.LoggerForTesting
@@ -31,6 +31,7 @@ object LoggerOptionSpec extends Properties {
     def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOption[F].debugOption(effectOf(oa))(ifEmpty = emptyMsg, a => s"$logMsg - $a")
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](oa).unsafeRunSync()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
@@ -72,6 +73,7 @@ object LoggerOptionSpec extends Properties {
     def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOption[F].infoOption(effectOf(oa))(ifEmpty = emptyMsg, a => s"$logMsg - $a")
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](oa).unsafeRunSync()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
@@ -113,6 +115,7 @@ object LoggerOptionSpec extends Properties {
     def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOption[F].warnOption(effectOf(oa))(ifEmpty = emptyMsg, a => s"$logMsg - $a")
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](oa).unsafeRunSync()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))
@@ -154,6 +157,7 @@ object LoggerOptionSpec extends Properties {
     def runLog[F[_]: FxCtor: Monad](oa: Option[Int]): F[Option[Int]] =
       LoggerOption[F].errorOption(effectOf(oa))(ifEmpty = emptyMsg, a => s"$logMsg - $a")
 
+    import effectie.cats.fx.ioFx
     val result = runLog[IO](oa).unsafeRunSync()
 
     @SuppressWarnings(Array("org.wartremover.warts.StringPlusAny"))

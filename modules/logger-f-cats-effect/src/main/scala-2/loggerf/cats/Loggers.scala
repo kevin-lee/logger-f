@@ -1,7 +1,7 @@
 package loggerf.cats
 
 import cats.Monad
-import effectie.cats.FxCtor
+import effectie.core.FxCtor
 import loggerf.logger.CanLog
 
 /** @author Kevin Lee

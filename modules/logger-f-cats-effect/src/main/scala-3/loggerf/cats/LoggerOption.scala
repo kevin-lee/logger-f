@@ -2,7 +2,7 @@ package loggerf.cats
 
 import cats.*
 import cats.syntax.all.*
-import effectie.cats.FxCtor
+import effectie.core.FxCtor
 import loggerf.logger.CanLog
 
 trait LoggerOption[F[_]] {

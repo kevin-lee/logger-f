@@ -28,7 +28,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: String \/ Int): F[String \/ Int] =
+    def runLog[F[_]: FxCtor: Monad](eab: String \/ Int): F[String \/ Int] =
       LoggerEitherT[F].debugEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).run
 
     val eab = if (isRight) rightInt.right[String] else leftString.left[Int]
@@ -69,7 +69,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: String \/ Int): F[String \/ Int] =
+    def runLog[F[_]: FxCtor: Monad](eab: String \/ Int): F[String \/ Int] =
       LoggerEitherT[F].infoEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).run
 
     val eab = if (isRight) rightInt.right[String] else leftString.left[Int]
@@ -110,7 +110,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: String \/ Int): F[String \/ Int] =
+    def runLog[F[_]: FxCtor: Monad](eab: String \/ Int): F[String \/ Int] =
       LoggerEitherT[F].warnEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).run
 
     val eab = if (isRight) rightInt.right[String] else leftString.left[Int]
@@ -151,7 +151,7 @@ object LoggerEitherTSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: String \/ Int): F[String \/ Int] =
+    def runLog[F[_]: FxCtor: Monad](eab: String \/ Int): F[String \/ Int] =
       LoggerEitherT[F].errorEitherT(EitherT(effectOf(eab)))(a => s"Error: $a", b => b.toString).run
 
     val eab = if (isRight) rightInt.right[String] else leftString.left[Int]

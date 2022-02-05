@@ -7,6 +7,7 @@ ThisBuild / scalaVersion       := props.ProjectScalaVersion
 ThisBuild / organization       := "io.kevinlee"
 ThisBuild / organizationName   := "Kevin's Code"
 ThisBuild / crossScalaVersions := props.CrossScalaVersions
+ThisBuild / version            := "2.0.0-SNAPSHOT"
 
 ThisBuild / developers := List(
   Developer(
@@ -50,7 +51,6 @@ lazy val loggerF = (project in file("."))
     sbtLogging,
     catsEffect,
     catsEffect3,
-    scalazEffect,
     monix,
   )
 
@@ -58,6 +58,10 @@ lazy val core =
   subProject("core", ProjectName("core"))
     .settings(
       description         := "Logger for F[_] - Core",
+      libraryDependencies ++= List(
+        libs.extrasConcurrent,
+        libs.extrasConcurrentTesting,
+      ),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value
@@ -188,7 +192,7 @@ lazy val catsEffect =
         scalaVersion.value,
         libraryDependencies.value
       ),
-      libraryDependencies ++= Seq(libs.effectieCatsEffect)
+      libraryDependencies ++= Seq(libs.effectieCatsEffect, libs.extrasCats)
     )
     .dependsOn(core % props.IncludeTest)
 
@@ -201,7 +205,7 @@ lazy val catsEffect3 =
         scalaVersion.value,
         libraryDependencies.value
       ),
-      libraryDependencies ++= Seq(libs.effectieCatsEffect3)
+      libraryDependencies ++= Seq(libs.effectieCatsEffect3, libs.extrasCats)
     )
     .dependsOn(core % props.IncludeTest)
 
@@ -223,20 +227,7 @@ lazy val monix =
         scalaVersion.value,
         libraryDependencies.value
       ),
-      libraryDependencies ++= Seq(libs.effectieMonix)
-    )
-    .dependsOn(core % props.IncludeTest)
-
-lazy val scalazEffect =
-  subProject("scalazEffect", ProjectName("scalaz-effect"))
-    .settings(
-      description         := "Logger for F[_] - Scalaz",
-      libraryDependencies ++= libs.hedgehogLibs,
-      libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
-        scalaVersion.value,
-        libraryDependencies.value
-      ),
-      libraryDependencies ++= Seq(libs.effectieScalazEffect)
+      libraryDependencies ++= Seq(libs.effectieMonix, libs.extrasCats)
     )
     .dependsOn(core % props.IncludeTest)
 
@@ -254,7 +245,7 @@ lazy val testCatsEffectWithSlf4jLogger =
       )
     )
     .settings(noPublish)
-    .dependsOn(core, slf4jLogger, catsEffect)
+    .dependsOn(core % props.IncludeTest, slf4jLogger, catsEffect)
 
 lazy val testMonixWithSlf4jLogger =
   testProject(
@@ -270,23 +261,7 @@ lazy val testMonixWithSlf4jLogger =
       )
     )
     .settings(noPublish)
-    .dependsOn(core, slf4jLogger, monix)
-
-lazy val testScalazEffectWithSlf4jLogger =
-  testProject(
-    "testScalazEffectWithSlf4jLogger",
-    ProjectName("scalaz-effect-slf4j"),
-  )
-    .settings(
-      description         := "Test Logger for F[_] - Logger with Slf4j",
-      libraryDependencies ++= Seq(libs.slf4jApi, libs.logbackClassic),
-      libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
-        scalaVersion.value,
-        libraryDependencies.value
-      )
-    )
-    .settings(noPublish)
-    .dependsOn(core, slf4jLogger, scalazEffect)
+    .dependsOn(core % props.IncludeTest, slf4jLogger, monix)
 
 lazy val testCatsEffectWithLog4sLogger =
   testProject(
@@ -302,23 +277,7 @@ lazy val testCatsEffectWithLog4sLogger =
       )
     )
     .settings(noPublish)
-    .dependsOn(core, log4sLogger, catsEffect)
-
-lazy val testScalazEffectWithLog4sLogger =
-  testProject(
-    "testScalazEffectWithLog4sLogger",
-    ProjectName("scalaz-effect-log4s"),
-  )
-    .settings(
-      description         := "Test Logger for F[_] - Logger with Log4s",
-      libraryDependencies ++= Seq(libs.log4sLib, libs.logbackClassic),
-      libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
-        scalaVersion.value,
-        libraryDependencies.value
-      )
-    )
-    .settings(noPublish)
-    .dependsOn(core, log4sLogger, scalazEffect)
+    .dependsOn(core % props.IncludeTest, log4sLogger, catsEffect)
 
 lazy val testCatsEffectWithLog4jLogger =
   testProject(
@@ -334,28 +293,22 @@ lazy val testCatsEffectWithLog4jLogger =
       )
     )
     .settings(noPublish)
-    .dependsOn(core, log4jLogger, catsEffect)
-
-lazy val testScalazEffectWithLog4jLogger =
-  testProject(
-    "testScalazEffectWithLog4jLogger",
-    ProjectName("scalaz-effect-log4j"),
-  )
-    .settings(
-      description         := "Test Logger for F[_] - Logger with Log4j",
-      libraryDependencies ++= Seq(libs.log4jApi, libs.log4jCore),
-      libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
-        scalaVersion.value,
-        libraryDependencies.value
-      )
-    )
-    .settings(noPublish)
-    .dependsOn(core, log4jLogger, scalazEffect)
+    .dependsOn(core % props.IncludeTest, log4jLogger, catsEffect)
 
 lazy val docs = (project in file("generated-docs"))
   .enablePlugins(MdocPlugin, DocusaurPlugin)
   .settings(
     name                := prefixedProjectName("docs"),
+    libraryDependencies ++=
+      Seq(
+        "io.kevinlee" %% "logger-f-cats-effect"   % props.LoggerF1Version,
+        "io.kevinlee" %% "logger-f-monix"         % props.LoggerF1Version,
+        "io.kevinlee" %% "logger-f-scalaz-effect" % props.LoggerF1Version,
+        "io.kevinlee" %% "logger-f-slf4j"         % props.LoggerF1Version,
+        "io.kevinlee" %% "logger-f-log4j"         % props.LoggerF1Version,
+        "io.kevinlee" %% "logger-f-log4s"         % props.LoggerF1Version,
+        "io.kevinlee" %% "logger-f-sbt-logging"   % props.LoggerF1Version,
+      ),
     libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
       scalaVersion.value,
       libraryDependencies.value
@@ -382,15 +335,6 @@ lazy val docs = (project in file("generated-docs"))
     docusaurBuildDir    := docusaurDir.value / "build",
   )
   .settings(noPublish)
-  .dependsOn(
-    core,
-    slf4jLogger,
-    log4jLogger,
-    sbtLogging,
-    catsEffect,
-    scalazEffect,
-    monix,
-  )
 
 lazy val props =
   new {
@@ -424,10 +368,14 @@ lazy val props =
 
     final val hedgehogVersion = "0.8.0"
 
-    final val effectieVersion = "1.16.0"
+    final val effectieVersion = "2.0.0-SNAPSHOT"
+
+    final val LoggerF1Version = "1.20.0"
+
+    final val ExtrasVersion = "0.4.0"
 
     final val slf4JVersion   = "1.7.30"
-    final val logbackVersion = "1.2.9"
+    final val logbackVersion = "1.2.10"
 
     final val log4sVersion = "1.10.0"
 
@@ -459,6 +407,10 @@ lazy val libs =
     lazy val effectieMonix: ModuleID        = "io.kevinlee" %% "effectie-monix"         % props.effectieVersion
     lazy val effectieScalazEffect: ModuleID = "io.kevinlee" %% "effectie-scalaz-effect" % props.effectieVersion
 
+    lazy val extrasCats = "io.kevinlee" %% "extras-cats" % props.ExtrasVersion
+
+    lazy val extrasConcurrent        = "io.kevinlee" %% "extras-concurrent"         % props.ExtrasVersion % Test
+    lazy val extrasConcurrentTesting = "io.kevinlee" %% "extras-concurrent-testing" % props.ExtrasVersion % Test
   }
 
 // scalafmt: off
@@ -497,28 +449,28 @@ def testProject(id: String, projectName: ProjectName): Project = {
 def projectCommonSettings(id: String, projectName: String, file: File): Project =
   Project(id, file)
     .settings(
-      name := projectName,
-      licenses := props.licenses,
+      name                                    := projectName,
+      licenses                                := props.licenses,
       /* WartRemover and scalacOptions { */
       //      , Compile / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       //      , Test / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value),
-      Compile / console / wartremoverErrors := List.empty,
+      Compile / console / wartremoverErrors   := List.empty,
       Compile / console / wartremoverWarnings := List.empty,
-      Compile / console / scalacOptions :=
+      Compile / console / scalacOptions       :=
         (console / scalacOptions)
           .value
           .filterNot(option => option.contains("wartremover") || option.contains("import")),
-      Test / console / wartremoverErrors := List.empty,
-      Test / console / wartremoverWarnings := List.empty,
-      Test / console / scalacOptions :=
+      Test / console / wartremoverErrors      := List.empty,
+      Test / console / wartremoverWarnings    := List.empty,
+      Test / console / scalacOptions          :=
         (console / scalacOptions)
           .value
           .filterNot(option => option.contains("wartremover") || option.contains("import")),
       /* } WartRemover and scalacOptions */
       testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework")),
       /* Coveralls { */
-      coverageHighlighting := (CrossVersion.partialVersion(scalaVersion.value) match {
+      coverageHighlighting                    := (CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 10)) | Some((2, 11)) =>
           false
         case _ =>

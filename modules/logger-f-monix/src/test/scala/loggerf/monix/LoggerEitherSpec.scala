@@ -3,8 +3,8 @@ package loggerf.monix
 import cats._
 import cats.syntax.all._
 
-import effectie.monix.Fx
-import effectie.monix.Effectful._
+import effectie.core.FxCtor
+import effectie.syntax.all._
 
 import hedgehog._
 import hedgehog.runner._
@@ -34,11 +34,12 @@ object LoggerEitherSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
       LoggerEither[F].debugEither(effectOf(eab))(a => s"Error: $a", b => b.toString)
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     val result = runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -75,11 +76,12 @@ object LoggerEitherSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
       LoggerEither[F].infoEither(effectOf(eab))(a => s"Error: $a", b => b.toString)
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     val result = runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -116,11 +118,12 @@ object LoggerEitherSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
       LoggerEither[F].warnEither(effectOf(eab))(a => s"Error: $a", b => b.toString)
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     val result = runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -157,11 +160,12 @@ object LoggerEitherSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: Fx: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
+    def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Int]] =
       LoggerEither[F].errorEither(effectOf(eab))(a => s"Error: $a", b => b.toString)
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.monix.fx._
     val result = runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
