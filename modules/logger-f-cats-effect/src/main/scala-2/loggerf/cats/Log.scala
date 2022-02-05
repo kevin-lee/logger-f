@@ -2,11 +2,9 @@ package loggerf.cats
 
 import cats._
 import cats.data.{EitherT, OptionT}
-import cats.implicits._
-
-import effectie.cats.Effectful._
-import effectie.cats.FxCtor
-
+import cats.syntax.all._
+import effectie.core.FxCtor
+import effectie.syntax.all._
 import loggerf.LeveledMessage
 import loggerf.LeveledMessage.{MaybeIgnorable, NotIgnorable}
 import loggerf.logger.CanLog

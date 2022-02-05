@@ -16,7 +16,7 @@ import loggerf.syntax._
   */
 trait Log[F[_]] {
 
-  implicit val EF: Fx[F]
+  implicit val EF: FxCtor[F]
   implicit val MF: Monad[F]
 
   val logger0: CanLog
@@ -103,7 +103,7 @@ object Log {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def logF[F[_]](
-    implicit EF: Fx[F],
+    implicit EF: FxCtor[F],
     MF: Monad[F],
     canLog: CanLog,
   ): Log[F] =
@@ -111,7 +111,7 @@ object Log {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   final class LogF[F[_]](
-    override val EF: Fx[F],
+    override val EF: FxCtor[F],
     override val MF: Monad[F],
     override val logger0: CanLog,
   ) extends Log[F]

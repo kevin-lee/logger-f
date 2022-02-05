@@ -15,7 +15,7 @@ import loggerf.syntax.*
  */
 trait Log[F[_]] {
 
-  given EF: Fx[F]
+  given EF: FxCtor[F]
   given MF: Monad[F]
 
   def canLog: CanLog
@@ -103,12 +103,12 @@ object Log {
   def apply[F[_] : Log]: Log[F] = summon[Log[F]]
 
   given logF[F[_]](
-    using EF: Fx[F], MF: Monad[F], canLog: CanLog
+    using EF: FxCtor[F], MF: Monad[F], canLog: CanLog
   ): Log[F] =
     new LogF[F](EF, MF, canLog)
 
   final class LogF[F[_]](
-    override val EF: Fx[F]
+    override val EF: FxCtor[F]
   , override val MF: Monad[F]
   , override val canLog: CanLog
   ) extends Log[F]

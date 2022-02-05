@@ -1,6 +1,6 @@
 package loggerf.cats.testing
 
-import effectie.concurrent.ExecutorServiceOps
+import extras.concurrent.ExecutorServiceOps
 
 import java.io.{PrintWriter, StringWriter}
 import java.util.concurrent.{ExecutorService, Executors, TimeoutException}

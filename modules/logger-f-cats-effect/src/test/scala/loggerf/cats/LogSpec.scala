@@ -3,9 +3,9 @@ package loggerf.cats
 import cats._
 import cats.data.{EitherT, OptionT}
 import cats.effect._
-import cats.implicits._
-import effectie.cats.FxCtor
-import effectie.cats.Effectful._
+import cats.syntax.all._
+import effectie.core.FxCtor
+import effectie.syntax.all._
 import hedgehog._
 import hedgehog.runner._
 import loggerf.logger.LoggerForTesting
@@ -61,6 +61,7 @@ object LogSpec extends Properties {
         _ <- Log[F].log(effectOf(errorMsg))(error)
       } yield ())
 
+    import effectie.cats.fx.ioFx
     runLog[IO].unsafeRunSync()
 
     val expected = LoggerForTesting(
@@ -90,6 +91,7 @@ object LogSpec extends Properties {
         _ <- Log[F].logPure(pureOf(errorMsg))(error)
       } yield ())
 
+    import effectie.cats.fx.ioFx
     runLog[IO].unsafeRunSync()
 
     val expected = LoggerForTesting(
@@ -117,6 +119,7 @@ object LogSpec extends Properties {
         _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), error)
       } yield ().some)
 
+    import effectie.cats.fx.ioFx
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -155,6 +158,7 @@ object LogSpec extends Properties {
         _ <- Log[F].logPure(pureOf(oa))(error(ifEmptyMsg), error)
       } yield ().some)
 
+    import effectie.cats.fx.ioFx
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -192,6 +196,7 @@ object LogSpec extends Properties {
         _ <- Log[F].log(effectOf(oa))(ignore, error)
       } yield ().some)
 
+    import effectie.cats.fx.ioFx
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -229,6 +234,7 @@ object LogSpec extends Properties {
         _ <- Log[F].logPure(pureOf(oa))(ignore, error)
       } yield ().some)
 
+    import effectie.cats.fx.ioFx
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -267,6 +273,7 @@ object LogSpec extends Properties {
         _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
       } yield ().some)
 
+    import effectie.cats.fx.ioFx
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -305,6 +312,7 @@ object LogSpec extends Properties {
         _ <- Log[F].logPure(pureOf(oa))(error(ifEmptyMsg), _ => ignore)
       } yield ().some)
 
+    import effectie.cats.fx.ioFx
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -345,6 +353,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -385,6 +394,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -425,6 +435,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -465,6 +476,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -505,6 +517,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -545,6 +558,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -582,6 +596,7 @@ object LogSpec extends Properties {
       _ <- Log[F].log(OptionT(effectOf(oa)))(error(ifEmptyMsg), error)
     } yield ()).value
 
+    import effectie.cats.fx.ioFx
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -619,6 +634,7 @@ object LogSpec extends Properties {
       _ <- Log[F].logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), error)
     } yield ()).value
 
+    import effectie.cats.fx.ioFx
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -656,6 +672,7 @@ object LogSpec extends Properties {
       _ <- Log[F].log(OptionT(effectOf(oa)))(ignore, error)
     } yield ()).value
 
+    import effectie.cats.fx.ioFx
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -693,6 +710,7 @@ object LogSpec extends Properties {
       _ <- Log[F].logPure(OptionT(pureOf(oa)))(ignore, error)
     } yield ()).value
 
+    import effectie.cats.fx.ioFx
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -730,6 +748,7 @@ object LogSpec extends Properties {
       _ <- Log[F].log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
     } yield ()).value
 
+    import effectie.cats.fx.ioFx
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -767,6 +786,7 @@ object LogSpec extends Properties {
       _ <- Log[F].logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), _ => ignore)
     } yield ()).value
 
+    import effectie.cats.fx.ioFx
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -807,6 +827,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -847,6 +868,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -887,6 +909,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -927,6 +950,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -967,6 +991,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -1007,6 +1032,7 @@ object LogSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
+    import effectie.cats.fx.ioFx
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
