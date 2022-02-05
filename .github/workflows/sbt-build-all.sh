@@ -39,7 +39,7 @@ else
   export SOURCE_DATE_EPOCH=$(date +%s)
   echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
 
-  if [[ "$CURRENT_BRANCH_NAME" == "main" || "$CURRENT_BRANCH_NAME" == "release" ]]
+  if [[ "$CURRENT_BRANCH_NAME" == "main" || "$CURRENT_BRANCH_NAME" == "logger-f-1" || "$CURRENT_BRANCH_NAME" == "release" ]]
   then
     sbt \
       -J-Xmx2048m \

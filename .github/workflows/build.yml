@@ -4,10 +4,12 @@ on:
   push:
     branches-ignore:
       - main
+      - 'logger-f-1'
 
   pull_request:
     branches:
       - main
+      - 'logger-f-1'
 
 jobs:
 

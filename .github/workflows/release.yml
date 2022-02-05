@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 'logger-f-1'
     tags:
       - '*'
 
