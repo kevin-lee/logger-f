@@ -59,9 +59,11 @@ lazy val core =
     .settings(
       description         := "Logger for F[_] - Core",
       libraryDependencies ++= List(
+        libs.effectieCore,
+        libs.cats % Test,
         libs.extrasConcurrent,
         libs.extrasConcurrentTesting,
-      ),
+      ) ++ libs.hedgehogLibs,
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value
@@ -401,6 +403,9 @@ lazy val libs =
 
     lazy val sbtLoggingLib = "org.scala-sbt" %% "util-logging"
 
+    lazy val cats = "org.typelevel" %% "cats-core" % "2.6.1"
+
+    lazy val effectieCore: ModuleID        = "io.kevinlee" %% "effectie-core"         % props.effectieVersion
     lazy val effectieCatsEffect: ModuleID  = "io.kevinlee" %% "effectie-cats-effect"  % props.effectieVersion
     lazy val effectieCatsEffect3: ModuleID = "io.kevinlee" %% "effectie-cats-effect3" % props.effectieVersion
 
