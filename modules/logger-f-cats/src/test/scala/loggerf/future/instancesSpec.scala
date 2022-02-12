@@ -21,8 +21,8 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 /** @author Kevin Lee
- * @since 2022-02-09
- */
+  * @since 2022-02-09
+  */
 object instancesSpec extends Properties {
   override def tests: List[Test] = List(
     property("test Log.log(F[A])", testLogFA),
