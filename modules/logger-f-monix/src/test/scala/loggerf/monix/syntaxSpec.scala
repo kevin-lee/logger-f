@@ -1090,14 +1090,14 @@ object syntaxSpec extends Properties {
   object LogExtensionSpec {
     def testLogFA: Property = for {
       debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
-      infoMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
-      warnMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+      infoMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+      warnMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
       errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad]: F[Unit] =
+      def runLog[F[_]: FxCtor: Monad]: F[Unit] =
         (for {
           _ <- effectOf(debugMsg).log(debug)
           _ <- effectOf(infoMsg).log(info)
@@ -1120,14 +1120,14 @@ object syntaxSpec extends Properties {
 
     def testLogPureFA: Property = for {
       debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
-      infoMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
-      warnMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+      infoMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+      warnMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
       errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad]: F[Unit] =
+      def runLog[F[_]: FxCtor: Monad]: F[Unit] =
         (for {
           _ <- pureOf(debugMsg).logPure(debug)
           _ <- pureOf(infoMsg).logPure(info)
@@ -1149,13 +1149,13 @@ object syntaxSpec extends Properties {
     }
 
     def testLogFOptionA: Property = for {
-      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] =
         (for {
           _ <- effectOf(oa).log(error(ifEmptyMsg), debug)
           _ <- effectOf(oa).log(error(ifEmptyMsg), info)
@@ -1188,13 +1188,13 @@ object syntaxSpec extends Properties {
     }
 
     def testLogPureFOptionA: Property = for {
-      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] =
         (for {
           _ <- pureOf(oa).logPure(error(ifEmptyMsg), debug)
           _ <- pureOf(oa).logPure(error(ifEmptyMsg), info)
@@ -1232,7 +1232,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] =
         (for {
           _ <- effectOf(oa).log(ignore, debug)
           _ <- effectOf(oa).log(ignore, info)
@@ -1270,7 +1270,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] =
         (for {
           _ <- pureOf(oa).logPure(ignore, debug)
           _ <- pureOf(oa).logPure(ignore, info)
@@ -1303,13 +1303,13 @@ object syntaxSpec extends Properties {
     }
 
     def testLogFOptionAIgnoreSome: Property = for {
-      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] =
         (for {
           _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
           _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
@@ -1342,13 +1342,13 @@ object syntaxSpec extends Properties {
     }
 
     def testLogPureFOptionAIgnoreSome: Property = for {
-      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] =
         (for {
           _ <- pureOf(oa).logPure(error(ifEmptyMsg), _ => ignore)
           _ <- pureOf(oa).logPure(error(ifEmptyMsg), _ => ignore)
@@ -1381,14 +1381,14 @@ object syntaxSpec extends Properties {
     }
 
     def testLogFEitherAB: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- effectOf(eab).log(error, b => debug(b.toString))
         _ <- effectOf(eab).log(error, b => info(b.toString))
         _ <- effectOf(eab).log(error, b => warn(b.toString))
@@ -1422,14 +1422,14 @@ object syntaxSpec extends Properties {
     }
 
     def testLogPureFEitherAB: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- pureOf(eab).logPure(error, b => debug(b.toString))
         _ <- pureOf(eab).logPure(error, b => info(b.toString))
         _ <- pureOf(eab).logPure(error, b => warn(b.toString))
@@ -1463,14 +1463,14 @@ object syntaxSpec extends Properties {
     }
 
     def testLogFEitherABIgnoreLeft: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- effectOf(eab).log(_ => ignore, b => debug(b.toString))
         _ <- effectOf(eab).log(_ => ignore, b => info(b.toString))
         _ <- effectOf(eab).log(_ => ignore, b => warn(b.toString))
@@ -1504,14 +1504,14 @@ object syntaxSpec extends Properties {
     }
 
     def testLogPureFEitherABIgnoreLeft: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- pureOf(eab).logPure(_ => ignore, b => debug(b.toString))
         _ <- pureOf(eab).logPure(_ => ignore, b => info(b.toString))
         _ <- pureOf(eab).logPure(_ => ignore, b => warn(b.toString))
@@ -1545,14 +1545,14 @@ object syntaxSpec extends Properties {
     }
 
     def testLogFEitherABIgnoreRight: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- effectOf(eab).log(error, _ => ignore)
         _ <- effectOf(eab).log(error, _ => ignore)
         _ <- effectOf(eab).log(error, _ => ignore)
@@ -1586,14 +1586,14 @@ object syntaxSpec extends Properties {
     }
 
     def testLogPureFEitherABIgnoreRight: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- pureOf(eab).logPure(error, _ => ignore)
         _ <- pureOf(eab).logPure(error, _ => ignore)
         _ <- pureOf(eab).logPure(error, _ => ignore)
@@ -1627,13 +1627,13 @@ object syntaxSpec extends Properties {
     }
 
     def testLogOptionTFA: Property = for {
-      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] = (for {
+      def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] = (for {
         _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), debug)
         _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), info)
         _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), warn)
@@ -1665,13 +1665,13 @@ object syntaxSpec extends Properties {
     }
 
     def testLogPureOptionTFA: Property = for {
-      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] = (for {
+      def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] = (for {
         _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), debug)
         _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), info)
         _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), warn)
@@ -1703,13 +1703,13 @@ object syntaxSpec extends Properties {
     }
 
     def testLogOptionTFAIgnoreEmpty: Property = for {
-      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] = (for {
+      def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] = (for {
         _ <- OptionT(effectOf(oa)).log(ignore, debug)
         _ <- OptionT(effectOf(oa)).log(ignore, info)
         _ <- OptionT(effectOf(oa)).log(ignore, warn)
@@ -1741,13 +1741,13 @@ object syntaxSpec extends Properties {
     }
 
     def testLogPureOptionTFAIgnoreEmpty: Property = for {
-      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] = (for {
+      def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] = (for {
         _ <- OptionT(pureOf(oa)).logPure(ignore, debug)
         _ <- OptionT(pureOf(oa)).logPure(ignore, info)
         _ <- OptionT(pureOf(oa)).logPure(ignore, warn)
@@ -1779,13 +1779,13 @@ object syntaxSpec extends Properties {
     }
 
     def testLogOptionTFAIgnoreSome: Property = for {
-      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] = (for {
+      def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] = (for {
         _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
         _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
         _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
@@ -1817,13 +1817,13 @@ object syntaxSpec extends Properties {
     }
 
     def testLogPureOptionTFAIgnoreSome: Property = for {
-      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] = (for {
+      def runLog[F[_]: FxCtor: Monad](oa: Option[String]): F[Option[Unit]] = (for {
         _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), _ => ignore)
         _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), _ => ignore)
         _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), _ => ignore)
@@ -1855,14 +1855,14 @@ object syntaxSpec extends Properties {
     }
 
     def testLogEitherTFAB: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+      def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
         _ <- EitherT(effectOf(eab)).log(error, b => debug(b.toString))
         _ <- EitherT(effectOf(eab)).log(error, b => info(b.toString))
         _ <- EitherT(effectOf(eab)).log(error, b => warn(b.toString))
@@ -1896,14 +1896,14 @@ object syntaxSpec extends Properties {
     }
 
     def testLogPureEitherTFAB: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+      def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
         _ <- EitherT(pureOf(eab)).logPure(error, b => debug(b.toString))
         _ <- EitherT(pureOf(eab)).logPure(error, b => info(b.toString))
         _ <- EitherT(pureOf(eab)).logPure(error, b => warn(b.toString))
@@ -1937,14 +1937,14 @@ object syntaxSpec extends Properties {
     }
 
     def testLogEitherTFABIgnoreLeft: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+      def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
         _ <- EitherT(effectOf(eab)).log(_ => ignore, b => debug(b.toString))
         _ <- EitherT(effectOf(eab)).log(_ => ignore, b => info(b.toString))
         _ <- EitherT(effectOf(eab)).log(_ => ignore, b => warn(b.toString))
@@ -1978,14 +1978,14 @@ object syntaxSpec extends Properties {
     }
 
     def testLogPureEitherTFABIgnoreLeft: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+      def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
         _ <- EitherT(pureOf(eab)).logPure(_ => ignore, b => debug(b.toString))
         _ <- EitherT(pureOf(eab)).logPure(_ => ignore, b => info(b.toString))
         _ <- EitherT(pureOf(eab)).logPure(_ => ignore, b => warn(b.toString))
@@ -2019,14 +2019,14 @@ object syntaxSpec extends Properties {
     }
 
     def testLogEitherTFABIgnoreRight: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+      def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
         _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
         _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
         _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
@@ -2060,14 +2060,14 @@ object syntaxSpec extends Properties {
     }
 
     def testLogPureEitherTFABIgnoreRight: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+      def runLog[F[_]: FxCtor: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
         _ <- EitherT(pureOf(eab)).logPure(error, _ => ignore)
         _ <- EitherT(pureOf(eab)).logPure(error, _ => ignore)
         _ <- EitherT(pureOf(eab)).logPure(error, _ => ignore)

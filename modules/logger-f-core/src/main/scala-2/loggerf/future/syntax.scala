@@ -10,10 +10,14 @@ import loggerf.core.Log
 @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
 trait syntax {
 
-  @inline def log[F[_], A](fa: F[A])(toLeveledMessage: A => LeveledMessage with NotIgnorable)(implicit L: Log[F]): F[A] =
+  @inline def log[F[_], A](fa: F[A])(toLeveledMessage: A => LeveledMessage with NotIgnorable)(
+    implicit L: Log[F]
+  ): F[A] =
     L.log(fa)(toLeveledMessage)
 
-  @inline def logPure[F[_], A](fa: F[A])(toLeveledMessage: A => LeveledMessage with NotIgnorable)(implicit L: Log[F]): F[A] =
+  @inline def logPure[F[_], A](fa: F[A])(toLeveledMessage: A => LeveledMessage with NotIgnorable)(
+    implicit L: Log[F]
+  ): F[A] =
     L.logPure(fa)(toLeveledMessage)
 
   @inline def log[F[_], A](
@@ -62,7 +66,6 @@ object syntax extends syntax {
   implicit class LogFOfASyntax[F[_], A](val fa: F[A]) extends AnyVal {
     @inline def log(toLeveledMessage: A => LeveledMessage with NotIgnorable)(implicit L: Log[F]): F[A] =
       syntax.log(fa)(toLeveledMessage)
-
 
     @inline def logPure(toLeveledMessage: A => LeveledMessage with NotIgnorable)(implicit L: Log[F]): F[A] =
       syntax.logPure(fa)(toLeveledMessage)

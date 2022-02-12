@@ -682,20 +682,20 @@ object syntaxSpec extends Properties {
     logger ==== expected
   }
 
-  //////
+  // ////
 
   object LogExtensionSpec {
 
     def testFALog: Property = for {
       debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
-      infoMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
-      warnMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+      infoMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+      warnMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
       errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Log : Monad]: F[Unit] =
+      def runLog[F[_]: FxCtor: Log: Monad]: F[Unit] =
         (for {
           _ <- effectOf(debugMsg).log(debug)
           _ <- effectOf(infoMsg).log(info)
@@ -710,7 +710,7 @@ object syntaxSpec extends Properties {
         errorMessages = Vector(errorMsg)
       )
 
-      implicit val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
@@ -724,14 +724,14 @@ object syntaxSpec extends Properties {
 
     def testFALogPure: Property = for {
       debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
-      infoMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
-      warnMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+      infoMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+      warnMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
       errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Log : Monad]: F[Unit] =
+      def runLog[F[_]: FxCtor: Log: Monad]: F[Unit] =
         for {
           _ <- pureOf(debugMsg).logPure(debug)
           _ <- pureOf(infoMsg).logPure(info)
@@ -746,7 +746,7 @@ object syntaxSpec extends Properties {
         errorMessages = Vector(errorMsg)
       )
 
-      implicit val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
@@ -759,13 +759,13 @@ object syntaxSpec extends Properties {
     }
 
     def testFOptionALog: Property = for {
-      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Log : Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
         (for {
           _ <- effectOf(oa).log(error(ifEmptyMsg), debug)
           _ <- effectOf(oa).log(error(ifEmptyMsg), info)
@@ -791,7 +791,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      implicit val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
@@ -804,13 +804,13 @@ object syntaxSpec extends Properties {
     }
 
     def testFOptionALogPure: Property = for {
-      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Log : Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
         for {
           _ <- pureOf(oa).logPure(error(ifEmptyMsg), debug)
           _ <- pureOf(oa).logPure(error(ifEmptyMsg), info)
@@ -836,7 +836,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      implicit val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
@@ -854,7 +854,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Log : Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
         for {
           _ <- effectOf(oa).log(ignore, debug)
           _ <- effectOf(oa).log(ignore, info)
@@ -880,7 +880,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      implicit val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
@@ -898,7 +898,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Log : Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
         for {
           _ <- pureOf(oa).logPure(ignore, debug)
           _ <- pureOf(oa).logPure(ignore, info)
@@ -924,7 +924,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      implicit val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
@@ -937,13 +937,13 @@ object syntaxSpec extends Properties {
     }
 
     def testFOptionALogIgnoreSome: Property = for {
-      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Log : Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
         for {
           _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
           _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
@@ -969,7 +969,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      implicit val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
@@ -982,13 +982,13 @@ object syntaxSpec extends Properties {
     }
 
     def testFOptionALogPureIgnoreSome: Property = for {
-      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Log : Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
         (for {
           _ <- pureOf(oa).logPure(error(ifEmptyMsg), _ => ignore)
           _ <- pureOf(oa).logPure(error(ifEmptyMsg), _ => ignore)
@@ -1014,7 +1014,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      implicit val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
@@ -1027,14 +1027,14 @@ object syntaxSpec extends Properties {
     }
 
     def testFEitherABLog: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Log : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- effectOf(eab).log(error, b => debug(b.toString))
         _ <- effectOf(eab).log(error, b => info(b.toString))
         _ <- effectOf(eab).log(error, b => warn(b.toString))
@@ -1061,7 +1061,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      implicit val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
@@ -1074,14 +1074,14 @@ object syntaxSpec extends Properties {
     }
 
     def testFEitherABLogPure: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Log : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- pureOf(eab).logPure(error, b => debug(b.toString))
         _ <- pureOf(eab).logPure(error, b => info(b.toString))
         _ <- pureOf(eab).logPure(error, b => warn(b.toString))
@@ -1108,7 +1108,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      implicit val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
@@ -1121,14 +1121,14 @@ object syntaxSpec extends Properties {
     }
 
     def testFEitherABLogIgnoreLeft: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Log : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- effectOf(eab).log(_ => ignore, b => debug(b.toString))
         _ <- effectOf(eab).log(_ => ignore, b => info(b.toString))
         _ <- effectOf(eab).log(_ => ignore, b => warn(b.toString))
@@ -1155,7 +1155,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      implicit val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
@@ -1168,14 +1168,14 @@ object syntaxSpec extends Properties {
     }
 
     def testFEitherABLogPureIgnoreLeft: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Log : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- pureOf(eab).logPure(_ => ignore, b => debug(b.toString))
         _ <- pureOf(eab).logPure(_ => ignore, b => info(b.toString))
         _ <- pureOf(eab).logPure(_ => ignore, b => warn(b.toString))
@@ -1202,7 +1202,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      implicit val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
@@ -1215,14 +1215,14 @@ object syntaxSpec extends Properties {
     }
 
     def testFEitherABLogIgnoreRight: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Log : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- effectOf(eab).log(error, _ => ignore)
         _ <- effectOf(eab).log(error, _ => ignore)
         _ <- effectOf(eab).log(error, _ => ignore)
@@ -1249,7 +1249,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      implicit val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
@@ -1262,14 +1262,14 @@ object syntaxSpec extends Properties {
     }
 
     def testFEitherABLogPureIgnoreRight: Property = for {
-      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-      isRight <- Gen.boolean.log("isRight")
+      isRight    <- Gen.boolean.log("isRight")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_] : FxCtor : Log : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- pureOf(eab).logPure(error, _ => ignore)
         _ <- pureOf(eab).logPure(error, _ => ignore)
         _ <- pureOf(eab).logPure(error, _ => ignore)
@@ -1296,7 +1296,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      implicit val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
