@@ -43,7 +43,35 @@ object syntaxSpec extends Properties {
     property("test log(EitherT[F, A, B])(ignore, message)", testLogEitherTFABIgnoreLeft),
     property("test logPure(EitherT[F, A, B])(ignore, message)", testLogPureEitherTFABIgnoreLeft),
     property("test log(EitherT[F, A, B])(message, ignore)", testLogEitherTFABIgnoreRight),
-    property("test logPure(EitherT[F, A, B])(message, ignore)", testLogPureEitherTFABIgnoreRight)
+    property("test logPure(EitherT[F, A, B])(message, ignore)", testLogPureEitherTFABIgnoreRight),
+  ) ++
+  List(
+    property("test F[A].log", LogExtensionSpec.testLogFA),
+    property("test F[A].logPure", LogExtensionSpec.testLogPureFA),
+    property("test F[Option[A]].log", LogExtensionSpec.testLogFOptionA),
+    property("test F[Option[A]].logPure", LogExtensionSpec.testLogPureFOptionA),
+    property("test F[Option[A]].log(ignore, message)", LogExtensionSpec.testLogFOptionAIgnoreEmpty),
+    property("test F[Option[A]].logPure(ignore, message)", LogExtensionSpec.testLogPureFOptionAIgnoreEmpty),
+    property("test F[Option[A]].log(message, ignore)", LogExtensionSpec.testLogFOptionAIgnoreSome),
+    property("test F[Option[A]].logPure(message, ignore)", LogExtensionSpec.testLogPureFOptionAIgnoreSome),
+    property("test F[Either[A, B]].log", LogExtensionSpec.testLogFEitherAB),
+    property("test F[Either[A, B]].logPure", LogExtensionSpec.testLogPureFEitherAB),
+    property("test F[Either[A, B]].log(ignore, message)", LogExtensionSpec.testLogFEitherABIgnoreLeft),
+    property("test F[Either[A, B]].logPure(ignore, message)", LogExtensionSpec.testLogPureFEitherABIgnoreLeft),
+    property("test F[Either[A, B]].log(ignore, message)", LogExtensionSpec.testLogFEitherABIgnoreRight),
+    property("test F[Either[A, B]].logPure(ignore, message)", LogExtensionSpec.testLogPureFEitherABIgnoreRight),
+    property("test OptionT[F, A].log", LogExtensionSpec.testLogOptionTFA),
+    property("test OptionT[F, A].logPure", LogExtensionSpec.testLogPureOptionTFA),
+    property("test OptionT[F, A].log(ignore, message)", LogExtensionSpec.testLogOptionTFAIgnoreEmpty),
+    property("test OptionT[F, A].logPure(ignore, message)", LogExtensionSpec.testLogPureOptionTFAIgnoreEmpty),
+    property("test OptionT[F, A].log(message, ignore)", LogExtensionSpec.testLogOptionTFAIgnoreSome),
+    property("test OptionT[F, A].logPure(message, ignore)", LogExtensionSpec.testLogPureOptionTFAIgnoreSome),
+    property("test EitherT[F, A, B].log", LogExtensionSpec.testLogEitherTFAB),
+    property("test EitherT[F, A, B].logPure", LogExtensionSpec.testLogPureEitherTFAB),
+    property("test EitherT[F, A, B].log(ignore, message)", LogExtensionSpec.testLogEitherTFABIgnoreLeft),
+    property("test EitherT[F, A, B].logPure(ignore, message)", LogExtensionSpec.testLogPureEitherTFABIgnoreLeft),
+    property("test EitherT[F, A, B].log(message, ignore)", LogExtensionSpec.testLogEitherTFABIgnoreRight),
+    property("test EitherT[F, A, B].logPure(message, ignore)", LogExtensionSpec.testLogPureEitherTFABIgnoreRight)
   )
 
   def testLogFA: Property = for {
@@ -1058,4 +1086,1017 @@ object syntaxSpec extends Properties {
     logger ==== expected
   }
 
+  object LogExtensionSpec {
+    def testLogFA: Property = for {
+      debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+      infoMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+      warnMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+      errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad]: F[Unit] =
+        (for {
+          _ <- effectOf(debugMsg).log(debug)
+          _ <- effectOf(infoMsg).log(info)
+          _ <- effectOf(warnMsg).log(warn)
+          _ <- effectOf(errorMsg).log(error)
+        } yield ())
+
+      import effectie.cats.fx.ioFx
+      runLog[IO].unsafeRunSync()
+
+      val expected = LoggerForTesting(
+        debugMessages = Vector(debugMsg),
+        infoMessages = Vector(infoMsg),
+        warnMessages = Vector(warnMsg),
+        errorMessages = Vector(errorMsg)
+      )
+
+      logger ==== expected
+    }
+
+    def testLogPureFA: Property = for {
+      debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+      infoMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+      warnMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+      errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad]: F[Unit] =
+        (for {
+          _ <- pureOf(debugMsg).logPure(debug)
+          _ <- pureOf(infoMsg).logPure(info)
+          _ <- pureOf(warnMsg).logPure(warn)
+          _ <- pureOf(errorMsg).logPure(error)
+        } yield ())
+
+      import effectie.cats.fx.ioFx
+      runLog[IO].unsafeRunSync()
+
+      val expected = LoggerForTesting(
+        debugMessages = Vector(debugMsg),
+        infoMessages = Vector(infoMsg),
+        warnMessages = Vector(warnMsg),
+        errorMessages = Vector(errorMsg)
+      )
+
+      logger ==== expected
+    }
+
+    def testLogFOptionA: Property = for {
+      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] =
+        (for {
+          _ <- effectOf(oa).log(error(ifEmptyMsg), debug)
+          _ <- effectOf(oa).log(error(ifEmptyMsg), info)
+          _ <- effectOf(oa).log(error(ifEmptyMsg), warn)
+          _ <- effectOf(oa).log(error(ifEmptyMsg), error)
+        } yield ().some)
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](logMsg).unsafeRunSync()
+
+      val expected = logMsg match {
+        case Some(logMsg) =>
+          LoggerForTesting(
+            debugMessages = Vector(logMsg),
+            infoMessages = Vector(logMsg),
+            warnMessages = Vector(logMsg),
+            errorMessages = Vector(logMsg)
+          )
+
+        case None =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.fill(4)(ifEmptyMsg)
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogPureFOptionA: Property = for {
+      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] =
+        (for {
+          _ <- pureOf(oa).logPure(error(ifEmptyMsg), debug)
+          _ <- pureOf(oa).logPure(error(ifEmptyMsg), info)
+          _ <- pureOf(oa).logPure(error(ifEmptyMsg), warn)
+          _ <- pureOf(oa).logPure(error(ifEmptyMsg), error)
+        } yield ().some)
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](logMsg).unsafeRunSync()
+
+      val expected = logMsg match {
+        case Some(logMsg) =>
+          LoggerForTesting(
+            debugMessages = Vector(logMsg),
+            infoMessages = Vector(logMsg),
+            warnMessages = Vector(logMsg),
+            errorMessages = Vector(logMsg)
+          )
+
+        case None =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.fill(4)(ifEmptyMsg)
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogFOptionAIgnoreEmpty: Property = for {
+      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] =
+        (for {
+          _ <- effectOf(oa).log(ignore, debug)
+          _ <- effectOf(oa).log(ignore, info)
+          _ <- effectOf(oa).log(ignore, warn)
+          _ <- effectOf(oa).log(ignore, error)
+        } yield ().some)
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](logMsg).unsafeRunSync()
+
+      val expected = logMsg match {
+        case Some(logMsg) =>
+          LoggerForTesting(
+            debugMessages = Vector(logMsg),
+            infoMessages = Vector(logMsg),
+            warnMessages = Vector(logMsg),
+            errorMessages = Vector(logMsg)
+          )
+
+        case None =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogPureFOptionAIgnoreEmpty: Property = for {
+      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] =
+        (for {
+          _ <- pureOf(oa).logPure(ignore, debug)
+          _ <- pureOf(oa).logPure(ignore, info)
+          _ <- pureOf(oa).logPure(ignore, warn)
+          _ <- pureOf(oa).logPure(ignore, error)
+        } yield ().some)
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](logMsg).unsafeRunSync()
+
+      val expected = logMsg match {
+        case Some(logMsg) =>
+          LoggerForTesting(
+            debugMessages = Vector(logMsg),
+            infoMessages = Vector(logMsg),
+            warnMessages = Vector(logMsg),
+            errorMessages = Vector(logMsg)
+          )
+
+        case None =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogFOptionAIgnoreSome: Property = for {
+      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] =
+        (for {
+          _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
+          _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
+          _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
+          _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
+        } yield ().some)
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](logMsg).unsafeRunSync()
+
+      val expected = logMsg match {
+        case Some(logMsg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+
+        case None =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.fill(4)(ifEmptyMsg)
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogPureFOptionAIgnoreSome: Property = for {
+      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] =
+        (for {
+          _ <- pureOf(oa).logPure(error(ifEmptyMsg), _ => ignore)
+          _ <- pureOf(oa).logPure(error(ifEmptyMsg), _ => ignore)
+          _ <- pureOf(oa).logPure(error(ifEmptyMsg), _ => ignore)
+          _ <- pureOf(oa).logPure(error(ifEmptyMsg), _ => ignore)
+        } yield ().some)
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](logMsg).unsafeRunSync()
+
+      val expected = logMsg match {
+        case Some(logMsg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+
+        case None =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.fill(4)(ifEmptyMsg)
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogFEitherAB: Property = for {
+      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+        _ <- effectOf(eab).log(error, b => debug(b.toString))
+        _ <- effectOf(eab).log(error, b => info(b.toString))
+        _ <- effectOf(eab).log(error, b => warn(b.toString))
+        _ <- effectOf(eab).log(error, b => error(b.toString))
+      } yield ().asRight[String]
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](eab).unsafeRunSync()
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector(n.toString),
+            infoMessages = Vector(n.toString),
+            warnMessages = Vector(n.toString),
+            errorMessages = Vector(n.toString)
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.fill(4)(msg)
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogPureFEitherAB: Property = for {
+      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+        _ <- pureOf(eab).logPure(error, b => debug(b.toString))
+        _ <- pureOf(eab).logPure(error, b => info(b.toString))
+        _ <- pureOf(eab).logPure(error, b => warn(b.toString))
+        _ <- pureOf(eab).logPure(error, b => error(b.toString))
+      } yield ().asRight[String]
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](eab).unsafeRunSync()
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector(n.toString),
+            infoMessages = Vector(n.toString),
+            warnMessages = Vector(n.toString),
+            errorMessages = Vector(n.toString)
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.fill(4)(msg)
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogFEitherABIgnoreLeft: Property = for {
+      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+        _ <- effectOf(eab).log(_ => ignore, b => debug(b.toString))
+        _ <- effectOf(eab).log(_ => ignore, b => info(b.toString))
+        _ <- effectOf(eab).log(_ => ignore, b => warn(b.toString))
+        _ <- effectOf(eab).log(_ => ignore, b => error(b.toString))
+      } yield ().asRight[String]
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](eab).unsafeRunSync()
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector(n.toString),
+            infoMessages = Vector(n.toString),
+            warnMessages = Vector(n.toString),
+            errorMessages = Vector(n.toString)
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogPureFEitherABIgnoreLeft: Property = for {
+      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+        _ <- pureOf(eab).logPure(_ => ignore, b => debug(b.toString))
+        _ <- pureOf(eab).logPure(_ => ignore, b => info(b.toString))
+        _ <- pureOf(eab).logPure(_ => ignore, b => warn(b.toString))
+        _ <- pureOf(eab).logPure(_ => ignore, b => error(b.toString))
+      } yield ().asRight[String]
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](eab).unsafeRunSync()
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector(n.toString),
+            infoMessages = Vector(n.toString),
+            warnMessages = Vector(n.toString),
+            errorMessages = Vector(n.toString)
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogFEitherABIgnoreRight: Property = for {
+      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+        _ <- effectOf(eab).log(error, _ => ignore)
+        _ <- effectOf(eab).log(error, _ => ignore)
+        _ <- effectOf(eab).log(error, _ => ignore)
+        _ <- effectOf(eab).log(error, _ => ignore)
+      } yield ().asRight[String]
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](eab).unsafeRunSync()
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.fill(4)(msg)
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogPureFEitherABIgnoreRight: Property = for {
+      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+        _ <- pureOf(eab).logPure(error, _ => ignore)
+        _ <- pureOf(eab).logPure(error, _ => ignore)
+        _ <- pureOf(eab).logPure(error, _ => ignore)
+        _ <- pureOf(eab).logPure(error, _ => ignore)
+      } yield ().asRight[String]
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](eab).unsafeRunSync()
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.fill(4)(msg)
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogOptionTFA: Property = for {
+      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] = (for {
+        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), debug)
+        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), info)
+        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), warn)
+        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), error)
+      } yield ()).value
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](logMsg).unsafeRunSync()
+
+      val expected = logMsg match {
+        case Some(logMsg) =>
+          LoggerForTesting(
+            debugMessages = Vector(logMsg),
+            infoMessages = Vector(logMsg),
+            warnMessages = Vector(logMsg),
+            errorMessages = Vector(logMsg)
+          )
+
+        case None =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector(ifEmptyMsg)
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogPureOptionTFA: Property = for {
+      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] = (for {
+        _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), debug)
+        _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), info)
+        _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), warn)
+        _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), error)
+      } yield ()).value
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](logMsg).unsafeRunSync()
+
+      val expected = logMsg match {
+        case Some(logMsg) =>
+          LoggerForTesting(
+            debugMessages = Vector(logMsg),
+            infoMessages = Vector(logMsg),
+            warnMessages = Vector(logMsg),
+            errorMessages = Vector(logMsg)
+          )
+
+        case None =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector(ifEmptyMsg)
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogOptionTFAIgnoreEmpty: Property = for {
+      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] = (for {
+        _ <- OptionT(effectOf(oa)).log(ignore, debug)
+        _ <- OptionT(effectOf(oa)).log(ignore, info)
+        _ <- OptionT(effectOf(oa)).log(ignore, warn)
+        _ <- OptionT(effectOf(oa)).log(ignore, error)
+      } yield ()).value
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](logMsg).unsafeRunSync()
+
+      val expected = logMsg match {
+        case Some(logMsg) =>
+          LoggerForTesting(
+            debugMessages = Vector(logMsg),
+            infoMessages = Vector(logMsg),
+            warnMessages = Vector(logMsg),
+            errorMessages = Vector(logMsg)
+          )
+
+        case None =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogPureOptionTFAIgnoreEmpty: Property = for {
+      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] = (for {
+        _ <- OptionT(pureOf(oa)).logPure(ignore, debug)
+        _ <- OptionT(pureOf(oa)).logPure(ignore, info)
+        _ <- OptionT(pureOf(oa)).logPure(ignore, warn)
+        _ <- OptionT(pureOf(oa)).logPure(ignore, error)
+      } yield ()).value
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](logMsg).unsafeRunSync()
+
+      val expected = logMsg match {
+        case Some(logMsg) =>
+          LoggerForTesting(
+            debugMessages = Vector(logMsg),
+            infoMessages = Vector(logMsg),
+            warnMessages = Vector(logMsg),
+            errorMessages = Vector(logMsg)
+          )
+
+        case None =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogOptionTFAIgnoreSome: Property = for {
+      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] = (for {
+        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
+        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
+        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
+        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
+      } yield ()).value
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](logMsg).unsafeRunSync()
+
+      val expected = logMsg match {
+        case Some(logMsg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+
+        case None =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector(ifEmptyMsg)
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogPureOptionTFAIgnoreSome: Property = for {
+      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](oa: Option[String]): F[Option[Unit]] = (for {
+        _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), _ => ignore)
+        _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), _ => ignore)
+        _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), _ => ignore)
+        _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), _ => ignore)
+      } yield ()).value
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](logMsg).unsafeRunSync()
+
+      val expected = logMsg match {
+        case Some(logMsg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+
+        case None =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector(ifEmptyMsg)
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogEitherTFAB: Property = for {
+      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+        _ <- EitherT(effectOf(eab)).log(error, b => debug(b.toString))
+        _ <- EitherT(effectOf(eab)).log(error, b => info(b.toString))
+        _ <- EitherT(effectOf(eab)).log(error, b => warn(b.toString))
+        _ <- EitherT(effectOf(eab)).log(error, b => error(b.toString))
+      } yield ()).value
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](eab).unsafeRunSync()
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector(n.toString),
+            infoMessages = Vector(n.toString),
+            warnMessages = Vector(n.toString),
+            errorMessages = Vector(n.toString)
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector(msg)
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogPureEitherTFAB: Property = for {
+      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+        _ <- EitherT(pureOf(eab)).logPure(error, b => debug(b.toString))
+        _ <- EitherT(pureOf(eab)).logPure(error, b => info(b.toString))
+        _ <- EitherT(pureOf(eab)).logPure(error, b => warn(b.toString))
+        _ <- EitherT(pureOf(eab)).logPure(error, b => error(b.toString))
+      } yield ()).value
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](eab).unsafeRunSync()
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector(n.toString),
+            infoMessages = Vector(n.toString),
+            warnMessages = Vector(n.toString),
+            errorMessages = Vector(n.toString)
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector(msg)
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogEitherTFABIgnoreLeft: Property = for {
+      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+        _ <- EitherT(effectOf(eab)).log(_ => ignore, b => debug(b.toString))
+        _ <- EitherT(effectOf(eab)).log(_ => ignore, b => info(b.toString))
+        _ <- EitherT(effectOf(eab)).log(_ => ignore, b => warn(b.toString))
+        _ <- EitherT(effectOf(eab)).log(_ => ignore, b => error(b.toString))
+      } yield ()).value
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](eab).unsafeRunSync()
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector(n.toString),
+            infoMessages = Vector(n.toString),
+            warnMessages = Vector(n.toString),
+            errorMessages = Vector(n.toString)
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogPureEitherTFABIgnoreLeft: Property = for {
+      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+        _ <- EitherT(pureOf(eab)).logPure(_ => ignore, b => debug(b.toString))
+        _ <- EitherT(pureOf(eab)).logPure(_ => ignore, b => info(b.toString))
+        _ <- EitherT(pureOf(eab)).logPure(_ => ignore, b => warn(b.toString))
+        _ <- EitherT(pureOf(eab)).logPure(_ => ignore, b => error(b.toString))
+      } yield ()).value
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](eab).unsafeRunSync()
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector(n.toString),
+            infoMessages = Vector(n.toString),
+            warnMessages = Vector(n.toString),
+            errorMessages = Vector(n.toString)
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogEitherTFABIgnoreRight: Property = for {
+      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+        _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
+        _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
+        _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
+        _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
+      } yield ()).value
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](eab).unsafeRunSync()
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector(msg)
+          )
+      }
+
+      logger ==== expected
+    }
+
+    def testLogPureEitherTFABIgnoreRight: Property = for {
+      rightInt <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[_] : FxCtor : Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+        _ <- EitherT(pureOf(eab)).logPure(error, _ => ignore)
+        _ <- EitherT(pureOf(eab)).logPure(error, _ => ignore)
+        _ <- EitherT(pureOf(eab)).logPure(error, _ => ignore)
+        _ <- EitherT(pureOf(eab)).logPure(error, _ => ignore)
+      } yield ()).value
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      import effectie.cats.fx.ioFx
+      runLog[IO](eab).unsafeRunSync()
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector(msg)
+          )
+      }
+
+      logger ==== expected
+    }
+  }
 }

@@ -49,6 +49,7 @@ lazy val loggerF = (project in file("."))
     log4sLogger,
     log4jLogger,
     sbtLogging,
+    cats,
     catsEffect,
     catsEffect3,
     monix,
@@ -185,53 +186,53 @@ lazy val sbtLogging =
     )
     .dependsOn(core)
 
-lazy val catsEffect =
-  subProject("catsEffect", ProjectName("cats-effect"))
+lazy val cats =
+  subProject("cats", ProjectName("cats"))
     .settings(
-      description         := "Logger for F[_] - Cats Effect",
-      libraryDependencies ++= libs.hedgehogLibs,
+      description         := "Logger for F[_] - Cats",
+      libraryDependencies ++= libs.hedgehogLibs ++ List(libs.effectieCore, libs.cats, libs.extrasCats),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value
       ),
-      libraryDependencies ++= Seq(libs.effectieCatsEffect, libs.extrasCats)
     )
     .dependsOn(core % props.IncludeTest)
+
+lazy val catsEffect =
+  subProject("catsEffect", ProjectName("cats-effect"))
+    .settings(
+      description         := "Logger for F[_] - Cats Effect",
+      libraryDependencies ++= libs.hedgehogLibs ++ List(libs.effectieCatsEffect % Test),
+      libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+        scalaVersion.value,
+        libraryDependencies.value
+      ),
+    )
+    .dependsOn(core % props.IncludeTest, cats)
 
 lazy val catsEffect3 =
   subProject("catsEffect3", ProjectName("cats-effect3"))
     .settings(
       description         := "Logger for F[_] - Cats Effect 3",
-      libraryDependencies ++= libs.hedgehogLibs,
+      libraryDependencies ++= libs.hedgehogLibs ++ List(libs.effectieCatsEffect3 % Test, libs.extrasHedgehogCatsEffect3),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value
       ),
-      libraryDependencies ++= Seq(libs.effectieCatsEffect3, libs.extrasCats)
     )
-    .dependsOn(core % props.IncludeTest)
+    .dependsOn(core % props.IncludeTest, cats)
 
 lazy val monix =
   subProject("monix", ProjectName("monix"))
     .settings(
       description         := "Logger for F[_] - Monix",
-      libraryDependencies :=
-        crossVersionProps(
-          libs.hedgehogLibs,
-          SemVer.parseUnsafe(scalaVersion.value)
-        ) {
-          case (Major(2), Minor(10), _) =>
-            libraryDependencies.value.filterNot(m => m.organization == "org.wartremover" && m.name == "wartremover")
-          case _ =>
-            libraryDependencies.value
-        },
+      libraryDependencies ++= libs.hedgehogLibs ++ List(libs.effectieMonix % Test),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value
       ),
-      libraryDependencies ++= Seq(libs.effectieMonix, libs.extrasCats)
     )
-    .dependsOn(core % props.IncludeTest)
+    .dependsOn(core % props.IncludeTest, cats)
 
 lazy val testCatsEffectWithSlf4jLogger =
   testProject(
@@ -247,7 +248,7 @@ lazy val testCatsEffectWithSlf4jLogger =
       )
     )
     .settings(noPublish)
-    .dependsOn(core % props.IncludeTest, slf4jLogger, catsEffect)
+    .dependsOn(core % props.IncludeTest, slf4jLogger, catsEffect % props.IncludeTest)
 
 lazy val testMonixWithSlf4jLogger =
   testProject(
@@ -263,7 +264,7 @@ lazy val testMonixWithSlf4jLogger =
       )
     )
     .settings(noPublish)
-    .dependsOn(core % props.IncludeTest, slf4jLogger, monix)
+    .dependsOn(core % props.IncludeTest, slf4jLogger, monix % props.IncludeTest)
 
 lazy val testCatsEffectWithLog4sLogger =
   testProject(
@@ -279,7 +280,7 @@ lazy val testCatsEffectWithLog4sLogger =
       )
     )
     .settings(noPublish)
-    .dependsOn(core % props.IncludeTest, log4sLogger, catsEffect)
+    .dependsOn(core % props.IncludeTest, log4sLogger, catsEffect % props.IncludeTest)
 
 lazy val testCatsEffectWithLog4jLogger =
   testProject(
@@ -295,7 +296,7 @@ lazy val testCatsEffectWithLog4jLogger =
       )
     )
     .settings(noPublish)
-    .dependsOn(core % props.IncludeTest, log4jLogger, catsEffect)
+    .dependsOn(core % props.IncludeTest, log4jLogger, catsEffect % props.IncludeTest)
 
 lazy val docs = (project in file("generated-docs"))
   .enablePlugins(MdocPlugin, DocusaurPlugin)
@@ -372,6 +373,8 @@ lazy val props =
 
     final val effectieVersion = "2.0.0-SNAPSHOT"
 
+    final val CatsVersion = "2.6.1"
+
     final val LoggerF1Version = "1.20.0"
 
     final val ExtrasVersion = "0.4.0"
@@ -403,7 +406,7 @@ lazy val libs =
 
     lazy val sbtLoggingLib = "org.scala-sbt" %% "util-logging"
 
-    lazy val cats = "org.typelevel" %% "cats-core" % "2.6.1"
+    lazy val cats = "org.typelevel" %% "cats-core" % props.CatsVersion
 
     lazy val effectieCore: ModuleID        = "io.kevinlee" %% "effectie-core"         % props.effectieVersion
     lazy val effectieCatsEffect: ModuleID  = "io.kevinlee" %% "effectie-cats-effect"  % props.effectieVersion
@@ -416,6 +419,8 @@ lazy val libs =
 
     lazy val extrasConcurrent        = "io.kevinlee" %% "extras-concurrent"         % props.ExtrasVersion % Test
     lazy val extrasConcurrentTesting = "io.kevinlee" %% "extras-concurrent-testing" % props.ExtrasVersion % Test
+
+    lazy val extrasHedgehogCatsEffect3 = "io.kevinlee" %% "extras-hedgehog-cats-effect3" % props.ExtrasVersion % Test
   }
 
 // scalafmt: off

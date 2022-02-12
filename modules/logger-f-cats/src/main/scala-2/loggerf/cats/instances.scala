@@ -8,15 +8,20 @@ import loggerf.logger.CanLog
 /** @author Kevin Lee
   * @since 2020-04-10
   */
-object instances {
+trait instances {
+  import instances._
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def logF[F[_]](
     implicit EF: FxCtor[F],
-    MF: Monad[F],
     canLog: CanLog,
+    MF: Monad[F],
   ): Log[F] =
     new LogF[F](EF, canLog, MF)
+
+}
+
+object instances extends instances {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   final class LogF[F[_]](

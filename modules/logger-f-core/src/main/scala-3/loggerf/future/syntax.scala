@@ -11,51 +11,50 @@ import scala.concurrent.Future
   * @since 2022-02-09
   */
 trait syntax {
-  def log[F[*], A](fa: F[A])(toLeveledMessage: A => LeveledMessage & NotIgnorable)(using L: Log[F]): F[A] =
-    L.log(fa)(toLeveledMessage)
 
-  def logPure[F[*], A](fa: F[A])(toLeveledMessage: A => LeveledMessage & NotIgnorable)(using L: Log[F]): F[A] =
-    L.logPure(fa)(toLeveledMessage)
+  extension [F[*], A](fa: F[A]) {
+    def log(toLeveledMessage: A => LeveledMessage & NotIgnorable)(using L: Log[F]): F[A] =
+      L.log(fa)(toLeveledMessage)
 
-  def log[F[*], A](
-    foa: F[Option[A]]
-  )(
-    ifEmpty: => LeveledMessage | Ignorable,
-    toLeveledMessage: A => LeveledMessage | Ignorable
-  )(
-    using L: Log[F]
-  ): F[Option[A]] =
-    L.log(foa)(ifEmpty, toLeveledMessage)
+    def logPure(toLeveledMessage: A => LeveledMessage & NotIgnorable)(using L: Log[F]): F[A] =
+      L.logPure(fa)(toLeveledMessage)
+  }
 
-  def logPure[F[*], A](
-    foa: F[Option[A]]
-  )(
-    ifEmpty: => LeveledMessage | Ignorable,
-    toLeveledMessage: A => LeveledMessage | Ignorable
-  )(
-    using L: Log[F]
-  ): F[Option[A]] =
-    L.logPure(foa)(ifEmpty, toLeveledMessage)
+  extension [F[*], A](foa: F[Option[A]]) {
+    def log(
+      ifEmpty: => LeveledMessage | Ignorable,
+      toLeveledMessage: A => LeveledMessage | Ignorable
+    )(
+      using L: Log[F]
+    ): F[Option[A]] =
+      L.log(foa)(ifEmpty, toLeveledMessage)
 
-  def log[F[*], A, B](
-    feab: F[Either[A, B]]
-  )(
-    leftToMessage: A => LeveledMessage | Ignorable,
-    rightToMessage: B => LeveledMessage | Ignorable
-  )(
-    using L: Log[F]
-  ): F[Either[A, B]] =
-    L.log(feab)(leftToMessage, rightToMessage)
+    def logPure(
+      ifEmpty: => LeveledMessage | Ignorable,
+      toLeveledMessage: A => LeveledMessage | Ignorable
+    )(
+      using L: Log[F]
+    ): F[Option[A]] =
+      L.logPure(foa)(ifEmpty, toLeveledMessage)
+  }
 
-  def logPure[F[*], A, B](
-    feab: F[Either[A, B]]
-  )(
-    leftToMessage: A => LeveledMessage | Ignorable,
-    rightToMessage: B => LeveledMessage | Ignorable
-  )(
-    using L: Log[F]
-  ): F[Either[A, B]] =
-    L.logPure(feab)(leftToMessage, rightToMessage)
+  extension [F[*], A, B](feab: F[Either[A, B]]) {
+    def log(
+      leftToMessage: A => LeveledMessage | Ignorable,
+      rightToMessage: B => LeveledMessage | Ignorable
+    )(
+      using L: Log[F]
+    ): F[Either[A, B]] =
+      L.log(feab)(leftToMessage, rightToMessage)
 
+    def logPure(
+      leftToMessage: A => LeveledMessage | Ignorable,
+      rightToMessage: B => LeveledMessage | Ignorable
+    )(
+      using L: Log[F]
+    ): F[Either[A, B]] =
+      L.logPure(feab)(leftToMessage, rightToMessage)
+  }
 }
+
 object syntax extends syntax
