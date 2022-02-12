@@ -8,7 +8,7 @@ import hedgehog._
 import hedgehog.runner._
 import loggerf.core.Log
 import loggerf.logger.LoggerForTesting
-import loggerf.monix.instances.logF
+import loggerf.cats.instances.logF
 import loggerf.syntax._
 import monix.eval.Task
 
