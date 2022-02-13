@@ -208,18 +208,23 @@ lazy val catsEffect =
         libraryDependencies.value
       ),
     )
+    .settings(noPublish)
     .dependsOn(core % props.IncludeTest, cats)
 
 lazy val catsEffect3 =
   subProject("catsEffect3", ProjectName("cats-effect3"))
     .settings(
       description         := "Logger for F[_] - Cats Effect 3",
-      libraryDependencies ++= libs.hedgehogLibs ++ List(libs.effectieCatsEffect3 % Test, libs.extrasHedgehogCatsEffect3),
+      libraryDependencies ++= libs.hedgehogLibs ++ List(
+        libs.effectieCatsEffect3 % Test,
+        libs.extrasHedgehogCatsEffect3
+      ),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value
       ),
     )
+    .settings(noPublish)
     .dependsOn(core % props.IncludeTest, cats)
 
 lazy val monix =
@@ -232,6 +237,7 @@ lazy val monix =
         libraryDependencies.value
       ),
     )
+    .settings(noPublish)
     .dependsOn(core % props.IncludeTest, cats)
 
 lazy val testCatsEffectWithSlf4jLogger =
