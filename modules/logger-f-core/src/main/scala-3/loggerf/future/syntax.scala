@@ -1,7 +1,7 @@
 package loggerf.future
 
 import loggerf.LeveledMessage
-import loggerf.LeveledMessage.{Ignorable, NotIgnorable}
+import loggerf.Ignore
 import loggerf.core.Log
 import loggerf.future.instances.given
 
@@ -13,25 +13,25 @@ import scala.concurrent.Future
 trait syntax {
 
   extension [F[*], A](fa: F[A]) {
-    def log(toLeveledMessage: A => LeveledMessage & NotIgnorable)(using L: Log[F]): F[A] =
+    def log(toLeveledMessage: A => LeveledMessage)(using L: Log[F]): F[A] =
       L.log(fa)(toLeveledMessage)
 
-    def logPure(toLeveledMessage: A => LeveledMessage & NotIgnorable)(using L: Log[F]): F[A] =
+    def logPure(toLeveledMessage: A => LeveledMessage)(using L: Log[F]): F[A] =
       L.logPure(fa)(toLeveledMessage)
   }
 
   extension [F[*], A](foa: F[Option[A]]) {
     def log(
-      ifEmpty: => LeveledMessage | Ignorable,
-      toLeveledMessage: A => LeveledMessage | Ignorable
+      ifEmpty: => LeveledMessage | Ignore.type,
+      toLeveledMessage: A => LeveledMessage | Ignore.type
     )(
       using L: Log[F]
     ): F[Option[A]] =
       L.log(foa)(ifEmpty, toLeveledMessage)
 
     def logPure(
-      ifEmpty: => LeveledMessage | Ignorable,
-      toLeveledMessage: A => LeveledMessage | Ignorable
+      ifEmpty: => LeveledMessage | Ignore.type,
+      toLeveledMessage: A => LeveledMessage | Ignore.type
     )(
       using L: Log[F]
     ): F[Option[A]] =
@@ -40,16 +40,16 @@ trait syntax {
 
   extension [F[*], A, B](feab: F[Either[A, B]]) {
     def log(
-      leftToMessage: A => LeveledMessage | Ignorable,
-      rightToMessage: B => LeveledMessage | Ignorable
+      leftToMessage: A => LeveledMessage | Ignore.type,
+      rightToMessage: B => LeveledMessage | Ignore.type
     )(
       using L: Log[F]
     ): F[Either[A, B]] =
       L.log(feab)(leftToMessage, rightToMessage)
 
     def logPure(
-      leftToMessage: A => LeveledMessage | Ignorable,
-      rightToMessage: B => LeveledMessage | Ignorable
+      leftToMessage: A => LeveledMessage | Ignore.type,
+      rightToMessage: B => LeveledMessage | Ignore.type
     )(
       using L: Log[F]
     ): F[Either[A, B]] =

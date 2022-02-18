@@ -3,7 +3,7 @@ package loggerf.core
 import effectie.core.FxCtor
 import effectie.syntax.all.{effectOf, pureOf}
 import loggerf.LeveledMessage
-import loggerf.LeveledMessage.{Ignorable, NotIgnorable}
+import loggerf.Ignore
 import loggerf.logger.CanLog
 import loggerf.syntax.getLogger
 
@@ -18,18 +18,18 @@ trait Log[F[*]] {
 
   def canLog: CanLog
 
-  def log[A](fa: F[A])(toLeveledMessage: A => LeveledMessage & NotIgnorable): F[A] =
+  def log[A](fa: F[A])(toLeveledMessage: A => LeveledMessage): F[A] =
     flatMap0(fa) { a =>
       toLeveledMessage(a) match {
-        case LeveledMessage.LogMessage(message, level) =>
+        case LeveledMessage(message, level) =>
           flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => effectOf(a))
       }
     }
 
-  def logPure[A](fa: F[A])(toLeveledMessage: A => LeveledMessage & NotIgnorable): F[A] =
+  def logPure[A](fa: F[A])(toLeveledMessage: A => LeveledMessage): F[A] =
     flatMap0(fa) { a =>
       toLeveledMessage(a) match {
-        case LeveledMessage.LogMessage(message, level) =>
+        case LeveledMessage(message, level) =>
           flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(a))
       }
     }
@@ -37,24 +37,24 @@ trait Log[F[*]] {
   def log[A](
     foa: F[Option[A]]
   )(
-    ifEmpty: => LeveledMessage | Ignorable,
-    toLeveledMessage: A => LeveledMessage | Ignorable
+    ifEmpty: => LeveledMessage | Ignore.type,
+    toLeveledMessage: A => LeveledMessage | Ignore.type
   ): F[Option[A]] =
     flatMap0(foa) {
       case None    =>
         ifEmpty match {
-          case LeveledMessage.Ignore =>
+          case Ignore =>
             pureOf(None)
 
-          case LeveledMessage.LogMessage(message, level) =>
+          case LeveledMessage(message, level) =>
             flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(None))
         }
       case Some(a) =>
         toLeveledMessage(a) match {
-          case LeveledMessage.LogMessage(message, level) =>
+          case LeveledMessage(message, level) =>
             flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => effectOf(Some(a)))
 
-          case LeveledMessage.Ignore =>
+          case Ignore =>
             effectOf(Some(a))
         }
     }
@@ -62,24 +62,24 @@ trait Log[F[*]] {
   def logPure[A](
     foa: F[Option[A]]
   )(
-    ifEmpty: => LeveledMessage | Ignorable,
-    toLeveledMessage: A => LeveledMessage | Ignorable
+    ifEmpty: => LeveledMessage | Ignore.type,
+    toLeveledMessage: A => LeveledMessage | Ignore.type
   ): F[Option[A]] =
     flatMap0(foa) {
       case None    =>
         ifEmpty match {
-          case LeveledMessage.Ignore =>
+          case Ignore =>
             pureOf(None)
 
-          case LeveledMessage.LogMessage(message, level) =>
+          case LeveledMessage(message, level) =>
             flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(None))
         }
       case Some(a) =>
         toLeveledMessage(a) match {
-          case LeveledMessage.LogMessage(message, level) =>
+          case LeveledMessage(message, level) =>
             flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(Some(a)))
 
-          case LeveledMessage.Ignore =>
+          case Ignore =>
             pureOf(Some(a))
         }
     }
@@ -87,24 +87,24 @@ trait Log[F[*]] {
   def log[A, B](
     feab: F[Either[A, B]]
   )(
-    leftToMessage: A => LeveledMessage | Ignorable,
-    rightToMessage: B => LeveledMessage | Ignorable
+    leftToMessage: A => LeveledMessage | Ignore.type,
+    rightToMessage: B => LeveledMessage | Ignore.type
   ): F[Either[A, B]] =
     flatMap0(feab) {
       case Left(l)  =>
         leftToMessage(l) match {
-          case LeveledMessage.LogMessage(message, level) =>
+          case LeveledMessage(message, level) =>
             flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => effectOf(Left(l)))
 
-          case LeveledMessage.Ignore =>
+          case Ignore =>
             effectOf(Left(l))
         }
       case Right(r) =>
         rightToMessage(r) match {
-          case LeveledMessage.LogMessage(message, level) =>
+          case LeveledMessage(message, level) =>
             flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => effectOf(Right(r)))
 
-          case LeveledMessage.Ignore =>
+          case Ignore =>
             effectOf(Right(r))
         }
     }
@@ -112,24 +112,24 @@ trait Log[F[*]] {
   def logPure[A, B](
     feab: F[Either[A, B]]
   )(
-    leftToMessage: A => LeveledMessage | Ignorable,
-    rightToMessage: B => LeveledMessage | Ignorable
+    leftToMessage: A => LeveledMessage | Ignore.type,
+    rightToMessage: B => LeveledMessage | Ignore.type
   ): F[Either[A, B]] =
     flatMap0(feab) {
       case Left(l)  =>
         leftToMessage(l) match {
-          case LeveledMessage.LogMessage(message, level) =>
+          case LeveledMessage(message, level) =>
             flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(Left(l)))
 
-          case LeveledMessage.Ignore =>
+          case Ignore =>
             pureOf(Left(l))
         }
       case Right(r) =>
         rightToMessage(r) match {
-          case LeveledMessage.LogMessage(message, level) =>
+          case LeveledMessage(message, level) =>
             flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(Right(r)))
 
-          case LeveledMessage.Ignore =>
+          case Ignore =>
             pureOf(Right(r))
         }
     }
