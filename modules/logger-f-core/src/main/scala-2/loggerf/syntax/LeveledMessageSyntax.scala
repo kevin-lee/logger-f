@@ -2,21 +2,21 @@ package loggerf.syntax
 
 trait LeveledMessageSyntax {
 
-  import loggerf.LeveledMessage._
-  import loggerf.{Level, LeveledMessage}
+  import loggerf.LogMessage._
+  import loggerf.{Level, LogMessage}
 
-  def debug(message: String): LeveledMessage with NotIgnorable =
-    LogMessage(message, Level.debug)
+  def debug(message: String): LogMessage with NotIgnorable =
+    LeveledMessage(message, Level.debug)
 
-  def info(message: String): LeveledMessage with NotIgnorable =
-    LogMessage(message, Level.info)
+  def info(message: String): LogMessage with NotIgnorable =
+    LeveledMessage(message, Level.info)
 
-  def warn(message: String): LeveledMessage with NotIgnorable =
-    LogMessage(message, Level.warn)
+  def warn(message: String): LogMessage with NotIgnorable =
+    LeveledMessage(message, Level.warn)
 
-  def error(message: String): LeveledMessage with NotIgnorable =
-    LogMessage(message, Level.error)
+  def error(message: String): LogMessage with NotIgnorable =
+    LeveledMessage(message, Level.error)
 
-  def ignore: LeveledMessage with MaybeIgnorable = Ignore
+  def ignore: LogMessage with Ignorable = Ignore
 
 }

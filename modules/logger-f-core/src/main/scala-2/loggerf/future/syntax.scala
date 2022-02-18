@@ -1,7 +1,7 @@
 package loggerf.future
 
-import loggerf.LeveledMessage
-import loggerf.LeveledMessage.{MaybeIgnorable, NotIgnorable}
+import loggerf.LogMessage
+import loggerf.LogMessage.{MaybeIgnorable, NotIgnorable}
 import loggerf.core.Log
 
 /** @author Kevin Lee
@@ -10,12 +10,12 @@ import loggerf.core.Log
 @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
 trait syntax {
 
-  @inline def log[F[_], A](fa: F[A])(toLeveledMessage: A => LeveledMessage with NotIgnorable)(
+  @inline def log[F[_], A](fa: F[A])(toLeveledMessage: A => LogMessage with NotIgnorable)(
     implicit L: Log[F]
   ): F[A] =
     L.log(fa)(toLeveledMessage)
 
-  @inline def logPure[F[_], A](fa: F[A])(toLeveledMessage: A => LeveledMessage with NotIgnorable)(
+  @inline def logPure[F[_], A](fa: F[A])(toLeveledMessage: A => LogMessage with NotIgnorable)(
     implicit L: Log[F]
   ): F[A] =
     L.logPure(fa)(toLeveledMessage)
@@ -23,8 +23,8 @@ trait syntax {
   @inline def log[F[_], A](
     foa: F[Option[A]],
   )(
-    ifEmpty: => LeveledMessage with MaybeIgnorable,
-    toLeveledMessage: A => LeveledMessage with MaybeIgnorable,
+    ifEmpty: => LogMessage with MaybeIgnorable,
+    toLeveledMessage: A => LogMessage with MaybeIgnorable,
   )(
     implicit L: Log[F]
   ): F[Option[A]] =
@@ -33,8 +33,8 @@ trait syntax {
   @inline def logPure[F[_], A](
     foa: F[Option[A]],
   )(
-    ifEmpty: => LeveledMessage with MaybeIgnorable,
-    toLeveledMessage: A => LeveledMessage with MaybeIgnorable,
+    ifEmpty: => LogMessage with MaybeIgnorable,
+    toLeveledMessage: A => LogMessage with MaybeIgnorable,
   )(
     implicit L: Log[F]
   ): F[Option[A]] =
@@ -43,8 +43,8 @@ trait syntax {
   @inline def log[F[_], A, B](
     feab: F[Either[A, B]],
   )(
-    leftToMessage: A => LeveledMessage with MaybeIgnorable,
-    rightToMessage: B => LeveledMessage with MaybeIgnorable,
+    leftToMessage: A => LogMessage with MaybeIgnorable,
+    rightToMessage: B => LogMessage with MaybeIgnorable,
   )(
     implicit L: Log[F]
   ): F[Either[A, B]] =
@@ -53,8 +53,8 @@ trait syntax {
   @inline def logPure[F[_], A, B](
     feab: F[Either[A, B]],
   )(
-    leftToMessage: A => LeveledMessage with MaybeIgnorable,
-    rightToMessage: B => LeveledMessage with MaybeIgnorable,
+    leftToMessage: A => LogMessage with MaybeIgnorable,
+    rightToMessage: B => LogMessage with MaybeIgnorable,
   )(
     implicit L: Log[F]
   ): F[Either[A, B]] =
@@ -64,25 +64,25 @@ trait syntax {
 
 object syntax extends syntax {
   implicit class LogFOfASyntax[F[_], A](val fa: F[A]) extends AnyVal {
-    @inline def log(toLeveledMessage: A => LeveledMessage with NotIgnorable)(implicit L: Log[F]): F[A] =
+    @inline def log(toLeveledMessage: A => LogMessage with NotIgnorable)(implicit L: Log[F]): F[A] =
       syntax.log(fa)(toLeveledMessage)
 
-    @inline def logPure(toLeveledMessage: A => LeveledMessage with NotIgnorable)(implicit L: Log[F]): F[A] =
+    @inline def logPure(toLeveledMessage: A => LogMessage with NotIgnorable)(implicit L: Log[F]): F[A] =
       syntax.logPure(fa)(toLeveledMessage)
   }
 
   implicit class LogFOfOptionSyntax[F[_], A](val foa: F[Option[A]]) extends AnyVal {
     @inline def log(
-      ifEmpty: => LeveledMessage with MaybeIgnorable,
-      toLeveledMessage: A => LeveledMessage with MaybeIgnorable,
+      ifEmpty: => LogMessage with MaybeIgnorable,
+      toLeveledMessage: A => LogMessage with MaybeIgnorable,
     )(
       implicit L: Log[F]
     ): F[Option[A]] =
       syntax.log(foa)(ifEmpty, toLeveledMessage)
 
     @inline def logPure(
-      ifEmpty: => LeveledMessage with MaybeIgnorable,
-      toLeveledMessage: A => LeveledMessage with MaybeIgnorable,
+      ifEmpty: => LogMessage with MaybeIgnorable,
+      toLeveledMessage: A => LogMessage with MaybeIgnorable,
     )(
       implicit L: Log[F]
     ): F[Option[A]] =
@@ -91,16 +91,16 @@ object syntax extends syntax {
 
   implicit class LogFOfEitherSyntax[F[_], A, B](val feab: F[Either[A, B]]) extends AnyVal {
     @inline def log(
-      leftToMessage: A => LeveledMessage with MaybeIgnorable,
-      rightToMessage: B => LeveledMessage with MaybeIgnorable,
+      leftToMessage: A => LogMessage with MaybeIgnorable,
+      rightToMessage: B => LogMessage with MaybeIgnorable,
     )(
       implicit L: Log[F]
     ): F[Either[A, B]] =
       syntax.log(feab)(leftToMessage, rightToMessage)
 
     @inline def logPure(
-      leftToMessage: A => LeveledMessage with MaybeIgnorable,
-      rightToMessage: B => LeveledMessage with MaybeIgnorable,
+      leftToMessage: A => LogMessage with MaybeIgnorable,
+      rightToMessage: B => LogMessage with MaybeIgnorable,
     )(
       implicit L: Log[F]
     ): F[Either[A, B]] =
