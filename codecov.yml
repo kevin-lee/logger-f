@@ -1,0 +1,6 @@
+ignore:
+  - "modules/logger-f-log4j"
+  - "modules/logger-f-log4s"
+  - "modules/logger-f-sbt-logging"
+  - "modules/logger-f-slf4j"
+
