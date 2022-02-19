@@ -1,5 +1,7 @@
 package loggerf.syntax
 
+import loggerf.core.ToLog
+
 trait LeveledMessageSyntax {
 
   import loggerf.LogMessage._
@@ -16,6 +18,18 @@ trait LeveledMessageSyntax {
 
   def error(message: String): LogMessage with NotIgnorable =
     LeveledMessage(message, Level.error)
+
+  def debugA[A: ToLog](a: A): LogMessage with NotIgnorable =
+    LeveledMessage(ToLog[A].toLogMessage(a), Level.debug)
+
+  def infoA[A: ToLog](a: A): LogMessage with NotIgnorable =
+    LeveledMessage(ToLog[A].toLogMessage(a), Level.info)
+
+  def warnA[A: ToLog](a: A): LogMessage with NotIgnorable =
+    LeveledMessage(ToLog[A].toLogMessage(a), Level.warn)
+
+  def errorA[A: ToLog](a: A): LogMessage with NotIgnorable =
+    LeveledMessage(ToLog[A].toLogMessage(a), Level.error)
 
   def ignore: LogMessage with Ignorable = Ignore
 
