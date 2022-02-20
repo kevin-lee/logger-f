@@ -9,7 +9,7 @@ import loggerf.logger.CanLog
 /** @author Kevin Lee
   * @since 2020-04-10
   */
-trait Log[F[_]] {
+trait Log[F[*]] {
 
   implicit val EF: FxCtor[F]
   def flatMap0[A, B](fa: F[A])(f: A => F[B]): F[B]
@@ -136,6 +136,6 @@ trait Log[F[_]] {
 
 object Log {
 
-  def apply[F[_]: Log]: Log[F] = implicitly[Log[F]]
+  def apply[F[*]: Log]: Log[F] = implicitly[Log[F]]
 
 }

@@ -93,7 +93,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad]: F[Unit] =
+    def runLog[F[*]: FxCtor: Log: Monad]: F[Unit] =
       (for {
         _ <- log(effectOf(debugMsg))(debug)
         _ <- log(effectOf(infoMsg))(info)
@@ -129,7 +129,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad]: F[Unit] =
+    def runLog[F[*]: FxCtor: Log: Monad]: F[Unit] =
       for {
         _ <- logPure(pureOf(debugMsg))(debug)
         _ <- logPure(pureOf(infoMsg))(info)
@@ -163,7 +163,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
+    def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
       (for {
         _ <- log(effectOf(oa))(error(ifEmptyMsg), debug)
         _ <- log(effectOf(oa))(error(ifEmptyMsg), info)
@@ -208,7 +208,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
+    def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
       for {
         _ <- logPure(pureOf(oa))(error(ifEmptyMsg), debug)
         _ <- logPure(pureOf(oa))(error(ifEmptyMsg), info)
@@ -252,7 +252,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
+    def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
       for {
         _ <- log(effectOf(oa))(ignore, debug)
         _ <- log(effectOf(oa))(ignore, info)
@@ -296,7 +296,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
+    def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
       for {
         _ <- logPure(pureOf(oa))(ignore, debug)
         _ <- logPure(pureOf(oa))(ignore, info)
@@ -341,7 +341,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
+    def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
       for {
         _ <- log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
         _ <- log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
@@ -386,7 +386,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
+    def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
       (for {
         _ <- logPure(pureOf(oa))(error(ifEmptyMsg), _ => ignore)
         _ <- logPure(pureOf(oa))(error(ifEmptyMsg), _ => ignore)
@@ -432,7 +432,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
       _ <- log(effectOf(eab))(error, b => debug(b.toString))
       _ <- log(effectOf(eab))(error, b => info(b.toString))
       _ <- log(effectOf(eab))(error, b => warn(b.toString))
@@ -479,7 +479,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
       _ <- logPure(pureOf(eab))(error, b => debug(b.toString))
       _ <- logPure(pureOf(eab))(error, b => info(b.toString))
       _ <- logPure(pureOf(eab))(error, b => warn(b.toString))
@@ -526,7 +526,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
       _ <- log(effectOf(eab))(_ => ignore, b => debug(b.toString))
       _ <- log(effectOf(eab))(_ => ignore, b => info(b.toString))
       _ <- log(effectOf(eab))(_ => ignore, b => warn(b.toString))
@@ -573,7 +573,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
       _ <- logPure(pureOf(eab))(_ => ignore, b => debug(b.toString))
       _ <- logPure(pureOf(eab))(_ => ignore, b => info(b.toString))
       _ <- logPure(pureOf(eab))(_ => ignore, b => warn(b.toString))
@@ -620,7 +620,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
       _ <- log(effectOf(eab))(error, _ => ignore)
       _ <- log(effectOf(eab))(error, _ => ignore)
       _ <- log(effectOf(eab))(error, _ => ignore)
@@ -667,7 +667,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
       _ <- logPure(pureOf(eab))(error, _ => ignore)
       _ <- logPure(pureOf(eab))(error, _ => ignore)
       _ <- logPure(pureOf(eab))(error, _ => ignore)
@@ -713,7 +713,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+    def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
       _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), debug)
       _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), info)
       _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), warn)
@@ -757,7 +757,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+    def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
       _ <- logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), debug)
       _ <- logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), info)
       _ <- logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), warn)
@@ -801,7 +801,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+    def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
       _ <- log(OptionT(effectOf(oa)))(ignore, debug)
       _ <- log(OptionT(effectOf(oa)))(ignore, info)
       _ <- log(OptionT(effectOf(oa)))(ignore, warn)
@@ -845,7 +845,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+    def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
       _ <- logPure(OptionT(pureOf(oa)))(ignore, debug)
       _ <- logPure(OptionT(pureOf(oa)))(ignore, info)
       _ <- logPure(OptionT(pureOf(oa)))(ignore, warn)
@@ -889,7 +889,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+    def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
       _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
       _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
       _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
@@ -933,7 +933,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+    def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
       _ <- logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), _ => ignore)
       _ <- logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), _ => ignore)
       _ <- logPure(OptionT(pureOf(oa)))(error(ifEmptyMsg), _ => ignore)
@@ -978,7 +978,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
       _ <- log(EitherT(effectOf(eab)))(error, b => debug(b.toString))
       _ <- log(EitherT(effectOf(eab)))(error, b => info(b.toString))
       _ <- log(EitherT(effectOf(eab)))(error, b => warn(b.toString))
@@ -1025,7 +1025,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
       _ <- logPure(EitherT(pureOf(eab)))(error, b => debug(b.toString))
       _ <- logPure(EitherT(pureOf(eab)))(error, b => info(b.toString))
       _ <- logPure(EitherT(pureOf(eab)))(error, b => warn(b.toString))
@@ -1072,7 +1072,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
       _ <- log(EitherT(effectOf(eab)))(_ => ignore, b => debug(b.toString))
       _ <- log(EitherT(effectOf(eab)))(_ => ignore, b => info(b.toString))
       _ <- log(EitherT(effectOf(eab)))(_ => ignore, b => warn(b.toString))
@@ -1119,7 +1119,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
       _ <- logPure(EitherT(pureOf(eab)))(_ => ignore, b => debug(b.toString))
       _ <- logPure(EitherT(pureOf(eab)))(_ => ignore, b => info(b.toString))
       _ <- logPure(EitherT(pureOf(eab)))(_ => ignore, b => warn(b.toString))
@@ -1166,7 +1166,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
       _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
       _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
       _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
@@ -1213,7 +1213,7 @@ object syntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
       _ <- logPure(EitherT(pureOf(eab)))(error, _ => ignore)
       _ <- logPure(EitherT(pureOf(eab)))(error, _ => ignore)
       _ <- logPure(EitherT(pureOf(eab)))(error, _ => ignore)
@@ -1265,7 +1265,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad]: F[Unit] =
+      def runLog[F[*]: FxCtor: Log: Monad]: F[Unit] =
         (for {
           _ <- effectOf(debugMsg).log(debug)
           _ <- effectOf(infoMsg).log(info)
@@ -1301,7 +1301,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad]: F[Unit] =
+      def runLog[F[*]: FxCtor: Log: Monad]: F[Unit] =
         for {
           _ <- pureOf(debugMsg).logPure(debug)
           _ <- pureOf(infoMsg).logPure(info)
@@ -1335,7 +1335,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
         (for {
           _ <- effectOf(oa).log(error(ifEmptyMsg), debug)
           _ <- effectOf(oa).log(error(ifEmptyMsg), info)
@@ -1380,7 +1380,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
         for {
           _ <- pureOf(oa).logPure(error(ifEmptyMsg), debug)
           _ <- pureOf(oa).logPure(error(ifEmptyMsg), info)
@@ -1424,7 +1424,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
         for {
           _ <- effectOf(oa).log(ignore, debug)
           _ <- effectOf(oa).log(ignore, info)
@@ -1468,7 +1468,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
         for {
           _ <- pureOf(oa).logPure(ignore, debug)
           _ <- pureOf(oa).logPure(ignore, info)
@@ -1513,7 +1513,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
         for {
           _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
           _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
@@ -1558,7 +1558,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
+      def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
         (for {
           _ <- pureOf(oa).logPure(error(ifEmptyMsg), _ => ignore)
           _ <- pureOf(oa).logPure(error(ifEmptyMsg), _ => ignore)
@@ -1604,7 +1604,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- effectOf(eab).log(error, b => debug(b.toString))
         _ <- effectOf(eab).log(error, b => info(b.toString))
         _ <- effectOf(eab).log(error, b => warn(b.toString))
@@ -1651,7 +1651,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- pureOf(eab).logPure(error, b => debug(b.toString))
         _ <- pureOf(eab).logPure(error, b => info(b.toString))
         _ <- pureOf(eab).logPure(error, b => warn(b.toString))
@@ -1698,7 +1698,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- effectOf(eab).log(_ => ignore, b => debug(b.toString))
         _ <- effectOf(eab).log(_ => ignore, b => info(b.toString))
         _ <- effectOf(eab).log(_ => ignore, b => warn(b.toString))
@@ -1745,7 +1745,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- pureOf(eab).logPure(_ => ignore, b => debug(b.toString))
         _ <- pureOf(eab).logPure(_ => ignore, b => info(b.toString))
         _ <- pureOf(eab).logPure(_ => ignore, b => warn(b.toString))
@@ -1792,7 +1792,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- effectOf(eab).log(error, _ => ignore)
         _ <- effectOf(eab).log(error, _ => ignore)
         _ <- effectOf(eab).log(error, _ => ignore)
@@ -1839,7 +1839,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
         _ <- pureOf(eab).logPure(error, _ => ignore)
         _ <- pureOf(eab).logPure(error, _ => ignore)
         _ <- pureOf(eab).logPure(error, _ => ignore)
@@ -1885,7 +1885,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+      def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
         _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), debug)
         _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), info)
         _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), warn)
@@ -1929,7 +1929,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+      def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
         _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), debug)
         _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), info)
         _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), warn)
@@ -1973,7 +1973,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+      def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
         _ <- OptionT(effectOf(oa)).log(ignore, debug)
         _ <- OptionT(effectOf(oa)).log(ignore, info)
         _ <- OptionT(effectOf(oa)).log(ignore, warn)
@@ -2017,7 +2017,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+      def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
         _ <- OptionT(pureOf(oa)).logPure(ignore, debug)
         _ <- OptionT(pureOf(oa)).logPure(ignore, info)
         _ <- OptionT(pureOf(oa)).logPure(ignore, warn)
@@ -2061,7 +2061,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+      def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
         _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
         _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
         _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
@@ -2105,7 +2105,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
+      def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] = (for {
         _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), _ => ignore)
         _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), _ => ignore)
         _ <- OptionT(pureOf(oa)).logPure(error(ifEmptyMsg), _ => ignore)
@@ -2150,7 +2150,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
         _ <- EitherT(effectOf(eab)).log(error, b => debug(b.toString))
         _ <- EitherT(effectOf(eab)).log(error, b => info(b.toString))
         _ <- EitherT(effectOf(eab)).log(error, b => warn(b.toString))
@@ -2197,7 +2197,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
         _ <- EitherT(pureOf(eab)).logPure(error, b => debug(b.toString))
         _ <- EitherT(pureOf(eab)).logPure(error, b => info(b.toString))
         _ <- EitherT(pureOf(eab)).logPure(error, b => warn(b.toString))
@@ -2244,7 +2244,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
         _ <- EitherT(effectOf(eab)).log(_ => ignore, b => debug(b.toString))
         _ <- EitherT(effectOf(eab)).log(_ => ignore, b => info(b.toString))
         _ <- EitherT(effectOf(eab)).log(_ => ignore, b => warn(b.toString))
@@ -2291,7 +2291,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
         _ <- EitherT(pureOf(eab)).logPure(_ => ignore, b => debug(b.toString))
         _ <- EitherT(pureOf(eab)).logPure(_ => ignore, b => info(b.toString))
         _ <- EitherT(pureOf(eab)).logPure(_ => ignore, b => warn(b.toString))
@@ -2338,7 +2338,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
         _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
         _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
         _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
@@ -2385,7 +2385,7 @@ object syntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[_]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
         _ <- EitherT(pureOf(eab)).logPure(error, _ => ignore)
         _ <- EitherT(pureOf(eab)).logPure(error, _ => ignore)
         _ <- EitherT(pureOf(eab)).logPure(error, _ => ignore)

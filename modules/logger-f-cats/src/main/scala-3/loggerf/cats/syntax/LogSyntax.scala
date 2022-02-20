@@ -9,7 +9,7 @@ import loggerf.core.Log
   */
 trait LogSyntax extends loggerf.core.syntax.LogSyntax {
 
-  extension [F[*]: Log, A] (otfa: OptionT[F, A]) {
+  extension [F[*]: Log, A](otfa: OptionT[F, A]) {
     def log(
       ifEmpty: => LeveledMessage | Ignore.type,
       toLeveledMessage: A => LeveledMessage | Ignore.type
@@ -23,7 +23,7 @@ trait LogSyntax extends loggerf.core.syntax.LogSyntax {
       OptionT(Log[F].logPure(otfa.value)(ifEmpty, toLeveledMessage))
   }
 
-  extension [F[*]: Log, A, B] (etfab: EitherT[F, A, B]) {
+  extension [F[*]: Log, A, B](etfab: EitherT[F, A, B]) {
     def log(
       leftToMessage: A => LeveledMessage | Ignore.type,
       rightToMessage: B => LeveledMessage | Ignore.type

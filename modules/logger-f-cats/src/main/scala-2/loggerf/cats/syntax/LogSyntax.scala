@@ -12,7 +12,7 @@ trait LogSyntax extends loggerf.core.syntax.LogSyntax {
 
   import LogSyntax._
 
-  def log[F[_]: Log, A](
+  def log[F[*]: Log, A](
     otfa: OptionT[F, A],
   )(
     ifEmpty: => LogMessage with MaybeIgnorable,
@@ -20,7 +20,7 @@ trait LogSyntax extends loggerf.core.syntax.LogSyntax {
   ): OptionT[F, A] =
     OptionT(Log[F].log(otfa.value)(ifEmpty, toLeveledMessage))
 
-  def logPure[F[_]: Log, A](
+  def logPure[F[*]: Log, A](
     otfa: OptionT[F, A],
   )(
     ifEmpty: => LogMessage with MaybeIgnorable,
@@ -28,7 +28,7 @@ trait LogSyntax extends loggerf.core.syntax.LogSyntax {
   ): OptionT[F, A] =
     OptionT(Log[F].logPure(otfa.value)(ifEmpty, toLeveledMessage))
 
-  def log[F[_]: Log, A, B](
+  def log[F[*]: Log, A, B](
     etfab: EitherT[F, A, B],
   )(
     leftToMessage: A => LogMessage with MaybeIgnorable,
@@ -36,7 +36,7 @@ trait LogSyntax extends loggerf.core.syntax.LogSyntax {
   ): EitherT[F, A, B] =
     EitherT(Log[F].log(etfab.value)(leftToMessage, rightToMessage))
 
-  def logPure[F[_]: Log, A, B](
+  def logPure[F[*]: Log, A, B](
     etfab: EitherT[F, A, B],
   )(
     leftToMessage: A => LogMessage with MaybeIgnorable,
@@ -47,18 +47,18 @@ trait LogSyntax extends loggerf.core.syntax.LogSyntax {
   // /
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitConversion"))
-  implicit def logOptionTFASyntax[F[_], A](otfa: OptionT[F, A]): LogOptionTFASyntax[F, A] =
+  implicit def logOptionTFASyntax[F[*], A](otfa: OptionT[F, A]): LogOptionTFASyntax[F, A] =
     new LogOptionTFASyntax[F, A](otfa)
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitConversion"))
-  implicit def LogEitherTFABSyntax[F[_], A, B](etfab: EitherT[F, A, B]): LogEitherTFABSyntax[F, A, B] =
+  implicit def LogEitherTFABSyntax[F[*], A, B](etfab: EitherT[F, A, B]): LogEitherTFABSyntax[F, A, B] =
     new LogEitherTFABSyntax[F, A, B](etfab)
 
 }
 
 object LogSyntax extends LogSyntax {
 
-  final class LogOptionTFASyntax[F[_], A](val otfa: OptionT[F, A]) extends AnyVal {
+  final class LogOptionTFASyntax[F[*], A](val otfa: OptionT[F, A]) extends AnyVal {
     def log(
       ifEmpty: => LogMessage with MaybeIgnorable,
       toLeveledMessage: A => LogMessage with MaybeIgnorable,
@@ -72,7 +72,7 @@ object LogSyntax extends LogSyntax {
       OptionT(CoreLogSyntax.logPure(otfa.value)(ifEmpty, toLeveledMessage))
   }
 
-  final class LogEitherTFABSyntax[F[_], A, B](val etfab: EitherT[F, A, B]) extends AnyVal {
+  final class LogEitherTFABSyntax[F[*], A, B](val etfab: EitherT[F, A, B]) extends AnyVal {
     def log(
       leftToMessage: A => LogMessage with MaybeIgnorable,
       rightToMessage: B => LogMessage with MaybeIgnorable,
