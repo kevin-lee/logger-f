@@ -11,9 +11,8 @@ import extras.concurrent.testing.ConcurrentSupport
 import hedgehog._
 import hedgehog.runner._
 import loggerf.cats.instances.logF
-import loggerf.cats.syntax._
+import loggerf.cats.syntax.all._
 import loggerf.logger.LoggerForTesting
-import loggerf.syntax._
 
 import java.util.concurrent.ExecutorService
 

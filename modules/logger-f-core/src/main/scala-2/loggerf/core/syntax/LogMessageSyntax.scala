@@ -1,8 +1,8 @@
-package loggerf.syntax
+package loggerf.core.syntax
 
 import loggerf.core.ToLog
 
-trait LeveledMessageSyntax {
+trait LogMessageSyntax {
 
   import loggerf.LogMessage._
   import loggerf.{Level, LogMessage}
@@ -34,3 +34,5 @@ trait LeveledMessageSyntax {
   def ignore: LogMessage with Ignorable = Ignore
 
 }
+
+object LogMessageSyntax extends LogMessageSyntax

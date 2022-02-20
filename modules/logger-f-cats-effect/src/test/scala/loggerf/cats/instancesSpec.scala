@@ -10,7 +10,7 @@ import hedgehog.runner._
 import loggerf.cats.instances.logF
 import loggerf.core._
 import loggerf.logger._
-import loggerf.syntax._
+import loggerf.cats.syntax.all._
 
 /** @author Kevin Lee
   * @since 2020-04-12

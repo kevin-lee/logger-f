@@ -13,7 +13,7 @@ import hedgehog.runner._
 import loggerf.cats.instances.logF
 import loggerf.core._
 import loggerf.logger.LoggerForTesting
-import loggerf.syntax._
+import loggerf.cats.syntax.all._
 
 import java.util.concurrent.ExecutorService
 

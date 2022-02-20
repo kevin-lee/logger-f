@@ -5,7 +5,6 @@ import effectie.syntax.all.{effectOf, pureOf}
 import loggerf.LeveledMessage
 import loggerf.Ignore
 import loggerf.logger.CanLog
-import loggerf.syntax.getLogger
 
 /**
  * @author Kevin Lee
@@ -22,7 +21,7 @@ trait Log[F[*]] {
     flatMap0(fa) { a =>
       toLeveledMessage(a) match {
         case LeveledMessage(message, level) =>
-          flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => effectOf(a))
+          flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => effectOf(a))
       }
     }
 
@@ -30,7 +29,7 @@ trait Log[F[*]] {
     flatMap0(fa) { a =>
       toLeveledMessage(a) match {
         case LeveledMessage(message, level) =>
-          flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(a))
+          flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(a))
       }
     }
 
@@ -47,12 +46,12 @@ trait Log[F[*]] {
             pureOf(None)
 
           case LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(None))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(None))
         }
       case Some(a) =>
         toLeveledMessage(a) match {
           case LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => effectOf(Some(a)))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => effectOf(Some(a)))
 
           case Ignore =>
             effectOf(Some(a))
@@ -72,12 +71,12 @@ trait Log[F[*]] {
             pureOf(None)
 
           case LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(None))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(None))
         }
       case Some(a) =>
         toLeveledMessage(a) match {
           case LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(Some(a)))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(Some(a)))
 
           case Ignore =>
             pureOf(Some(a))
@@ -94,7 +93,7 @@ trait Log[F[*]] {
       case Left(l)  =>
         leftToMessage(l) match {
           case LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => effectOf(Left(l)))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => effectOf(Left(l)))
 
           case Ignore =>
             effectOf(Left(l))
@@ -102,7 +101,7 @@ trait Log[F[*]] {
       case Right(r) =>
         rightToMessage(r) match {
           case LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => effectOf(Right(r)))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => effectOf(Right(r)))
 
           case Ignore =>
             effectOf(Right(r))
@@ -119,7 +118,7 @@ trait Log[F[*]] {
       case Left(l)  =>
         leftToMessage(l) match {
           case LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(Left(l)))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(Left(l)))
 
           case Ignore =>
             pureOf(Left(l))
@@ -127,7 +126,7 @@ trait Log[F[*]] {
       case Right(r) =>
         rightToMessage(r) match {
           case LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(Right(r)))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(Right(r)))
 
           case Ignore =>
             pureOf(Right(r))
