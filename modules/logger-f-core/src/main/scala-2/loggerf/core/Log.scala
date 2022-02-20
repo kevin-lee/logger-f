@@ -5,7 +5,6 @@ import effectie.syntax.all._
 import loggerf.LogMessage
 import loggerf.LogMessage.{MaybeIgnorable, NotIgnorable}
 import loggerf.logger.CanLog
-import loggerf.syntax._
 
 /** @author Kevin Lee
   * @since 2020-04-10
@@ -21,7 +20,7 @@ trait Log[F[_]] {
     flatMap0(fa) { a =>
       toLeveledMessage(a) match {
         case LogMessage.LeveledMessage(message, level) =>
-          flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => effectOf(a))
+          flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => effectOf(a))
       }
     }
 
@@ -29,7 +28,7 @@ trait Log[F[_]] {
     flatMap0(fa) { a =>
       toLeveledMessage(a) match {
         case LogMessage.LeveledMessage(message, level) =>
-          flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(a))
+          flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(a))
       }
     }
 
@@ -46,12 +45,12 @@ trait Log[F[_]] {
             pureOf(None)
 
           case LogMessage.LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(None))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(None))
         }
       case Some(a) =>
         toLeveledMessage(a) match {
           case LogMessage.LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => effectOf(Some(a)))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => effectOf(Some(a)))
 
           case LogMessage.Ignore =>
             effectOf(Some(a))
@@ -71,12 +70,12 @@ trait Log[F[_]] {
             pureOf(None)
 
           case LogMessage.LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(None))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(None))
         }
       case Some(a) =>
         toLeveledMessage(a) match {
           case LogMessage.LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(Some(a)))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(Some(a)))
 
           case LogMessage.Ignore =>
             pureOf(Some(a))
@@ -93,7 +92,7 @@ trait Log[F[_]] {
       case Left(l) =>
         leftToMessage(l) match {
           case LogMessage.LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => effectOf(Left(l)))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => effectOf(Left(l)))
 
           case LogMessage.Ignore =>
             effectOf(Left(l))
@@ -101,7 +100,7 @@ trait Log[F[_]] {
       case Right(r) =>
         rightToMessage(r) match {
           case LogMessage.LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => effectOf(Right(r)))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => effectOf(Right(r)))
 
           case LogMessage.Ignore =>
             effectOf(Right(r))
@@ -118,7 +117,7 @@ trait Log[F[_]] {
       case Left(l) =>
         leftToMessage(l) match {
           case LogMessage.LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(Left(l)))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(Left(l)))
 
           case LogMessage.Ignore =>
             pureOf(Left(l))
@@ -126,7 +125,7 @@ trait Log[F[_]] {
       case Right(r) =>
         rightToMessage(r) match {
           case LogMessage.LeveledMessage(message, level) =>
-            flatMap0(effectOf(getLogger(canLog, level)(message)))(_ => pureOf(Right(r)))
+            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(Right(r)))
 
           case LogMessage.Ignore =>
             pureOf(Right(r))

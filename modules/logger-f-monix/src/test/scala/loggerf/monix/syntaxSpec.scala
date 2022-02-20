@@ -9,8 +9,7 @@ import hedgehog._
 import hedgehog.runner._
 import loggerf.logger.LoggerForTesting
 import loggerf.cats.instances.logF
-import loggerf.cats.syntax._
-import loggerf.syntax._
+import loggerf.cats.syntax.all._
 import monix.eval.Task
 
 /** @author Kevin Lee

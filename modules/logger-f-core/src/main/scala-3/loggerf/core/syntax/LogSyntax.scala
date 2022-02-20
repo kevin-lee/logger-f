@@ -1,4 +1,4 @@
-package loggerf.future
+package loggerf.core.syntax
 
 import loggerf.LeveledMessage
 import loggerf.Ignore
@@ -10,7 +10,7 @@ import scala.concurrent.Future
 /** @author Kevin Lee
   * @since 2022-02-09
   */
-trait syntax {
+trait LogSyntax {
 
   extension [F[*], A](fa: F[A]) {
     def log(toLeveledMessage: A => LeveledMessage)(using L: Log[F]): F[A] =
@@ -57,4 +57,4 @@ trait syntax {
   }
 }
 
-object syntax extends syntax
+object LogSyntax extends LogSyntax

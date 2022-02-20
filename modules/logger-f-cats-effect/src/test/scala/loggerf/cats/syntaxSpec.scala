@@ -9,9 +9,8 @@ import effectie.syntax.all._
 import hedgehog._
 import hedgehog.runner._
 import loggerf.cats.instances.logF
-import loggerf.cats.syntax._
+import loggerf.cats.syntax.all._
 import loggerf.logger._
-import loggerf.syntax._
 
 /** @author Kevin Lee
   * @since 2020-04-12

@@ -7,7 +7,7 @@ import effectie.syntax.all._
 import hedgehog._
 import hedgehog.runner._
 import loggerf.core._
-import loggerf.future.syntax._
+import loggerf.core.syntax.all._
 import loggerf.logger.LoggerForTesting
 
 /** @author Kevin Lee

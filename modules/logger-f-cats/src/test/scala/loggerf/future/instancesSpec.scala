@@ -12,9 +12,9 @@ import extras.concurrent.testing.types.{ErrorLogger, WaitFor}
 import hedgehog._
 import hedgehog.runner._
 import loggerf.core._
+import loggerf.core.syntax.all._
 import loggerf.future.instances.logFuture
 import loggerf.logger._
-import loggerf.syntax._
 
 import java.util.concurrent.ExecutorService
 import scala.concurrent.duration._
