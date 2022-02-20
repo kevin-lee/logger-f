@@ -6,10 +6,9 @@ import loggerf.LeveledMessage
 import loggerf.Ignore
 import loggerf.logger.CanLog
 
-/**
- * @author Kevin Lee
- * @since 2022-02-09
- */
+/** @author Kevin Lee
+  * @since 2022-02-09
+  */
 trait Log[F[*]] {
 
   given EF: FxCtor[F]
@@ -40,7 +39,7 @@ trait Log[F[*]] {
     toLeveledMessage: A => LeveledMessage | Ignore.type
   ): F[Option[A]] =
     flatMap0(foa) {
-      case None    =>
+      case None =>
         ifEmpty match {
           case Ignore =>
             pureOf(None)
@@ -65,7 +64,7 @@ trait Log[F[*]] {
     toLeveledMessage: A => LeveledMessage | Ignore.type
   ): F[Option[A]] =
     flatMap0(foa) {
-      case None    =>
+      case None =>
         ifEmpty match {
           case Ignore =>
             pureOf(None)
@@ -90,7 +89,7 @@ trait Log[F[*]] {
     rightToMessage: B => LeveledMessage | Ignore.type
   ): F[Either[A, B]] =
     flatMap0(feab) {
-      case Left(l)  =>
+      case Left(l) =>
         leftToMessage(l) match {
           case LeveledMessage(message, level) =>
             flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => effectOf(Left(l)))
@@ -115,7 +114,7 @@ trait Log[F[*]] {
     rightToMessage: B => LeveledMessage | Ignore.type
   ): F[Either[A, B]] =
     flatMap0(feab) {
-      case Left(l)  =>
+      case Left(l) =>
         leftToMessage(l) match {
           case LeveledMessage(message, level) =>
             flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(Left(l)))

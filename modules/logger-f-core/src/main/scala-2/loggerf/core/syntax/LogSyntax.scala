@@ -66,10 +66,12 @@ trait LogSyntax {
   implicit def logFOfASyntax[F[*], A](fa: F[A]): LogFOfASyntax[F, A] = new LogFOfASyntax[F, A](fa)
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitConversion"))
-  implicit def logFOfOptionSyntax[F[*], A](foa: F[Option[A]]): LogFOfOptionSyntax[F, A] = new LogFOfOptionSyntax[F, A](foa)
+  implicit def logFOfOptionSyntax[F[*], A](foa: F[Option[A]]): LogFOfOptionSyntax[F, A] =
+    new LogFOfOptionSyntax[F, A](foa)
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitConversion"))
-  implicit def LogFOfEitherSyntax[F[*], A, B](feab: F[Either[A, B]]): LogFOfEitherSyntax[F, A, B] = new LogFOfEitherSyntax[F, A, B](feab)
+  implicit def LogFOfEitherSyntax[F[*], A, B](feab: F[Either[A, B]]): LogFOfEitherSyntax[F, A, B] =
+    new LogFOfEitherSyntax[F, A, B](feab)
 }
 
 object LogSyntax extends LogSyntax {
