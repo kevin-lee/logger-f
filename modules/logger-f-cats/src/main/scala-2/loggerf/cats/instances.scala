@@ -12,7 +12,7 @@ trait instances {
   import instances._
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-  implicit def logF[F[_]](
+  implicit def logF[F[*]](
     implicit EF: FxCtor[F],
     canLog: CanLog,
     MF: Monad[F],
@@ -24,7 +24,7 @@ trait instances {
 object instances extends instances {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
-  final class LogF[F[_]](
+  final class LogF[F[*]](
     override val EF: FxCtor[F],
     override val canLog: CanLog,
     val MF: Monad[F],

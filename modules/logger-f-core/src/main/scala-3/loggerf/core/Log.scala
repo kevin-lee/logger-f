@@ -137,6 +137,6 @@ trait Log[F[*]] {
 
 object Log {
 
-  def apply[F[_]: Log]: Log[F] = summon[Log[F]]
+  def apply[F[*]: Log]: Log[F] = summon[Log[F]]
 
 }
