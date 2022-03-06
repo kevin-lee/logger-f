@@ -2,6 +2,7 @@ import ProjectInfo.{ProjectName, _}
 import just.semver.SemVer
 import SemVer.{Major, Minor}
 import kevinlee.sbt.SbtCommon.crossVersionProps
+import sbtcrossproject.CrossProject
 
 ThisBuild / scalaVersion       := props.ProjectScalaVersion
 ThisBuild / organization       := "io.kevinlee"
@@ -44,19 +45,28 @@ lazy val loggerF = (project in file("."))
   .settings(mavenCentralPublishSettings)
   .settings(noPublish)
   .aggregate(
-    core,
-    slf4jLogger,
-    log4sLogger,
-    log4jLogger,
-    sbtLogging,
-    cats,
-    catsEffect,
-    catsEffect3,
-    monix,
+    coreJvm,
+    coreJs,
+    slf4jLoggerJvm,
+    slf4jLoggerJs,
+    log4sLoggerJvm,
+    log4sLoggerJs,
+    log4jLoggerJvm,
+    log4jLoggerJs,
+    sbtLoggingJvm,
+    sbtLoggingJs,
+    catsJvm,
+    catsJs,
+    catsEffectJvm,
+    catsEffectJs,
+    catsEffect3Jvm,
+    catsEffect3Js,
+    monixJvm,
+    monixJs,
   )
 
-lazy val core =
-  subProject("core", ProjectName("core"))
+lazy val core    =
+  module(ProjectName("core"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Core",
       libraryDependencies ++= List(
@@ -70,8 +80,10 @@ lazy val core =
         libraryDependencies.value
       )
     )
+lazy val coreJvm = core.jvm
+lazy val coreJs  = core.js
 
-lazy val slf4jLogger = subProject("slf4jLogger", ProjectName("slf4j"))
+lazy val slf4jLogger    = module(ProjectName("slf4j"), crossProject(JVMPlatform, JSPlatform))
   .settings(
     description         := "Logger for F[_] - Logger with Slf4j",
     libraryDependencies ++= Seq(
@@ -83,9 +95,11 @@ lazy val slf4jLogger = subProject("slf4jLogger", ProjectName("slf4j"))
     )
   )
   .dependsOn(core)
+lazy val slf4jLoggerJvm = slf4jLogger.jvm
+lazy val slf4jLoggerJs  = slf4jLogger.js
 
-lazy val log4sLogger =
-  subProject("log4sLogger", ProjectName("log4s"))
+lazy val log4sLogger    =
+  module(ProjectName("log4s"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Logger with Log4s",
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
@@ -97,13 +111,15 @@ lazy val log4sLogger =
       )
     )
     .dependsOn(core)
+lazy val log4sLoggerJvm = log4sLogger.jvm
+lazy val log4sLoggerJs  = log4sLogger.js
 
 lazy val log4jLogger =
-  subProject("log4jLogger", ProjectName("log4j"))
+  module(ProjectName("log4j"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Logger with Log4j",
       Compile / unmanagedSourceDirectories ++= {
-        val sharedSourceDir = baseDirectory.value / "src/main"
+        val sharedSourceDir = (baseDirectory.value / ".." / "shared").getCanonicalFile / "src" / "main"
         if (scalaVersion.value.startsWith("3."))
           Seq(
             sharedSourceDir / "scala-2.12_3.0",
@@ -125,7 +141,7 @@ lazy val log4jLogger =
           Seq.empty
       },
       Test / unmanagedSourceDirectories ++= {
-        val sharedSourceDir = baseDirectory.value / "src/test"
+        val sharedSourceDir = (baseDirectory.value / ".." / "shared").getCanonicalFile / "src" / "test"
         if (scalaVersion.value.startsWith("3."))
           Seq(
             sharedSourceDir / "scala-2.12_3.0",
@@ -155,9 +171,11 @@ lazy val log4jLogger =
       )
     )
     .dependsOn(core)
+lazy val log4jLoggerJvm = log4jLogger.jvm
+lazy val log4jLoggerJs = log4jLogger.js
 
 lazy val sbtLogging =
-  subProject("sbtLogging", ProjectName("sbt-logging"))
+  module(ProjectName("sbt-logging"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Logger with sbt logging",
       libraryDependencies ++= crossVersionProps(
@@ -185,9 +203,11 @@ lazy val sbtLogging =
       )
     )
     .dependsOn(core)
+lazy val sbtLoggingJvm = sbtLogging.jvm
+lazy val sbtLoggingJs = sbtLogging.js
 
 lazy val cats =
-  subProject("cats", ProjectName("cats"))
+  module(ProjectName("cats"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Cats",
       libraryDependencies ++= libs.hedgehogLibs ++ List(libs.effectieCore, libs.cats, libs.extrasCats),
@@ -197,9 +217,11 @@ lazy val cats =
       ),
     )
     .dependsOn(core % props.IncludeTest)
+lazy val catsJvm = cats.jvm
+lazy val catsJs = cats.js
 
 lazy val catsEffect =
-  subProject("catsEffect", ProjectName("cats-effect"))
+  module(ProjectName("cats-effect"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Cats Effect",
       libraryDependencies ++= libs.hedgehogLibs ++ List(libs.effectieCatsEffect % Test),
@@ -210,9 +232,11 @@ lazy val catsEffect =
     )
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, cats)
+lazy val catsEffectJvm = catsEffect.jvm
+lazy val catsEffectJs = catsEffect.js
 
 lazy val catsEffect3 =
-  subProject("catsEffect3", ProjectName("cats-effect3"))
+  module(ProjectName("cats-effect3"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Cats Effect 3",
       libraryDependencies ++= libs.hedgehogLibs ++ List(
@@ -226,9 +250,11 @@ lazy val catsEffect3 =
     )
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, cats)
+lazy val catsEffect3Jvm = catsEffect3.jvm
+lazy val catsEffect3Js = catsEffect3.js
 
 lazy val monix =
-  subProject("monix", ProjectName("monix"))
+  module(ProjectName("monix"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Monix",
       libraryDependencies ++= libs.hedgehogLibs ++ List(libs.effectieMonix % Test),
@@ -239,11 +265,13 @@ lazy val monix =
     )
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, cats)
+lazy val monixJvm = monix.jvm
+lazy val monixJs = monix.js
 
 lazy val testCatsEffectWithSlf4jLogger =
   testProject(
-    "testCatsEffectWithSlf4jLogger",
     ProjectName("cats-effect-slf4j"),
+    crossProject(JVMPlatform, JSPlatform),
   )
     .settings(
       description         := "Test Logger for F[_] - Logger with Slf4j",
@@ -255,11 +283,13 @@ lazy val testCatsEffectWithSlf4jLogger =
     )
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, slf4jLogger, catsEffect % props.IncludeTest)
+lazy val testCatsEffectWithSlf4jLoggerJvm = testCatsEffectWithSlf4jLogger.jvm
+lazy val testCatsEffectWithSlf4jLoggerJs = testCatsEffectWithSlf4jLogger.js
 
 lazy val testMonixWithSlf4jLogger =
   testProject(
-    "testMonixWithSlf4jLogger",
     ProjectName("monix-slf4j"),
+    crossProject(JVMPlatform, JSPlatform),
   )
     .settings(
       description         := "Test Logger for F[_] - Logger with Slf4j",
@@ -271,11 +301,13 @@ lazy val testMonixWithSlf4jLogger =
     )
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, slf4jLogger, monix % props.IncludeTest)
+lazy val testMonixWithSlf4jLoggerJvm = testMonixWithSlf4jLogger.jvm
+lazy val testMonixWithSlf4jLoggerJs = testMonixWithSlf4jLogger.js
 
 lazy val testCatsEffectWithLog4sLogger =
   testProject(
-    "testCatsEffectWithLog4sLogger",
     ProjectName("cats-effect-log4s"),
+    crossProject(JVMPlatform, JSPlatform),
   )
     .settings(
       description         := "Test Logger for F[_] - Logger with Log4s",
@@ -287,11 +319,13 @@ lazy val testCatsEffectWithLog4sLogger =
     )
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, log4sLogger, catsEffect % props.IncludeTest)
+lazy val testCatsEffectWithLog4sLoggerJvm = testCatsEffectWithLog4sLogger.jvm
+lazy val testCatsEffectWithLog4sLoggerJs = testCatsEffectWithLog4sLogger.js
 
 lazy val testCatsEffectWithLog4jLogger =
   testProject(
-    "testCatsEffectWithLog4jLogger",
     ProjectName("cats-effect-log4j"),
+    crossProject(JVMPlatform, JSPlatform),
   )
     .settings(
       description         := "Test Logger for F[_] - Logger with Log4j",
@@ -303,6 +337,8 @@ lazy val testCatsEffectWithLog4jLogger =
     )
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, log4jLogger, catsEffect % props.IncludeTest)
+lazy val testCatsEffectWithLog4jLoggerJvm = testCatsEffectWithLog4jLogger.jvm
+lazy val testCatsEffectWithLog4jLoggerJs = testCatsEffectWithLog4jLogger.js
 
 lazy val docs = (project in file("generated-docs"))
   .enablePlugins(MdocPlugin, DocusaurPlugin)
@@ -323,7 +359,7 @@ lazy val docs = (project in file("generated-docs"))
       libraryDependencies.value
     ),
     mdocVariables       := Map(
-      "VERSION" -> {
+      "VERSION"                  -> {
         import sys.process._
         "git fetch --tags".!
         val tag = "git rev-list --tags --max-count=1".!!.trim
@@ -452,18 +488,19 @@ lazy val mavenCentralPublishSettings: SettingsDefinition = List(
   /* } Publish to Maven Central */
 )
 
-def subProject(id: String, projectName: ProjectName): Project = {
+def module(projectName: ProjectName, crossProject: CrossProject.Builder): CrossProject = {
   val prefixedName = prefixedProjectName(projectName.projectName)
-  projectCommonSettings(id, prefixedName, file(s"modules/$prefixedName"))
+  projectCommonSettings(prefixedName, crossProject)
 }
 
-def testProject(id: String, projectName: ProjectName): Project = {
+def testProject(projectName: ProjectName, crossProject: CrossProject.Builder): CrossProject = {
   val prefixedName = s"test-${prefixedProjectName(projectName.projectName)}"
-  projectCommonSettings(id, prefixedName, file(s"modules/$prefixedName"))
+  projectCommonSettings(prefixedName, crossProject)
 }
 
-def projectCommonSettings(id: String, projectName: String, file: File): Project =
-  Project(id, file)
+def projectCommonSettings(projectName: String, crossProject: CrossProject.Builder): CrossProject =
+  crossProject
+    .in(file(s"modules/$projectName"))
     .settings(
       name                                    := projectName,
       licenses                                := props.licenses,
