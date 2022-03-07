@@ -11,6 +11,7 @@ const isEmptyObject = obj => {
 
 const isSearchable = !isEmptyObject(algoliaConfig);
 const hasGoogleAnalytics = !isEmptyObject(googleAnalyticsConfig);
+const gtag = hasGoogleAnalytics ? { 'gtag': googleAnalyticsConfig } : null;
 
 const websiteConfig = {
   title: 'logger-f',
@@ -64,15 +65,15 @@ const websiteConfig = {
             },
             {
               label: 'For Cats Effect',
-              to: 'docs/cats-effect/',
+              to: 'docs/cats-effect/getting-started',
             },
             {
               label: 'For Monix',
-              to: 'docs/monix/',
+              to: 'docs/monix/getting-started',
             },
             {
               label: 'For Scalaz Effect',
-              to: 'docs/scalaz-effect/',
+              to: 'docs/scalaz-effect/getting-started',
             },
           ],
         },
@@ -109,6 +110,7 @@ const websiteConfig = {
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
+        ...gtag,
       },
     ],
   ],
@@ -119,9 +121,6 @@ const websiteConfig = {
 
 if (isSearchable) {
   websiteConfig['themeConfig']['algolia'] = algoliaConfig;
-}
-if (hasGoogleAnalytics) {
-  websiteConfig['themeConfig']['gtag'] = googleAnalyticsConfig;
 }
 
 module.exports = websiteConfig;

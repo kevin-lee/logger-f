@@ -7,7 +7,7 @@ addSbtPlugin("org.wartremover" % "sbt-wartremover" % "2.4.15")
 addSbtPlugin("org.scoverage"   % "sbt-scoverage"   % "1.9.2")
 addSbtPlugin("org.scoverage"   % "sbt-coveralls"   % "1.3.1")
 addSbtPlugin("org.scalameta"   % "sbt-mdoc"        % "2.2.22")
-addSbtPlugin("io.kevinlee"     % "sbt-docusaur"    % "0.8.1")
+addSbtPlugin("io.kevinlee"     % "sbt-docusaur"    % "0.9.0")
 
 addSbtPlugin("org.scala-js"       % "sbt-scalajs"              % "1.9.0")
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.1.0")
