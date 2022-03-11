@@ -11,10 +11,48 @@ It requires `Fx` from [Effectie](https://kevin-lee.github.io/effectie) and `Mona
 
 ## Log `F[A]`
 ```scala
-Log[F].log(F[A])(A => String)
+Log[F].log(F[A])(A => LogMessage)
 ```
 
+A given `F[A]`, you can simply log `A` with `log`.
+
+
 ### Example
+
+```scala
+import cats._
+import cats.syntax.all._
+import cats.effect._
+
+import effectie.cats._
+import effectie.cats.Effectful._
+
+import loggerf.cats._
+import loggerf.logger._
+import loggerf.syntax._
+
+def hello[F[_]: Functor: Fx: Log](name: String): F[Unit] =
+  log(pureOf(s"Hello $name"))(debug).map(println(_))
+ 
+object MyApp extends IOApp {
+
+  implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp")
+
+  def run(args: List[String]): IO[ExitCode] = for {
+    _ <- hello[IO]("World")
+    _ <- hello[IO]("Kevin")
+  } yield ExitCode.Success
+}
+
+```
+```
+23:34:25.021 [ioapp-compute-1] DEBUG MyApp - Hello World
+Hello World
+23:34:25.022 [ioapp-compute-1] DEBUG MyApp - Hello Kevin
+Hello Kevin
+```
+
+
 ```scala mdoc:reset-object
 trait Named[A] {
   def name(a: A): String
@@ -80,8 +118,56 @@ Hello Kevin Lee
 
 ## Log `F[Option[A]]`
 
-## Log `OptionT[F, A]`
+```scala
+Log[Option[F]].log(
+  F[Option[A]]
+)(
+  ifEmpty: => LogMessage with MaybeIgnorable,
+  toLeveledMessage: A => LogMessage with MaybeIgnorable
+)
+```
+
+A given `F[Option[A]]`, you can simply log `Some(A)` or `None` with `log`.
+
+
+### Example
+
+```scala
+import cats._
+import cats.syntax.all._
+import cats.effect._
+
+import effectie.cats._
+import effectie.cats.Effectful._
+
+import loggerf.cats._
+import loggerf.logger._
+import loggerf.syntax._
+
+def hello[F[_]: Functor: Fx: Log](name: Option[String]): F[Option[Unit]] = {
+  log(pureOf(name))(warn("No name given"), a => info(s"Name: $a"))
+    .map(maybeName => maybeName.map(name => println(s"Hello $name")))
+}
+
+object MyApp extends IOApp {
+
+  implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp")
+
+  def run(args: List[String]): IO[ExitCode] = for {
+    _ <- hello[IO](none)
+    _ <- hello[IO]("Kevin".some)
+  } yield ExitCode.Success
+}
+
+```
+```
+23:42:22.584 [ioapp-compute-1] WARN MyApp - No name given
+23:42:22.585 [ioapp-compute-1] INFO MyApp - Name: Kevin
+Hello Kevin
+```
 
 ## Log `F[Either[A, B]]`
+
+## Log `OptionT[F, A]`
 
 ## Log `EitherT[F, A, B]`

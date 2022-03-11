@@ -1,4 +1,5 @@
 ---
+sidebar_position: 1
 id: getting-started
 title: Getting Started
 slug: /
@@ -415,6 +416,6 @@ With logs like
 ### Usage
 
 Pleae check out
-* [LoggerF for Cats Effect](cats-effect)
-* [LoggerF for Monix](monix)
-* [LoggerF for Scalaz Effect](scalaz-effect)
+* [LoggerF for Cats Effect](cats-effect/getting-started.md)
+* [LoggerF for Monix](monix/getting-started.md)
+* [LoggerF for Scalaz Effect](scalaz-effect/getting-started.md)
