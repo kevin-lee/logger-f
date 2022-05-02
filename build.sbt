@@ -8,7 +8,6 @@ ThisBuild / scalaVersion       := props.ProjectScalaVersion
 ThisBuild / organization       := "io.kevinlee"
 ThisBuild / organizationName   := "Kevin's Code"
 ThisBuild / crossScalaVersions := props.CrossScalaVersions
-ThisBuild / version            := "2.0.0-SNAPSHOT"
 
 ThisBuild / developers := List(
   Developer(
@@ -39,7 +38,7 @@ lazy val loggerF = (project in file("."))
       libraryDependencies.value,
     )
     /* GitHub Release { */,
-    devOopsPackagedArtifacts := List(s"*/target/scala-*/${name.value}*.jar"),
+    devOopsPackagedArtifacts := List(s"*/*/*/target/scala-*/${devOopsArtifactNamePrefix.value}*.jar"),
     /* } GitHub Release */
   )
   .settings(mavenCentralPublishSettings)
@@ -387,8 +386,8 @@ lazy val props =
     final val GitHubUsername = "Kevin-Lee"
     final val RepoName       = "logger-f"
 
-    final val Scala3Versions = List("3.0.0")
-    final val Scala2Versions = List("2.13.5", "2.12.13")
+    final val Scala3Versions = List("3.0.2")
+    final val Scala2Versions = List("2.13.6", "2.12.13")
 
 //    final val ProjectScalaVersion = Scala3Versions.head
     final val ProjectScalaVersion = Scala2Versions.head
