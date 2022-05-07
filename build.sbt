@@ -181,17 +181,17 @@ lazy val sbtLogging =
         List.empty,
         SemVer.parseUnsafe(scalaVersion.value)
       ) {
-        case (Major(2), Minor(11), _) =>
+        case (SemVer.Major(2), SemVer.Minor(11), _) =>
           List(
             libs.sbtLoggingLib % "1.2.4"
           ).map(_ % Provided)
 
-        case (Major(2), Minor(12), _) =>
+        case (SemVer.Major(2), SemVer.Minor(12), _) =>
           List(
             libs.sbtLoggingLib % "1.3.3"
           ).map(_ % Provided)
 
-        case (Major(2), Minor(13), _) | (Major(3), Minor(0), _) =>
+        case (SemVer.Major(2), SemVer.Minor(13), _) | (SemVer.Major(3), SemVer.Minor(0), _) =>
           List(
             libs.sbtLoggingLib % "1.5.8"
           ).map(_ % Provided).map(_.cross(CrossVersion.for3Use2_13))
