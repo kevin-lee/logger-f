@@ -6,7 +6,7 @@ addSbtPlugin("com.github.sbt"  % "sbt-ci-release"  % "1.5.10")
 addSbtPlugin("org.wartremover" % "sbt-wartremover" % "2.4.15")
 addSbtPlugin("org.scoverage"   % "sbt-scoverage"   % "1.9.2")
 addSbtPlugin("org.scoverage"   % "sbt-coveralls"   % "1.3.1")
-addSbtPlugin("org.scalameta"   % "sbt-mdoc"        % "2.2.22")
+addSbtPlugin("org.scalameta"   % "sbt-mdoc"        % "2.3.2")
 addSbtPlugin("io.kevinlee"     % "sbt-docusaur"    % "0.10.0")
 
 addSbtPlugin("org.scala-js"       % "sbt-scalajs"              % "1.9.0")
