@@ -33,6 +33,8 @@ trait LogMessageSyntax {
 
   def ignore: Ignore.type = Ignore
 
+  def ignoreA[A](a: A): Ignore.type = ignore
+
 }
 
 object LogMessageSyntax extends LogMessageSyntax
