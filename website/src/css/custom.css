@@ -6,6 +6,11 @@
  */
 
 /* You can override the default Infima variables here. */
+
+@import url('https://content-fonts.kevinly.dev/nerd-fonts/font-fira-code-nerd-font/fonts.css');
+
+@import url('https://content-fonts.kevinly.dev/nerd-fonts/font-caskaydia-cove-nerd-font/fonts.css');
+
 :root {
   /*--ifm-color-primary: #25c2a0;*/
   /*52, 121, 138*/
@@ -16,7 +21,9 @@
   --ifm-color-primary-light: rgb(69, 143, 161);
   --ifm-color-primary-lighter: rgb(94, 170, 189);
   --ifm-color-primary-lightest: rgb(131, 197, 214);
+
   --ifm-code-font-size: 95%;
+  --ifm-font-family-monospace: "FiraCode Retina Nerd Font";
 
   --ifm-container-width: 1240px;
 }
