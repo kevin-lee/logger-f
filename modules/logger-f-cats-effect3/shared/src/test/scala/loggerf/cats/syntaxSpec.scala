@@ -105,7 +105,7 @@ object syntaxSpec extends Properties {
       errorMessages = Vector(errorMsg)
     )
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO].completeThen { _ =>
@@ -140,7 +140,7 @@ object syntaxSpec extends Properties {
       errorMessages = Vector(errorMsg)
     )
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO].completeThen { _ =>
@@ -184,7 +184,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](logMsg).completeThen { _ =>
@@ -228,7 +228,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](logMsg).completeThen { _ =>
@@ -271,7 +271,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](logMsg).completeThen { _ =>
@@ -314,7 +314,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](logMsg).completeThen { _ =>
@@ -358,7 +358,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](logMsg).completeThen { _ =>
@@ -402,7 +402,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](logMsg).completeThen { _ =>
@@ -448,7 +448,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](eab).completeThen { _ =>
@@ -494,7 +494,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](eab).completeThen { _ =>
@@ -540,7 +540,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](eab).completeThen { _ =>
@@ -586,7 +586,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](eab).completeThen { _ =>
@@ -632,7 +632,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](eab).completeThen { _ =>
@@ -678,7 +678,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](eab).completeThen { _ =>
@@ -721,7 +721,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](logMsg).completeThen { _ =>
@@ -764,7 +764,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](logMsg).completeThen { _ =>
@@ -807,7 +807,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](logMsg).completeThen { _ =>
@@ -850,7 +850,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](logMsg).completeThen { _ =>
@@ -893,7 +893,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](logMsg).completeThen { _ =>
@@ -936,7 +936,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](logMsg).completeThen { _ =>
@@ -982,7 +982,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](eab).completeThen { _ =>
@@ -1028,7 +1028,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](eab).completeThen { _ =>
@@ -1074,7 +1074,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](eab).completeThen { _ =>
@@ -1120,7 +1120,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](eab).completeThen { _ =>
@@ -1166,7 +1166,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](eab).completeThen { _ =>
@@ -1212,7 +1212,7 @@ object syntaxSpec extends Properties {
         )
     }
 
-    import effectie.cats.fx.ioFx
+    import effectie.ce3.fx.ioFx
     import CatsEffectRunner._
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](eab).completeThen { _ =>
@@ -1247,7 +1247,7 @@ object syntaxSpec extends Properties {
         errorMessages = Vector(errorMsg)
       )
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO].completeThen { _ =>
@@ -1282,7 +1282,7 @@ object syntaxSpec extends Properties {
         errorMessages = Vector(errorMsg)
       )
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO].completeThen { _ =>
@@ -1326,7 +1326,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
@@ -1370,7 +1370,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
@@ -1413,7 +1413,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
@@ -1456,7 +1456,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
@@ -1500,7 +1500,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
@@ -1544,7 +1544,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
@@ -1590,7 +1590,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
@@ -1636,7 +1636,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
@@ -1682,7 +1682,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
@@ -1728,7 +1728,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
@@ -1774,7 +1774,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
@@ -1820,7 +1820,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
@@ -1863,7 +1863,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
@@ -1906,7 +1906,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
@@ -1949,7 +1949,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
@@ -1992,7 +1992,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
@@ -2035,7 +2035,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
@@ -2078,7 +2078,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
@@ -2124,7 +2124,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
@@ -2170,7 +2170,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
@@ -2216,7 +2216,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
@@ -2262,7 +2262,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
@@ -2308,7 +2308,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
@@ -2354,7 +2354,7 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import effectie.cats.fx.ioFx
+      import effectie.ce3.fx.ioFx
       import CatsEffectRunner._
       implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>

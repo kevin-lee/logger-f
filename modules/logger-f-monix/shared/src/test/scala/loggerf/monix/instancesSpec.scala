@@ -52,7 +52,7 @@ object instancesSpec extends Properties {
         _ <- Log[F].log(effectOf(errorMsg))(error)
       } yield ())
 
-    import effectie.monix.fx._
+    import effectie.monix3.fx._
     runLog[Task].runSyncUnsafe()
 
     val expected = LoggerForTesting(
@@ -82,7 +82,7 @@ object instancesSpec extends Properties {
         _ <- Log[F].logPure(pureOf(errorMsg))(error)
       } yield ())
 
-    import effectie.monix.fx._
+    import effectie.monix3.fx._
     runLog[Task].runSyncUnsafe()
 
     val expected = LoggerForTesting(
@@ -110,7 +110,7 @@ object instancesSpec extends Properties {
         _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), error)
       } yield ().some)
 
-    import effectie.monix.fx._
+    import effectie.monix3.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -149,7 +149,7 @@ object instancesSpec extends Properties {
         _ <- Log[F].logPure(pureOf(oa))(error(ifEmptyMsg), error)
       } yield ().some)
 
-    import effectie.monix.fx._
+    import effectie.monix3.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -187,7 +187,7 @@ object instancesSpec extends Properties {
         _ <- Log[F].log(effectOf(oa))(ignore, error)
       } yield ().some)
 
-    import effectie.monix.fx._
+    import effectie.monix3.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -225,7 +225,7 @@ object instancesSpec extends Properties {
         _ <- Log[F].logPure(pureOf(oa))(ignore, error)
       } yield ().some)
 
-    import effectie.monix.fx._
+    import effectie.monix3.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -264,7 +264,7 @@ object instancesSpec extends Properties {
         _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
       } yield ().some)
 
-    import effectie.monix.fx._
+    import effectie.monix3.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -303,7 +303,7 @@ object instancesSpec extends Properties {
         _ <- Log[F].logPure(pureOf(oa))(error(ifEmptyMsg), _ => ignore)
       } yield ().some)
 
-    import effectie.monix.fx._
+    import effectie.monix3.fx._
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
@@ -344,7 +344,7 @@ object instancesSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.monix.fx._
+    import effectie.monix3.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -385,7 +385,7 @@ object instancesSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.monix.fx._
+    import effectie.monix3.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -426,7 +426,7 @@ object instancesSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.monix.fx._
+    import effectie.monix3.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -467,7 +467,7 @@ object instancesSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.monix.fx._
+    import effectie.monix3.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -508,7 +508,7 @@ object instancesSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.monix.fx._
+    import effectie.monix3.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
@@ -549,7 +549,7 @@ object instancesSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.monix.fx._
+    import effectie.monix3.fx._
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {

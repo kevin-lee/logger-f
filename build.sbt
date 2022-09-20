@@ -70,6 +70,7 @@ lazy val core    =
       description         := "Logger for F[_] - Core",
       libraryDependencies ++= List(
         libs.effectieCore,
+        libs.effectieSyntax,
         libs.cats % Test,
         libs.extrasConcurrent,
         libs.extrasConcurrentTesting,
@@ -113,7 +114,7 @@ lazy val log4sLogger    =
 lazy val log4sLoggerJvm = log4sLogger.jvm
 lazy val log4sLoggerJs  = log4sLogger.js
 
-lazy val log4jLogger =
+lazy val log4jLogger    =
   module(ProjectName("log4j"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Logger with Log4j",
@@ -171,9 +172,9 @@ lazy val log4jLogger =
     )
     .dependsOn(core)
 lazy val log4jLoggerJvm = log4jLogger.jvm
-lazy val log4jLoggerJs = log4jLogger.js
+lazy val log4jLoggerJs  = log4jLogger.js
 
-lazy val sbtLogging =
+lazy val sbtLogging    =
   module(ProjectName("sbt-logging"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Logger with sbt logging",
@@ -203,9 +204,9 @@ lazy val sbtLogging =
     )
     .dependsOn(core)
 lazy val sbtLoggingJvm = sbtLogging.jvm
-lazy val sbtLoggingJs = sbtLogging.js
+lazy val sbtLoggingJs  = sbtLogging.js
 
-lazy val cats =
+lazy val cats    =
   module(ProjectName("cats"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Cats",
@@ -217,9 +218,9 @@ lazy val cats =
     )
     .dependsOn(core % props.IncludeTest)
 lazy val catsJvm = cats.jvm
-lazy val catsJs = cats.js
+lazy val catsJs  = cats.js
 
-lazy val catsEffect =
+lazy val catsEffect    =
   module(ProjectName("cats-effect"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Cats Effect",
@@ -232,9 +233,9 @@ lazy val catsEffect =
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, cats)
 lazy val catsEffectJvm = catsEffect.jvm
-lazy val catsEffectJs = catsEffect.js
+lazy val catsEffectJs  = catsEffect.js
 
-lazy val catsEffect3 =
+lazy val catsEffect3    =
   module(ProjectName("cats-effect3"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Cats Effect 3",
@@ -250,9 +251,9 @@ lazy val catsEffect3 =
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, cats)
 lazy val catsEffect3Jvm = catsEffect3.jvm
-lazy val catsEffect3Js = catsEffect3.js
+lazy val catsEffect3Js  = catsEffect3.js
 
-lazy val monix =
+lazy val monix    =
   module(ProjectName("monix"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Monix",
@@ -265,9 +266,9 @@ lazy val monix =
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, cats)
 lazy val monixJvm = monix.jvm
-lazy val monixJs = monix.js
+lazy val monixJs  = monix.js
 
-lazy val testCatsEffectWithSlf4jLogger =
+lazy val testCatsEffectWithSlf4jLogger    =
   testProject(
     ProjectName("cats-effect-slf4j"),
     crossProject(JVMPlatform, JSPlatform),
@@ -283,9 +284,9 @@ lazy val testCatsEffectWithSlf4jLogger =
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, slf4jLogger, catsEffect % props.IncludeTest)
 lazy val testCatsEffectWithSlf4jLoggerJvm = testCatsEffectWithSlf4jLogger.jvm
-lazy val testCatsEffectWithSlf4jLoggerJs = testCatsEffectWithSlf4jLogger.js
+lazy val testCatsEffectWithSlf4jLoggerJs  = testCatsEffectWithSlf4jLogger.js
 
-lazy val testMonixWithSlf4jLogger =
+lazy val testMonixWithSlf4jLogger    =
   testProject(
     ProjectName("monix-slf4j"),
     crossProject(JVMPlatform, JSPlatform),
@@ -301,9 +302,9 @@ lazy val testMonixWithSlf4jLogger =
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, slf4jLogger, monix % props.IncludeTest)
 lazy val testMonixWithSlf4jLoggerJvm = testMonixWithSlf4jLogger.jvm
-lazy val testMonixWithSlf4jLoggerJs = testMonixWithSlf4jLogger.js
+lazy val testMonixWithSlf4jLoggerJs  = testMonixWithSlf4jLogger.js
 
-lazy val testCatsEffectWithLog4sLogger =
+lazy val testCatsEffectWithLog4sLogger    =
   testProject(
     ProjectName("cats-effect-log4s"),
     crossProject(JVMPlatform, JSPlatform),
@@ -319,9 +320,9 @@ lazy val testCatsEffectWithLog4sLogger =
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, log4sLogger, catsEffect % props.IncludeTest)
 lazy val testCatsEffectWithLog4sLoggerJvm = testCatsEffectWithLog4sLogger.jvm
-lazy val testCatsEffectWithLog4sLoggerJs = testCatsEffectWithLog4sLogger.js
+lazy val testCatsEffectWithLog4sLoggerJs  = testCatsEffectWithLog4sLogger.js
 
-lazy val testCatsEffectWithLog4jLogger =
+lazy val testCatsEffectWithLog4jLogger    =
   testProject(
     ProjectName("cats-effect-log4j"),
     crossProject(JVMPlatform, JSPlatform),
@@ -337,7 +338,7 @@ lazy val testCatsEffectWithLog4jLogger =
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, log4jLogger, catsEffect % props.IncludeTest)
 lazy val testCatsEffectWithLog4jLoggerJvm = testCatsEffectWithLog4jLogger.jvm
-lazy val testCatsEffectWithLog4jLoggerJs = testCatsEffectWithLog4jLogger.js
+lazy val testCatsEffectWithLog4jLoggerJs  = testCatsEffectWithLog4jLogger.js
 
 lazy val docs = (project in file("generated-docs"))
   .enablePlugins(MdocPlugin, DocusaurPlugin)
@@ -412,7 +413,7 @@ lazy val props =
 
     final val hedgehogVersion = "0.8.0"
 
-    final val effectieVersion = "2.0.0-beta1"
+    final val effectieVersion = "2.0.0-beta2"
 
     final val CatsVersion = "2.6.1"
 
@@ -450,11 +451,11 @@ lazy val libs =
     lazy val cats = "org.typelevel" %% "cats-core" % props.CatsVersion
 
     lazy val effectieCore: ModuleID        = "io.kevinlee" %% "effectie-core"         % props.effectieVersion
-    lazy val effectieCatsEffect: ModuleID  = "io.kevinlee" %% "effectie-cats-effect"  % props.effectieVersion
+    lazy val effectieSyntax: ModuleID      = "io.kevinlee" %% "effectie-syntax"       % props.effectieVersion
+    lazy val effectieCatsEffect: ModuleID  = "io.kevinlee" %% "effectie-cats-effect2" % props.effectieVersion
     lazy val effectieCatsEffect3: ModuleID = "io.kevinlee" %% "effectie-cats-effect3" % props.effectieVersion
 
-    lazy val effectieMonix: ModuleID        = "io.kevinlee" %% "effectie-monix"         % props.effectieVersion
-    lazy val effectieScalazEffect: ModuleID = "io.kevinlee" %% "effectie-scalaz-effect" % props.effectieVersion
+    lazy val effectieMonix: ModuleID = "io.kevinlee" %% "effectie-monix3" % props.effectieVersion
 
     lazy val extrasCats = "io.kevinlee" %% "extras-cats" % props.ExtrasVersion
 
