@@ -4,6 +4,7 @@ import loggerf.core.LogForTesting.Identity
 import loggerf.logger.{CanLog, LoggerForTesting}
 
 import scala.util.Try
+import scala.util.control.NonFatal
 
 /** @author Kevin Lee
   * @since 2022-02-19
@@ -23,6 +24,13 @@ object LogForTesting {
 
     override def pureOf[A](a: A): Identity[A] = a
 
+    @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+    override def pureOrError[A](a: => A): Identity[A] =
+      try a
+      catch {
+        case NonFatal(ex) => throw ex // scalafix: ok Disable:throw
+      }
+
     override def unitOf: Identity[Unit] = ()
 
     @SuppressWarnings(Array("org.wartremover.warts.Throw"))
@@ -30,7 +38,8 @@ object LogForTesting {
 
     override def fromEither[A](either: Either[Throwable, A]): Identity[A] = either.fold(errorOf, pureOf)
 
-    override def fromOption[A](option: Option[A])(orElse: => Throwable): Identity[A] = option.fold(errorOf(orElse))(pureOf)
+    override def fromOption[A](option: Option[A])(orElse: => Throwable): Identity[A] =
+      option.fold(errorOf(orElse))(pureOf)
 
     override def fromTry[A](tryA: Try[A]): Identity[A] = tryA.fold(errorOf, pureOf)
   }
