@@ -6,7 +6,6 @@ import cats.syntax.flatMap._
 import cats.syntax.functor._
 import cats.syntax.option._
 import effectie.core.FxCtor
-import effectie.syntax.all._
 import extras.concurrent.testing.ConcurrentSupport
 import extras.concurrent.testing.types.{ErrorLogger, WaitFor}
 import hedgehog._
@@ -56,10 +55,10 @@ object syntaxSpec extends Properties {
 
     def runLog[F[*]: FxCtor: Log: Monad]: F[Unit] =
       (for {
-        _ <- log(effectOf(debugMsg))(debug)
-        _ <- log(effectOf(infoMsg))(info)
-        _ <- log(effectOf(warnMsg))(warn)
-        _ <- log(effectOf(errorMsg))(error)
+        _ <- log(FxCtor[F].effectOf(debugMsg))(debug)
+        _ <- log(FxCtor[F].effectOf(infoMsg))(info)
+        _ <- log(FxCtor[F].effectOf(warnMsg))(warn)
+        _ <- log(FxCtor[F].effectOf(errorMsg))(error)
       } yield ())
 
     val expected = LoggerForTesting(
@@ -90,10 +89,10 @@ object syntaxSpec extends Properties {
 
     def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
       (for {
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), debug)
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), info)
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), warn)
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), error)
+        _ <- log(FxCtor[F].effectOf(oa))(error(ifEmptyMsg), debug)
+        _ <- log(FxCtor[F].effectOf(oa))(error(ifEmptyMsg), info)
+        _ <- log(FxCtor[F].effectOf(oa))(error(ifEmptyMsg), warn)
+        _ <- log(FxCtor[F].effectOf(oa))(error(ifEmptyMsg), error)
       } yield ().some)
 
     val expected = logMsg match {
@@ -134,10 +133,10 @@ object syntaxSpec extends Properties {
 
     def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
       for {
-        _ <- log(effectOf(oa))(ignore, debug)
-        _ <- log(effectOf(oa))(ignore, info)
-        _ <- log(effectOf(oa))(ignore, warn)
-        _ <- log(effectOf(oa))(ignore, error)
+        _ <- log(FxCtor[F].effectOf(oa))(ignore, debug)
+        _ <- log(FxCtor[F].effectOf(oa))(ignore, info)
+        _ <- log(FxCtor[F].effectOf(oa))(ignore, warn)
+        _ <- log(FxCtor[F].effectOf(oa))(ignore, error)
       } yield ().some
 
     val expected = logMsg match {
@@ -179,10 +178,10 @@ object syntaxSpec extends Properties {
 
     def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
       for {
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
+        _ <- log(FxCtor[F].effectOf(oa))(error(ifEmptyMsg), _ => ignore)
+        _ <- log(FxCtor[F].effectOf(oa))(error(ifEmptyMsg), _ => ignore)
+        _ <- log(FxCtor[F].effectOf(oa))(error(ifEmptyMsg), _ => ignore)
+        _ <- log(FxCtor[F].effectOf(oa))(error(ifEmptyMsg), _ => ignore)
       } yield ().some
 
     val expected = logMsg match {
@@ -224,10 +223,10 @@ object syntaxSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
-      _ <- log(effectOf(eab))(error, b => debug(b.toString))
-      _ <- log(effectOf(eab))(error, b => info(b.toString))
-      _ <- log(effectOf(eab))(error, b => warn(b.toString))
-      _ <- log(effectOf(eab))(error, b => error(b.toString))
+      _ <- log(FxCtor[F].effectOf(eab))(error, b => debug(b.toString))
+      _ <- log(FxCtor[F].effectOf(eab))(error, b => info(b.toString))
+      _ <- log(FxCtor[F].effectOf(eab))(error, b => warn(b.toString))
+      _ <- log(FxCtor[F].effectOf(eab))(error, b => error(b.toString))
     } yield ().asRight[String]
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
@@ -271,10 +270,10 @@ object syntaxSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
-      _ <- log(effectOf(eab))(_ => ignore, b => debug(b.toString))
-      _ <- log(effectOf(eab))(_ => ignore, b => info(b.toString))
-      _ <- log(effectOf(eab))(_ => ignore, b => warn(b.toString))
-      _ <- log(effectOf(eab))(_ => ignore, b => error(b.toString))
+      _ <- log(FxCtor[F].effectOf(eab))(_ => ignore, b => debug(b.toString))
+      _ <- log(FxCtor[F].effectOf(eab))(_ => ignore, b => info(b.toString))
+      _ <- log(FxCtor[F].effectOf(eab))(_ => ignore, b => warn(b.toString))
+      _ <- log(FxCtor[F].effectOf(eab))(_ => ignore, b => error(b.toString))
     } yield ().asRight[String]
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
@@ -318,10 +317,10 @@ object syntaxSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
-      _ <- log(effectOf(eab))(error, _ => ignore)
-      _ <- log(effectOf(eab))(error, _ => ignore)
-      _ <- log(effectOf(eab))(error, _ => ignore)
-      _ <- log(effectOf(eab))(error, _ => ignore)
+      _ <- log(FxCtor[F].effectOf(eab))(error, _ => ignore)
+      _ <- log(FxCtor[F].effectOf(eab))(error, _ => ignore)
+      _ <- log(FxCtor[F].effectOf(eab))(error, _ => ignore)
+      _ <- log(FxCtor[F].effectOf(eab))(error, _ => ignore)
     } yield ().asRight[String]
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
@@ -371,10 +370,10 @@ object syntaxSpec extends Properties {
 
       def runLog[F[*]: FxCtor: Log: Monad]: F[Unit] =
         (for {
-          _ <- effectOf(debugMsg).log(debug)
-          _ <- effectOf(infoMsg).log(info)
-          _ <- effectOf(warnMsg).log(warn)
-          _ <- effectOf(errorMsg).log(error)
+          _ <- FxCtor[F].effectOf(debugMsg).log(debug)
+          _ <- FxCtor[F].effectOf(infoMsg).log(info)
+          _ <- FxCtor[F].effectOf(warnMsg).log(warn)
+          _ <- FxCtor[F].effectOf(errorMsg).log(error)
         } yield ())
 
       val expected = LoggerForTesting(
@@ -405,10 +404,10 @@ object syntaxSpec extends Properties {
 
       def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
         (for {
-          _ <- effectOf(oa).log(error(ifEmptyMsg), debug)
-          _ <- effectOf(oa).log(error(ifEmptyMsg), info)
-          _ <- effectOf(oa).log(error(ifEmptyMsg), warn)
-          _ <- effectOf(oa).log(error(ifEmptyMsg), error)
+          _ <- FxCtor[F].effectOf(oa).log(error(ifEmptyMsg), debug)
+          _ <- FxCtor[F].effectOf(oa).log(error(ifEmptyMsg), info)
+          _ <- FxCtor[F].effectOf(oa).log(error(ifEmptyMsg), warn)
+          _ <- FxCtor[F].effectOf(oa).log(error(ifEmptyMsg), error)
         } yield ().some)
 
       val expected = logMsg match {
@@ -449,10 +448,10 @@ object syntaxSpec extends Properties {
 
       def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
         for {
-          _ <- effectOf(oa).log(ignore, debug)
-          _ <- effectOf(oa).log(ignore, info)
-          _ <- effectOf(oa).log(ignore, warn)
-          _ <- effectOf(oa).log(ignore, error)
+          _ <- FxCtor[F].effectOf(oa).log(ignore, debug)
+          _ <- FxCtor[F].effectOf(oa).log(ignore, info)
+          _ <- FxCtor[F].effectOf(oa).log(ignore, warn)
+          _ <- FxCtor[F].effectOf(oa).log(ignore, error)
         } yield ().some
 
       val expected = logMsg match {
@@ -494,10 +493,10 @@ object syntaxSpec extends Properties {
 
       def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
         for {
-          _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
-          _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
-          _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
-          _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
+          _ <- FxCtor[F].effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
+          _ <- FxCtor[F].effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
+          _ <- FxCtor[F].effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
+          _ <- FxCtor[F].effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
         } yield ().some
 
       val expected = logMsg match {
@@ -539,10 +538,10 @@ object syntaxSpec extends Properties {
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
-        _ <- effectOf(eab).log(error, b => debug(b.toString))
-        _ <- effectOf(eab).log(error, b => info(b.toString))
-        _ <- effectOf(eab).log(error, b => warn(b.toString))
-        _ <- effectOf(eab).log(error, b => error(b.toString))
+        _ <- FxCtor[F].effectOf(eab).log(error, b => debug(b.toString))
+        _ <- FxCtor[F].effectOf(eab).log(error, b => info(b.toString))
+        _ <- FxCtor[F].effectOf(eab).log(error, b => warn(b.toString))
+        _ <- FxCtor[F].effectOf(eab).log(error, b => error(b.toString))
       } yield ().asRight[String]
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
@@ -586,10 +585,10 @@ object syntaxSpec extends Properties {
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
-        _ <- effectOf(eab).log(_ => ignore, b => debug(b.toString))
-        _ <- effectOf(eab).log(_ => ignore, b => info(b.toString))
-        _ <- effectOf(eab).log(_ => ignore, b => warn(b.toString))
-        _ <- effectOf(eab).log(_ => ignore, b => error(b.toString))
+        _ <- FxCtor[F].effectOf(eab).log(_ => ignore, b => debug(b.toString))
+        _ <- FxCtor[F].effectOf(eab).log(_ => ignore, b => info(b.toString))
+        _ <- FxCtor[F].effectOf(eab).log(_ => ignore, b => warn(b.toString))
+        _ <- FxCtor[F].effectOf(eab).log(_ => ignore, b => error(b.toString))
       } yield ().asRight[String]
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
@@ -633,10 +632,10 @@ object syntaxSpec extends Properties {
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
-        _ <- effectOf(eab).log(error, _ => ignore)
-        _ <- effectOf(eab).log(error, _ => ignore)
-        _ <- effectOf(eab).log(error, _ => ignore)
-        _ <- effectOf(eab).log(error, _ => ignore)
+        _ <- FxCtor[F].effectOf(eab).log(error, _ => ignore)
+        _ <- FxCtor[F].effectOf(eab).log(error, _ => ignore)
+        _ <- FxCtor[F].effectOf(eab).log(error, _ => ignore)
+        _ <- FxCtor[F].effectOf(eab).log(error, _ => ignore)
       } yield ().asRight[String]
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]

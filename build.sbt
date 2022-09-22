@@ -70,7 +70,6 @@ lazy val core    =
       description         := "Logger for F[_] - Core",
       libraryDependencies ++= List(
         libs.effectieCore,
-        libs.effectieSyntax,
         libs.cats % Test,
         libs.extrasConcurrent,
         libs.extrasConcurrentTesting,
@@ -210,7 +209,12 @@ lazy val cats    =
   module(ProjectName("cats"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Cats",
-      libraryDependencies ++= libs.hedgehogLibs ++ List(libs.effectieCore, libs.cats, libs.extrasCats),
+      libraryDependencies ++= libs.hedgehogLibs ++ List(
+        libs.effectieCore,
+        libs.cats,
+        libs.extrasCats,
+        libs.effectieSyntax,
+      ),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value

@@ -1,7 +1,6 @@
 package loggerf.core
 
 import effectie.core.FxCtor
-import effectie.syntax.all.{effectOf, pureOf}
 import loggerf.LeveledMessage
 import loggerf.Ignore
 import loggerf.logger.CanLog
@@ -20,7 +19,7 @@ trait Log[F[*]] {
     flatMap0(fa) { a =>
       toLeveledMessage(a) match {
         case LeveledMessage(message, level) =>
-          flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(a))
+          flatMap0(EF.effectOf(canLog.getLogger(level)(message)))(_ => EF.pureOf(a))
       }
     }
 
@@ -34,18 +33,18 @@ trait Log[F[*]] {
       case None =>
         ifEmpty match {
           case Ignore =>
-            pureOf(None)
+            EF.pureOf(None)
 
           case LeveledMessage(message, level) =>
-            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(None))
+            flatMap0(EF.effectOf(canLog.getLogger(level)(message)))(_ => EF.pureOf(None))
         }
       case Some(a) =>
         toLeveledMessage(a) match {
           case LeveledMessage(message, level) =>
-            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(Some(a)))
+            flatMap0(EF.effectOf(canLog.getLogger(level)(message)))(_ => EF.pureOf(Some(a)))
 
           case Ignore =>
-            pureOf(Some(a))
+            EF.pureOf(Some(a))
         }
     }
 
@@ -60,18 +59,18 @@ trait Log[F[*]] {
       case Left(l) =>
         leftToMessage(l) match {
           case LeveledMessage(message, level) =>
-            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(Left(l)))
+            flatMap0(EF.effectOf(canLog.getLogger(level)(message)))(_ => EF.pureOf(Left(l)))
 
           case Ignore =>
-            pureOf(Left(l))
+            EF.pureOf(Left(l))
         }
       case Right(r) =>
         rightToMessage(r) match {
           case LeveledMessage(message, level) =>
-            flatMap0(effectOf(canLog.getLogger(level)(message)))(_ => pureOf(Right(r)))
+            flatMap0(EF.effectOf(canLog.getLogger(level)(message)))(_ => EF.pureOf(Right(r)))
 
           case Ignore =>
-            pureOf(Right(r))
+            EF.pureOf(Right(r))
         }
     }
 
