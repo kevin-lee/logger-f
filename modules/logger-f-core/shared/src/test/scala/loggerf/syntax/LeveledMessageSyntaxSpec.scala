@@ -3,7 +3,6 @@ package loggerf.syntax
 import cats._
 import cats.syntax.all._
 import effectie.core._
-import effectie.syntax.all._
 import hedgehog._
 import hedgehog.runner._
 import loggerf.core._
@@ -29,10 +28,10 @@ object LeveledMessageSyntaxSpec extends Properties {
 
     def runLog[F[*]: Log: FxCtor: Monad]: F[Unit] =
       for {
-        _ <- log(pureOf(debugMsg))(debug)
-        _ <- log(pureOf(infoMsg))(info)
-        _ <- log(pureOf(warnMsg))(warn)
-        _ <- log(pureOf(errorMsg))(error)
+        _ <- log(FxCtor[F].pureOf(debugMsg))(debug)
+        _ <- log(FxCtor[F].pureOf(infoMsg))(info)
+        _ <- log(FxCtor[F].pureOf(warnMsg))(warn)
+        _ <- log(FxCtor[F].pureOf(errorMsg))(error)
       } yield ()
 
     import LogForTesting.{FxCtorForTesting, Identity}
@@ -65,10 +64,10 @@ object LeveledMessageSyntaxSpec extends Properties {
 
     def runLog[F[*]: Log: FxCtor: Monad]: F[Unit] =
       for {
-        _ <- log(pureOf(debugMsg))(debugA)
-        _ <- log(pureOf(infoMsg))(infoA)
-        _ <- log(pureOf(warnMsg))(warnA)
-        _ <- log(pureOf(errorMsg))(errorA)
+        _ <- log(FxCtor[F].pureOf(debugMsg))(debugA)
+        _ <- log(FxCtor[F].pureOf(infoMsg))(infoA)
+        _ <- log(FxCtor[F].pureOf(warnMsg))(warnA)
+        _ <- log(FxCtor[F].pureOf(errorMsg))(errorA)
       } yield ()
 
     import LogForTesting.{FxCtorForTesting, Identity}
