@@ -17,11 +17,6 @@ trait LogSyntax {
   ): F[A] =
     L.log(fa)(toLeveledMessage)
 
-  @inline def logPure[F[*], A](fa: F[A])(toLeveledMessage: A => LogMessage with NotIgnorable)(
-    implicit L: Log[F]
-  ): F[A] =
-    L.logPure(fa)(toLeveledMessage)
-
   @inline def log[F[*], A](
     foa: F[Option[A]],
   )(
@@ -32,16 +27,6 @@ trait LogSyntax {
   ): F[Option[A]] =
     L.log(foa)(ifEmpty, toLeveledMessage)
 
-  @inline def logPure[F[*], A](
-    foa: F[Option[A]],
-  )(
-    ifEmpty: => LogMessage with MaybeIgnorable,
-    toLeveledMessage: A => LogMessage with MaybeIgnorable,
-  )(
-    implicit L: Log[F]
-  ): F[Option[A]] =
-    L.logPure(foa)(ifEmpty, toLeveledMessage)
-
   @inline def log[F[*], A, B](
     feab: F[Either[A, B]],
   )(
@@ -51,16 +36,6 @@ trait LogSyntax {
     implicit L: Log[F]
   ): F[Either[A, B]] =
     L.log(feab)(leftToMessage, rightToMessage)
-
-  @inline def logPure[F[*], A, B](
-    feab: F[Either[A, B]],
-  )(
-    leftToMessage: A => LogMessage with MaybeIgnorable,
-    rightToMessage: B => LogMessage with MaybeIgnorable,
-  )(
-    implicit L: Log[F]
-  ): F[Either[A, B]] =
-    L.logPure(feab)(leftToMessage, rightToMessage)
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitConversion"))
   implicit def logFOfASyntax[F[*], A](fa: F[A]): LogFOfASyntax[F, A] = new LogFOfASyntax[F, A](fa)
@@ -78,9 +53,6 @@ object LogSyntax extends LogSyntax {
   class LogFOfASyntax[F[*], A](val fa: F[A]) extends AnyVal {
     @inline def log(toLeveledMessage: A => LogMessage with NotIgnorable)(implicit L: Log[F]): F[A] =
       LogSyntax.log(fa)(toLeveledMessage)
-
-    @inline def logPure(toLeveledMessage: A => LogMessage with NotIgnorable)(implicit L: Log[F]): F[A] =
-      LogSyntax.logPure(fa)(toLeveledMessage)
   }
 
   class LogFOfOptionSyntax[F[*], A](val foa: F[Option[A]]) extends AnyVal {
@@ -91,14 +63,6 @@ object LogSyntax extends LogSyntax {
       implicit L: Log[F]
     ): F[Option[A]] =
       LogSyntax.log(foa)(ifEmpty, toLeveledMessage)
-
-    @inline def logPure(
-      ifEmpty: => LogMessage with MaybeIgnorable,
-      toLeveledMessage: A => LogMessage with MaybeIgnorable,
-    )(
-      implicit L: Log[F]
-    ): F[Option[A]] =
-      LogSyntax.logPure(foa)(ifEmpty, toLeveledMessage)
   }
 
   class LogFOfEitherSyntax[F[*], A, B](val feab: F[Either[A, B]]) extends AnyVal {
@@ -109,14 +73,5 @@ object LogSyntax extends LogSyntax {
       implicit L: Log[F]
     ): F[Either[A, B]] =
       LogSyntax.log(feab)(leftToMessage, rightToMessage)
-
-    @inline def logPure(
-      leftToMessage: A => LogMessage with MaybeIgnorable,
-      rightToMessage: B => LogMessage with MaybeIgnorable,
-    )(
-      implicit L: Log[F]
-    ): F[Either[A, B]] =
-      LogSyntax.logPure(feab)(leftToMessage, rightToMessage)
-
   }
 }
