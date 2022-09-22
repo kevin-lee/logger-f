@@ -20,14 +20,6 @@ trait LogSyntax extends loggerf.core.syntax.LogSyntax {
   ): OptionT[F, A] =
     OptionT(Log[F].log(otfa.value)(ifEmpty, toLeveledMessage))
 
-  def logPure[F[*]: Log, A](
-    otfa: OptionT[F, A],
-  )(
-    ifEmpty: => LogMessage with MaybeIgnorable,
-    toLeveledMessage: A => LogMessage with MaybeIgnorable,
-  ): OptionT[F, A] =
-    OptionT(Log[F].logPure(otfa.value)(ifEmpty, toLeveledMessage))
-
   def log[F[*]: Log, A, B](
     etfab: EitherT[F, A, B],
   )(
@@ -35,14 +27,6 @@ trait LogSyntax extends loggerf.core.syntax.LogSyntax {
     rightToMessage: B => LogMessage with MaybeIgnorable,
   ): EitherT[F, A, B] =
     EitherT(Log[F].log(etfab.value)(leftToMessage, rightToMessage))
-
-  def logPure[F[*]: Log, A, B](
-    etfab: EitherT[F, A, B],
-  )(
-    leftToMessage: A => LogMessage with MaybeIgnorable,
-    rightToMessage: B => LogMessage with MaybeIgnorable,
-  ): EitherT[F, A, B] =
-    EitherT(Log[F].logPure(etfab.value)(leftToMessage, rightToMessage))
 
   // /
 
@@ -64,12 +48,6 @@ object LogSyntax extends LogSyntax {
       toLeveledMessage: A => LogMessage with MaybeIgnorable,
     )(implicit L: Log[F]): OptionT[F, A] =
       OptionT(CoreLogSyntax.log(otfa.value)(ifEmpty, toLeveledMessage))
-
-    def logPure(
-      ifEmpty: => LogMessage with MaybeIgnorable,
-      toLeveledMessage: A => LogMessage with MaybeIgnorable,
-    )(implicit L: Log[F]): OptionT[F, A] =
-      OptionT(CoreLogSyntax.logPure(otfa.value)(ifEmpty, toLeveledMessage))
   }
 
   final class LogEitherTFABSyntax[F[*], A, B](val etfab: EitherT[F, A, B]) extends AnyVal {
@@ -78,12 +56,6 @@ object LogSyntax extends LogSyntax {
       rightToMessage: B => LogMessage with MaybeIgnorable,
     )(implicit L: Log[F]): EitherT[F, A, B] =
       EitherT(CoreLogSyntax.log(etfab.value)(leftToMessage, rightToMessage))
-
-    def logPure(
-      leftToMessage: A => LogMessage with MaybeIgnorable,
-      rightToMessage: B => LogMessage with MaybeIgnorable,
-    )(implicit L: Log[F]): EitherT[F, A, B] =
-      EitherT(CoreLogSyntax.logPure(etfab.value)(leftToMessage, rightToMessage))
 
   }
 }

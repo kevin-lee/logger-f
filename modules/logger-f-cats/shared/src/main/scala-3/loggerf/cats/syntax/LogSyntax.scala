@@ -15,12 +15,6 @@ trait LogSyntax extends loggerf.core.syntax.LogSyntax {
       toLeveledMessage: A => LeveledMessage | Ignore.type
     ): OptionT[F, A] =
       OptionT(Log[F].log(otfa.value)(ifEmpty, toLeveledMessage))
-
-    def logPure(
-      ifEmpty: => LeveledMessage | Ignore.type,
-      toLeveledMessage: A => LeveledMessage | Ignore.type
-    ): OptionT[F, A] =
-      OptionT(Log[F].logPure(otfa.value)(ifEmpty, toLeveledMessage))
   }
 
   extension [F[*]: Log, A, B](etfab: EitherT[F, A, B]) {
@@ -29,12 +23,6 @@ trait LogSyntax extends loggerf.core.syntax.LogSyntax {
       rightToMessage: B => LeveledMessage | Ignore.type
     ): EitherT[F, A, B] =
       EitherT(Log[F].log(etfab.value)(leftToMessage, rightToMessage))
-
-    def logPure(
-      leftToMessage: A => LeveledMessage | Ignore.type,
-      rightToMessage: B => LeveledMessage | Ignore.type
-    ): EitherT[F, A, B] =
-      EitherT(Log[F].logPure(etfab.value)(leftToMessage, rightToMessage))
   }
 }
 
