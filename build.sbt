@@ -365,7 +365,7 @@ lazy val docs = (project in file("generated-docs"))
 //        val tag = "git rev-list --tags --max-count=1".!!.trim
 //        s"git describe --tags $tag".!!.trim.stripPrefix("v")
 //      },
-      "VERSION"                  -> "1.20.0",
+      "VERSION"                  -> props.LoggerF1Version,
       "SUPPORTED_SCALA_VERSIONS" -> {
         val versions = props
           .CrossScalaVersions
@@ -422,12 +422,12 @@ lazy val props =
 
     final val ExtrasVersion = "0.4.0"
 
-    final val slf4JVersion   = "1.7.30"
-    final val logbackVersion = "1.2.10"
+    final val slf4JVersion   = "1.7.36"
+    final val logbackVersion = "1.2.11"
 
     final val log4sVersion = "1.10.0"
 
-    final val log4JVersion = "2.17.0"
+    final val log4JVersion = "2.19.0"
   }
 
 lazy val libs =
