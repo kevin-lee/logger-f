@@ -1,4 +1,4 @@
-package loggerf.cats.syntax
+package loggerf.syntax
 
 /** @author Kevin Lee
   * @since 2022-02-20

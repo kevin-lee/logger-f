@@ -9,7 +9,7 @@ import effectie.syntax.all._
 import hedgehog._
 import hedgehog.runner._
 import loggerf.core.Log
-import loggerf.cats.syntax.all._
+import loggerf.syntax.all._
 import loggerf.logger._
 
 /** @author Kevin Lee

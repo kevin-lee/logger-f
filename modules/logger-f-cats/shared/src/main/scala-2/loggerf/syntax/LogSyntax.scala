@@ -1,4 +1,4 @@
-package loggerf.cats.syntax
+package loggerf.syntax
 
 import _root_.cats.data.{EitherT, OptionT}
 import loggerf.LogMessage

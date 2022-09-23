@@ -11,7 +11,7 @@ import extras.concurrent.testing.ConcurrentSupport
 import extras.hedgehog.cats.effect.CatsEffectRunner
 import hedgehog._
 import hedgehog.runner._
-import loggerf.cats.syntax.all._
+import loggerf.syntax.all._
 import loggerf.core.Log
 import loggerf.logger.LoggerForTesting
 

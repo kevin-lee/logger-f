@@ -1,4 +1,4 @@
-package loggerf.cats.syntax
+package loggerf.syntax
 
 import cats.data.{EitherT, OptionT}
 import loggerf.LeveledMessage
