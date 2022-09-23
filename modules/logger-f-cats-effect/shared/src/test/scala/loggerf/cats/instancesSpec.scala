@@ -46,7 +46,7 @@ object instancesSpec extends Properties {
       } yield ())
 
     import effectie.ce2.fx.ioFx
-    import loggerf.cats.instances.logF
+    import loggerf.instances.cats.logF
     runLog[IO].unsafeRunSync()
 
     val expected = LoggerForTesting(
@@ -75,7 +75,7 @@ object instancesSpec extends Properties {
       } yield ().some)
 
     import effectie.ce2.fx.ioFx
-    import loggerf.cats.instances.logF
+    import loggerf.instances.cats.logF
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -114,7 +114,7 @@ object instancesSpec extends Properties {
       } yield ().some)
 
     import effectie.ce2.fx.ioFx
-    import loggerf.cats.instances.logF
+    import loggerf.instances.cats.logF
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -154,7 +154,7 @@ object instancesSpec extends Properties {
       } yield ().some)
 
     import effectie.ce2.fx.ioFx
-    import loggerf.cats.instances.logF
+    import loggerf.instances.cats.logF
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -194,7 +194,7 @@ object instancesSpec extends Properties {
       } yield ().some)
 
     import effectie.ce2.fx.ioFx
-    import loggerf.cats.instances.logF
+    import loggerf.instances.cats.logF
     runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
@@ -236,7 +236,7 @@ object instancesSpec extends Properties {
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     import effectie.ce2.fx.ioFx
-    import loggerf.cats.instances.logF
+    import loggerf.instances.cats.logF
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -278,7 +278,7 @@ object instancesSpec extends Properties {
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     import effectie.ce2.fx.ioFx
-    import loggerf.cats.instances.logF
+    import loggerf.instances.cats.logF
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -320,7 +320,7 @@ object instancesSpec extends Properties {
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     import effectie.ce2.fx.ioFx
-    import loggerf.cats.instances.logF
+    import loggerf.instances.cats.logF
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -362,7 +362,7 @@ object instancesSpec extends Properties {
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     import effectie.ce2.fx.ioFx
-    import loggerf.cats.instances.logF
+    import loggerf.instances.cats.logF
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
@@ -404,7 +404,7 @@ object instancesSpec extends Properties {
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     import effectie.ce2.fx.ioFx
-    import loggerf.cats.instances.logF
+    import loggerf.instances.cats.logF
     runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {

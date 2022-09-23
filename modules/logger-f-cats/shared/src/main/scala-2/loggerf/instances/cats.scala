@@ -1,6 +1,6 @@
-package loggerf.cats
+package loggerf.instances
 
-import cats.Monad
+import _root_.cats.Monad
 import effectie.core.FxCtor
 import loggerf.core.Log
 import loggerf.logger.CanLog
@@ -8,8 +8,8 @@ import loggerf.logger.CanLog
 /** @author Kevin Lee
   * @since 2020-04-10
   */
-trait instances {
-  import instances._
+trait cats {
+  import cats._
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def logF[F[*]](
@@ -21,7 +21,7 @@ trait instances {
 
 }
 
-object instances extends instances {
+object cats extends cats {
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   final class LogF[F[*]](

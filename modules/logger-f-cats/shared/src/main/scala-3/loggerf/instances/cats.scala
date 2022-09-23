@@ -1,6 +1,6 @@
-package loggerf.cats
+package loggerf.instances
 
-import cats.Monad
+import _root_.cats.Monad
 import effectie.core.FxCtor
 import loggerf.core.Log
 import loggerf.logger.CanLog
@@ -8,7 +8,7 @@ import loggerf.logger.CanLog
 /** @author Kevin Lee
   * @since 2020-04-10
   */
-trait instances {
+trait cats {
 
   given logF[F[*]](
     using EF: FxCtor[F],
@@ -27,4 +27,4 @@ trait instances {
 
 }
 
-object instances extends instances
+object cats extends cats
