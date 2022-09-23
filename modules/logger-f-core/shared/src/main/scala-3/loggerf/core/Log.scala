@@ -48,7 +48,6 @@ trait Log[F[*]] {
         }
     }
 
-
   def log[A, B](
     feab: F[Either[A, B]]
   )(
@@ -73,7 +72,6 @@ trait Log[F[*]] {
             EF.pureOf(Right(r))
         }
     }
-
 
 }
 

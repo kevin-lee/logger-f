@@ -7,7 +7,7 @@ import effectie.core.FxCtor
 import effectie.syntax.all._
 import hedgehog._
 import hedgehog.runner._
-import loggerf.cats.syntax.all._
+import loggerf.syntax.all._
 import loggerf.core._
 import loggerf.logger._
 
