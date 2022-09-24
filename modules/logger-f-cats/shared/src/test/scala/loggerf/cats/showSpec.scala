@@ -32,7 +32,7 @@ object showSpec extends Properties {
 
     val logger: LoggerForTesting = LoggerForTesting()
 
-    import loggerf.cats.show.showToLog
+    import loggerf.instances.show.showToLog
 
     def runLog[F[*]: Log: FxCtor: Monad]: F[Unit] =
       for {
