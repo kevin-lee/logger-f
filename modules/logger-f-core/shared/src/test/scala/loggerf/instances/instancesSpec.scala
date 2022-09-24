@@ -1,10 +1,7 @@
-package loggerf.future
+package loggerf.instances
 
 import cats.Monad
-import cats.syntax.either._
-import cats.syntax.flatMap._
-import cats.syntax.functor._
-import cats.syntax.option._
+import cats.syntax.all._
 import effectie.core._
 import extras.concurrent.testing.ConcurrentSupport
 import extras.concurrent.testing.types.{ErrorLogger, WaitFor}
@@ -12,7 +9,7 @@ import hedgehog._
 import hedgehog.runner._
 import loggerf.core._
 import loggerf.core.syntax.all._
-import loggerf.future.instances.logFuture
+import loggerf.instances.future.logFuture
 import loggerf.logger._
 
 import java.util.concurrent.ExecutorService
