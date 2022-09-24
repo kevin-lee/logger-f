@@ -3,7 +3,7 @@ package loggerf.core.syntax
 import loggerf.LeveledMessage
 import loggerf.Ignore
 import loggerf.core.Log
-import loggerf.future.instances.given
+import loggerf.instances.future.given
 
 import scala.concurrent.Future
 

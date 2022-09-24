@@ -1,14 +1,15 @@
-package loggerf.cats
+package loggerf.instances
 
-import cats._
-import cats.syntax.all._
+import _root_.cats._
+import _root_.cats.syntax.all._
 import effectie.core.FxCtor
 import effectie.syntax.all._
 import hedgehog._
 import hedgehog.runner._
 import loggerf.core._
-import loggerf.core.syntax.all._
+import loggerf.instances.show.showToLog
 import loggerf.logger.LoggerForTesting
+import loggerf.syntax.all._
 
 /** @author Kevin Lee
   * @since 2022-02-20
@@ -31,8 +32,6 @@ object showSpec extends Properties {
   } yield {
 
     val logger: LoggerForTesting = LoggerForTesting()
-
-    import loggerf.instances.show.showToLog
 
     def runLog[F[*]: Log: FxCtor: Monad]: F[Unit] =
       for {
