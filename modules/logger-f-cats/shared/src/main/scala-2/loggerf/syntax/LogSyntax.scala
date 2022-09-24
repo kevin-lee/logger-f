@@ -1,6 +1,6 @@
 package loggerf.syntax
 
-import _root_.cats.data.{EitherT, OptionT}
+import cats.data.{EitherT, OptionT}
 import loggerf.LogMessage
 import loggerf.LogMessage.MaybeIgnorable
 import loggerf.core.Log
