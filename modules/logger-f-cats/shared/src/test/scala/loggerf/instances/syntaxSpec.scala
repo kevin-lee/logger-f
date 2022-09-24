@@ -29,15 +29,20 @@ object syntaxSpec extends Properties {
     property("test log(F[Option[A]])", testLogFOptionA),
     property("test log(F[Option[A]])(ignore, message)", testLogFOptionAIgnoreEmpty),
     property("test log(F[Option[A]])(message, ignore)", testLogFOptionAIgnoreSome),
+    property("test log(F[Option[A]])(message, ignoreA)", testLogFOptionAIgnoreASome),
     property("test log(F[Either[A, B]])", testLogFEitherAB),
     property("test log(F[Either[A, B]])(ignore, message)", testLogFEitherABIgnoreLeft),
-    property("test log(F[Either[A, B]])(ignore, message)", testLogFEitherABIgnoreRight),
+    property("test log(F[Either[A, B]])(ignoreA, message)", testLogFEitherABIgnoreALeft),
+    property("test log(F[Either[A, B]])(message, ignore)", testLogFEitherABIgnoreRight),
+    property("test log(F[Either[A, B]])(message, ignoreA)", testLogFEitherABIgnoreARight),
     property("test log(OptionT[F, A])", testLogOptionTFA),
     property("test log(OptionT[F, A])(ignore, message)", testLogOptionTFAIgnoreEmpty),
     property("test log(OptionT[F, A])(message, ignore)", testLogOptionTFAIgnoreSome),
     property("test log(EitherT[F, A, B])", testLogEitherTFAB),
     property("test log(EitherT[F, A, B])(ignore, message)", testLogEitherTFABIgnoreLeft),
+    property("test log(EitherT[F, A, B])(ignoreA, message)", testLogEitherTFABIgnoreALeft),
     property("test log(EitherT[F, A, B])(message, ignore)", testLogEitherTFABIgnoreRight),
+    property("test log(EitherT[F, A, B])(message, ignoreA)", testLogEitherTFABIgnoreARight),
   ) ++ List(
     property("test F[A].log", LogExtensionSpec.testFALog),
     property("test F[Option[A]].log", LogExtensionSpec.testFOptionALog),
@@ -45,13 +50,17 @@ object syntaxSpec extends Properties {
     property("test F[Option[A]].log(message, ignore)", LogExtensionSpec.testFOptionALogIgnoreSome),
     property("test F[Either[A, B]].log", LogExtensionSpec.testFEitherABLog),
     property("test F[Either[A, B]].log(ignore, message)", LogExtensionSpec.testFEitherABLogIgnoreLeft),
-    property("test F[Either[A, B]].log(ignore, message)", LogExtensionSpec.testFEitherABLogIgnoreRight),
+    property("test F[Either[A, B]].log(ignoreA, message)", LogExtensionSpec.testFEitherABLogIgnoreALeft),
+    property("test F[Either[A, B]].log(message, ignore)", LogExtensionSpec.testFEitherABLogIgnoreRight),
+    property("test F[Either[A, B]].log(message, ignoreA)", LogExtensionSpec.testFEitherABLogIgnoreARight),
     property("test OptionT[F, A].log", LogExtensionSpec.testLogOptionTFA),
     property("test OptionT[F, A].log(ignore, message)", LogExtensionSpec.testLogOptionTFAIgnoreEmpty),
     property("test OptionT[F, A].log(message, ignore)", LogExtensionSpec.testLogOptionTFAIgnoreSome),
     property("test EitherT[F, A, B].log", LogExtensionSpec.testLogEitherTFAB),
     property("test EitherT[F, A, B].log(ignore, message)", LogExtensionSpec.testLogEitherTFABIgnoreLeft),
+    property("test EitherT[F, A, B].log(ignoreA, message)", LogExtensionSpec.testLogEitherTFABIgnoreALeft),
     property("test EitherT[F, A, B].log(message, ignore)", LogExtensionSpec.testLogEitherTFABIgnoreRight),
+    property("test EitherT[F, A, B].log(message, ignoreA)", LogExtensionSpec.testLogEitherTFABIgnoreARight),
   )
 
   implicit val errorLogger: ErrorLogger[Throwable] = ErrorLogger.printlnDefaultErrorLogger
@@ -228,6 +237,51 @@ object syntaxSpec extends Properties {
     logger ==== expected
   }
 
+  def testLogFOptionAIgnoreASome: Property = for {
+    logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+    ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: FxCtor: Log: Monad](oa: Option[String]): F[Option[Unit]] =
+      for {
+        _ <- log(effectOf(oa))(error(ifEmptyMsg), ignoreA)
+        _ <- log(effectOf(oa))(error(ifEmptyMsg), ignoreA)
+        _ <- log(effectOf(oa))(error(ifEmptyMsg), ignoreA)
+        _ <- log(effectOf(oa))(error(ifEmptyMsg), ignoreA)
+      } yield ().some
+
+    val expected = logMsg match {
+      case Some(logMsg) =>
+        LoggerForTesting(
+          debugMessages = Vector.empty,
+          infoMessages = Vector.empty,
+          warnMessages = Vector.empty,
+          errorMessages = Vector.empty
+        )
+
+      case None =>
+        LoggerForTesting(
+          debugMessages = Vector.empty,
+          infoMessages = Vector.empty,
+          warnMessages = Vector.empty,
+          errorMessages = Vector.fill(4)(ifEmptyMsg)
+        )
+    }
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      import loggerf.instances.future.logFuture
+      runLog[Future](logMsg)
+    }
+
+    logger ==== expected
+  }
+
   def testLogFEitherAB: Property = for {
     rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
     leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
@@ -322,6 +376,53 @@ object syntaxSpec extends Properties {
     logger ==== expected
   }
 
+  def testLogFEitherABIgnoreALeft: Property = for {
+    rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+    leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+    isRight    <- Gen.boolean.log("isRight")
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      _ <- log(effectOf(eab))(ignoreA, b => debug(b.toString))
+      _ <- log(effectOf(eab))(ignoreA, b => info(b.toString))
+      _ <- log(effectOf(eab))(ignoreA, b => warn(b.toString))
+      _ <- log(effectOf(eab))(ignoreA, b => error(b.toString))
+    } yield ().asRight[String]
+
+    val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+    val expected = eab match {
+      case Right(n) =>
+        LoggerForTesting(
+          debugMessages = Vector(n.toString),
+          infoMessages = Vector(n.toString),
+          warnMessages = Vector(n.toString),
+          errorMessages = Vector(n.toString)
+        )
+
+      case Left(msg) =>
+        LoggerForTesting(
+          debugMessages = Vector.empty,
+          infoMessages = Vector.empty,
+          warnMessages = Vector.empty,
+          errorMessages = Vector.empty
+        )
+    }
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      import loggerf.instances.future.logFuture
+      runLog[Future](eab)
+    }
+
+    logger ==== expected
+  }
+
   def testLogFEitherABIgnoreRight: Property = for {
     rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
     leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
@@ -335,6 +436,53 @@ object syntaxSpec extends Properties {
       _ <- log(effectOf(eab))(error, _ => ignore)
       _ <- log(effectOf(eab))(error, _ => ignore)
       _ <- log(effectOf(eab))(error, _ => ignore)
+    } yield ().asRight[String]
+
+    val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+    val expected = eab match {
+      case Right(n) =>
+        LoggerForTesting(
+          debugMessages = Vector.empty,
+          infoMessages = Vector.empty,
+          warnMessages = Vector.empty,
+          errorMessages = Vector.empty
+        )
+
+      case Left(msg) =>
+        LoggerForTesting(
+          debugMessages = Vector.empty,
+          infoMessages = Vector.empty,
+          warnMessages = Vector.empty,
+          errorMessages = Vector.fill(4)(msg)
+        )
+    }
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      import loggerf.instances.future.logFuture
+      runLog[Future](eab)
+    }
+
+    logger ==== expected
+  }
+
+  def testLogFEitherABIgnoreARight: Property = for {
+    rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+    leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+    isRight    <- Gen.boolean.log("isRight")
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+      _ <- log(effectOf(eab))(error, ignoreA)
+      _ <- log(effectOf(eab))(error, ignoreA)
+      _ <- log(effectOf(eab))(error, ignoreA)
+      _ <- log(effectOf(eab))(error, ignoreA)
     } yield ().asRight[String]
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
@@ -595,6 +743,53 @@ object syntaxSpec extends Properties {
     logger ==== expected
   }
 
+  def testLogEitherTFABIgnoreALeft: Property = for {
+    rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+    leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+    isRight    <- Gen.boolean.log("isRight")
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+      _ <- log(EitherT(effectOf(eab)))(ignoreA, b => debug(b.toString))
+      _ <- log(EitherT(effectOf(eab)))(ignoreA, b => info(b.toString))
+      _ <- log(EitherT(effectOf(eab)))(ignoreA, b => warn(b.toString))
+      _ <- log(EitherT(effectOf(eab)))(ignoreA, b => error(b.toString))
+    } yield ()).value
+
+    val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+    val expected = eab match {
+      case Right(n) =>
+        LoggerForTesting(
+          debugMessages = Vector(n.toString),
+          infoMessages = Vector(n.toString),
+          warnMessages = Vector(n.toString),
+          errorMessages = Vector(n.toString)
+        )
+
+      case Left(msg) =>
+        LoggerForTesting(
+          debugMessages = Vector.empty,
+          infoMessages = Vector.empty,
+          warnMessages = Vector.empty,
+          errorMessages = Vector.empty
+        )
+    }
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      import loggerf.instances.future.logFuture
+      runLog[Future](eab)
+    }
+
+    logger ==== expected
+  }
+
   def testLogEitherTFABIgnoreRight: Property = for {
     rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
     leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
@@ -608,6 +803,53 @@ object syntaxSpec extends Properties {
       _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
       _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
       _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
+    } yield ()).value
+
+    val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+    val expected = eab match {
+      case Right(n) =>
+        LoggerForTesting(
+          debugMessages = Vector.empty,
+          infoMessages = Vector.empty,
+          warnMessages = Vector.empty,
+          errorMessages = Vector.empty
+        )
+
+      case Left(msg) =>
+        LoggerForTesting(
+          debugMessages = Vector.empty,
+          infoMessages = Vector.empty,
+          warnMessages = Vector.empty,
+          errorMessages = Vector(msg)
+        )
+    }
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      import loggerf.instances.future.logFuture
+      runLog[Future](eab)
+    }
+
+    logger ==== expected
+  }
+
+  def testLogEitherTFABIgnoreARight: Property = for {
+    rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+    leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+    isRight    <- Gen.boolean.log("isRight")
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+      _ <- log(EitherT(effectOf(eab)))(error, ignoreA)
+      _ <- log(EitherT(effectOf(eab)))(error, ignoreA)
+      _ <- log(EitherT(effectOf(eab)))(error, ignoreA)
+      _ <- log(EitherT(effectOf(eab)))(error, ignoreA)
     } yield ()).value
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
@@ -910,6 +1152,53 @@ object syntaxSpec extends Properties {
       logger ==== expected
     }
 
+    def testFEitherABLogIgnoreALeft: Property = for {
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight    <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+        _ <- effectOf(eab).log(ignoreA, b => debug(b.toString))
+        _ <- effectOf(eab).log(ignoreA, b => info(b.toString))
+        _ <- effectOf(eab).log(ignoreA, b => warn(b.toString))
+        _ <- effectOf(eab).log(ignoreA, b => error(b.toString))
+      } yield ().asRight[String]
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector(n.toString),
+            infoMessages = Vector(n.toString),
+            warnMessages = Vector(n.toString),
+            errorMessages = Vector(n.toString)
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+      }
+
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+      implicit val ec: ExecutionContext =
+        ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+        import loggerf.instances.future.logFuture
+        runLog[Future](eab)
+      }
+
+      logger ==== expected
+    }
+
     def testFEitherABLogIgnoreRight: Property = for {
       rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
@@ -923,6 +1212,53 @@ object syntaxSpec extends Properties {
         _ <- effectOf(eab).log(error, _ => ignore)
         _ <- effectOf(eab).log(error, _ => ignore)
         _ <- effectOf(eab).log(error, _ => ignore)
+      } yield ().asRight[String]
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.fill(4)(msg)
+          )
+      }
+
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+      implicit val ec: ExecutionContext =
+        ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+        import loggerf.instances.future.logFuture
+        runLog[Future](eab)
+      }
+
+      logger ==== expected
+    }
+
+    def testFEitherABLogIgnoreARight: Property = for {
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight    <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+        _ <- effectOf(eab).log(error, ignoreA)
+        _ <- effectOf(eab).log(error, ignoreA)
+        _ <- effectOf(eab).log(error, ignoreA)
+        _ <- effectOf(eab).log(error, ignoreA)
       } yield ().asRight[String]
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
@@ -1183,6 +1519,53 @@ object syntaxSpec extends Properties {
       logger ==== expected
     }
 
+    def testLogEitherTFABIgnoreALeft: Property = for {
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight    <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+        _ <- EitherT(effectOf(eab)).log(ignoreA, b => debug(b.toString))
+        _ <- EitherT(effectOf(eab)).log(ignoreA, b => info(b.toString))
+        _ <- EitherT(effectOf(eab)).log(ignoreA, b => warn(b.toString))
+        _ <- EitherT(effectOf(eab)).log(ignoreA, b => error(b.toString))
+      } yield ()).value
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector(n.toString),
+            infoMessages = Vector(n.toString),
+            warnMessages = Vector(n.toString),
+            errorMessages = Vector(n.toString)
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+      }
+
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+      implicit val ec: ExecutionContext =
+        ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+        import loggerf.instances.future.logFuture
+        runLog[Future](eab)
+      }
+
+      logger ==== expected
+    }
+
     def testLogEitherTFABIgnoreRight: Property = for {
       rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
@@ -1196,6 +1579,53 @@ object syntaxSpec extends Properties {
         _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
         _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
         _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
+      } yield ()).value
+
+      val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+      val expected = eab match {
+        case Right(n) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector.empty
+          )
+
+        case Left(msg) =>
+          LoggerForTesting(
+            debugMessages = Vector.empty,
+            infoMessages = Vector.empty,
+            warnMessages = Vector.empty,
+            errorMessages = Vector(msg)
+          )
+      }
+
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+      implicit val ec: ExecutionContext =
+        ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+        import loggerf.instances.future.logFuture
+        runLog[Future](eab)
+      }
+
+      logger ==== expected
+    }
+
+    def testLogEitherTFABIgnoreARight: Property = for {
+      rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+      leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+      isRight    <- Gen.boolean.log("isRight")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[*]: FxCtor: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+        _ <- EitherT(effectOf(eab)).log(error, ignoreA)
+        _ <- EitherT(effectOf(eab)).log(error, ignoreA)
+        _ <- EitherT(effectOf(eab)).log(error, ignoreA)
+        _ <- EitherT(effectOf(eab)).log(error, ignoreA)
       } yield ()).value
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
