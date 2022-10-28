@@ -11,4 +11,6 @@ object ToLog {
   def apply[A: ToLog]: ToLog[A] = implicitly[ToLog[A]]
 
   def by[A](f: A => String): ToLog[A] = f(_)
+
+  implicit val stringToLog: ToLog[String] = identity
 }
