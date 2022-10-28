@@ -9,4 +9,6 @@ trait ToLog[A] {
 
 object ToLog {
   def apply[A: ToLog]: ToLog[A] = implicitly[ToLog[A]]
+
+  def by[A](f: A => String): ToLog[A] = f(_)
 }
