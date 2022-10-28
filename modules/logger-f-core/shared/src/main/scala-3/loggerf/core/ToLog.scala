@@ -11,4 +11,6 @@ object ToLog {
   def apply[A: ToLog]: ToLog[A] = summon[ToLog[A]]
 
   def by[A](f: A => String): ToLog[A] = f(_)
+
+  given stringToLog: ToLog[String] = identity(_)
 }
