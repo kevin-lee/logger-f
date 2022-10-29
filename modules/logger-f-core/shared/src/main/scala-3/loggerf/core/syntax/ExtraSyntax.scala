@@ -37,6 +37,20 @@ trait ExtraSyntax {
   def error(prefix: Prefix): String => LeveledMessage =
     error0(prefix.value)
 
+  import loggerf.core.ToLog
+
+  def debugAWith[A: ToLog](prefix: Prefix): A => LeveledMessage =
+    a => debug0(prefix.value)(ToLog[A].toLogMessage(a))
+
+  def infoAWith[A: ToLog](prefix: Prefix): A => LeveledMessage =
+    a => info0(prefix.value)(ToLog[A].toLogMessage(a))
+
+  def warnAWith[A: ToLog](prefix: Prefix): A => LeveledMessage =
+    a => warn0(prefix.value)(ToLog[A].toLogMessage(a))
+
+  def errorAWith[A: ToLog](prefix: Prefix): A => LeveledMessage =
+    a => error0(prefix.value)(ToLog[A].toLogMessage(a))
+
 }
 
 object ExtraSyntax extends ExtraSyntax {

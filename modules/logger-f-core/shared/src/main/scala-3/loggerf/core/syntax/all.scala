@@ -1,3 +1,4 @@
 package loggerf.core.syntax
 
-object all extends logging with extra
+trait all extends logging with extra
+object all extends all

@@ -14,7 +14,7 @@ import hedgehog._
 import hedgehog.runner._
 import loggerf.core.Log
 import loggerf.logger._
-import loggerf.syntax.logging._
+import loggerf.syntax.all._
 
 import java.util.concurrent.ExecutorService
 import scala.concurrent.duration._
