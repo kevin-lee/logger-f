@@ -8,7 +8,8 @@ import hedgehog.runner._
   */
 object ToLogSpec extends Properties {
   override def tests: List[Test] = List(
-    property("test ToLog.by", testBy),
+    property("test ToLog.by[A](A => String)", testBy),
+    property("test ToLog.fromToString[A]", testFromToString),
     property("test ToLog[String].toLogMessage", testStringToLog),
   )
 
@@ -21,6 +22,20 @@ object ToLogSpec extends Properties {
       val fooToLog = ToLog.by[Foo](foo => prefix + foo.s)
 
       val expected = prefix + s
+      val actual   = fooToLog.toLogMessage(foo)
+
+      actual ==== expected
+    }
+
+  def testFromToString: Property =
+    for {
+      s      <- Gen.string(Gen.unicode, Range.linear(5, 10)).log("s")
+    } yield {
+      val foo      = Foo(s)
+      val fooToLog = ToLog.fromToString[Foo]
+
+      @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+      val expected = foo.toString
       val actual   = fooToLog.toLogMessage(foo)
 
       actual ==== expected
