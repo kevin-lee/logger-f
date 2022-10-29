@@ -12,5 +12,7 @@ object ToLog {
 
   def by[A](f: A => String): ToLog[A] = f(_)
 
+  def fromToString[A]: ToLog[A] = _.toString
+
   given stringToLog: ToLog[String] = identity(_)
 }
