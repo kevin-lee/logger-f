@@ -12,9 +12,9 @@ import extras.concurrent.testing.ConcurrentSupport
 import extras.concurrent.testing.types.{ErrorLogger, WaitFor}
 import hedgehog._
 import hedgehog.runner._
-import loggerf.syntax.all._
 import loggerf.core.Log
 import loggerf.logger._
+import loggerf.syntax.logging._
 
 import java.util.concurrent.ExecutorService
 import scala.concurrent.duration._
@@ -23,7 +23,7 @@ import scala.concurrent.{ExecutionContext, Future}
 /** @author Kevin Lee
   * @since 2022-02-09
   */
-object syntaxSpec extends Properties {
+object loggingSyntaxSpec extends Properties {
   override def tests: List[Test] = List(
     property("test log(F[A])", testLogFA),
     property("test log(F[Option[A]])", testLogFOptionA),
