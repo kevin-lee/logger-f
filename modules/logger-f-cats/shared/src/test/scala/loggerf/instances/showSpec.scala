@@ -16,7 +16,8 @@ import loggerf.syntax.all._
   */
 object showSpec extends Properties {
   override def tests: List[Prop] = List(
-    property("test LeveledLogMessage with cats.Show", testLeveledLogMessageWithCatsShow)
+    property("test LeveledLogMessage with cats.Show", testLeveledLogMessageWithCatsShow),
+    property("test LeveledLogMessage with cats.Show with prefix", testLeveledLogMessageWithCatsShowWithPrefix),
   )
 
   final case class Something(message: String)
@@ -54,5 +55,38 @@ object showSpec extends Properties {
     runLog[Identity]
     logger ==== expected
   }
+
+  def testLeveledLogMessageWithCatsShowWithPrefix: Property =
+    for {
+      prefixString <- Gen.string(Gen.unicode, Range.linear(5, 20)).log("prefixString")
+      debugMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).map(Something(_)).log("debugMsg")
+      infoMsg      <- Gen.string(Gen.unicode, Range.linear(1, 20)).map(Something(_)).log("infoMsg")
+      warnMsg      <- Gen.string(Gen.unicode, Range.linear(1, 20)).map(Something(_)).log("warnMsg")
+      errorMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).map(Something(_)).log("errorMsg")
+    } yield {
+
+      val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[*]: Log: FxCtor: Monad]: F[Unit] =
+        for {
+          _ <- log(pureOf(debugMsg))(debugAWith(prefix(prefixString)))
+          _ <- log(pureOf(infoMsg))(infoAWith(prefix(prefixString)))
+          _ <- log(pureOf(warnMsg))(warnAWith(prefix(prefixString)))
+          _ <- log(pureOf(errorMsg))(errorAWith(prefix(prefixString)))
+        } yield ()
+
+      import LogForTesting.{FxCtorForTesting, Identity}
+      implicit val lgForTesting: Log[Identity] = LogForTesting(logger)
+
+      val expected = LoggerForTesting(
+        debugMessages = Vector(prefixString + debugMsg.show),
+        infoMessages = Vector(prefixString + infoMsg.show),
+        warnMessages = Vector(prefixString + warnMsg.show),
+        errorMessages = Vector(prefixString + errorMsg.show)
+      )
+
+      runLog[Identity]
+      logger ==== expected
+    }
 
 }
