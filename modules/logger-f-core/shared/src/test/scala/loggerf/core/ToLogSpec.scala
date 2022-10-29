@@ -29,7 +29,7 @@ object ToLogSpec extends Properties {
 
   def testFromToString: Property =
     for {
-      s      <- Gen.string(Gen.unicode, Range.linear(5, 10)).log("s")
+      s <- Gen.string(Gen.unicode, Range.linear(5, 10)).log("s")
     } yield {
       val foo      = Foo(s)
       val fooToLog = ToLog.fromToString[Foo]
