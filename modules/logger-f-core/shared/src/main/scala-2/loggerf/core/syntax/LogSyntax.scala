@@ -18,7 +18,7 @@ trait LogSyntax {
     L.log(fa)(toLeveledMessage)
 
   @inline def log[F[*], A](
-    foa: F[Option[A]],
+    foa: F[Option[A]]
   )(
     ifEmpty: => LogMessage with MaybeIgnorable,
     toLeveledMessage: A => LogMessage with MaybeIgnorable,
@@ -28,7 +28,7 @@ trait LogSyntax {
     L.log(foa)(ifEmpty, toLeveledMessage)
 
   @inline def log[F[*], A, B](
-    feab: F[Either[A, B]],
+    feab: F[Either[A, B]]
   )(
     leftToMessage: A => LogMessage with MaybeIgnorable,
     rightToMessage: B => LogMessage with MaybeIgnorable,

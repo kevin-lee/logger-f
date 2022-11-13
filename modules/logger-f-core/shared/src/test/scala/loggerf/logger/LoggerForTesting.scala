@@ -28,7 +28,7 @@ object LoggerForTesting {
     private var _debugMessages: Vector[String],
     private var _infoMessages: Vector[String],
     private var _warnMessages: Vector[String],
-    private var _errorMessages: Vector[String]
+    private var _errorMessages: Vector[String],
   ) {
     def debugMessages: Vector[String]                                                  = _debugMessages
     private[LoggerForTesting] def debugMessages_=(debugMessages: Vector[String]): Unit =
@@ -51,7 +51,7 @@ object LoggerForTesting {
     debugMessages: Vector[String],
     infoMessages: Vector[String],
     warnMessages: Vector[String],
-    errorMessages: Vector[String]
+    errorMessages: Vector[String],
   ): LoggerForTesting =
     LoggerForTesting(MessageKeeper(debugMessages, infoMessages, warnMessages, errorMessages))
 

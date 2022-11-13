@@ -15,7 +15,7 @@ import loggerf.logger.LoggerForTesting
 object LeveledMessageSyntaxSpec extends Properties {
   override def tests: List[Prop] = List(
     property("test LeveledLogMessage", testLeveledLogMessage),
-    property("test LeveledLogMessage with ToLog", testLeveledLogMessageWithToLog)
+    property("test LeveledLogMessage with ToLog", testLeveledLogMessageWithToLog),
   )
 
   def testLeveledLogMessage: Property = for {
@@ -41,7 +41,7 @@ object LeveledMessageSyntaxSpec extends Properties {
       debugMessages = Vector(debugMsg),
       infoMessages = Vector(infoMsg),
       warnMessages = Vector(warnMsg),
-      errorMessages = Vector(errorMsg)
+      errorMessages = Vector(errorMsg),
     )
 
     runLog[Identity]
@@ -77,7 +77,7 @@ object LeveledMessageSyntaxSpec extends Properties {
       debugMessages = Vector(ToLog[Something].toLogMessage(debugMsg)),
       infoMessages = Vector(ToLog[Something].toLogMessage(infoMsg)),
       warnMessages = Vector(ToLog[Something].toLogMessage(warnMsg)),
-      errorMessages = Vector(ToLog[Something].toLogMessage(errorMsg))
+      errorMessages = Vector(ToLog[Something].toLogMessage(errorMsg)),
     )
 
     runLog[Identity]

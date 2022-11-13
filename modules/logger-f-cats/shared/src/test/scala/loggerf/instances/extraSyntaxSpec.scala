@@ -48,54 +48,54 @@ object extraSyntaxSpec extends Properties {
     property("test F[Option[A]].log with prefix", LogExtensionSpec.testFOptionALogWithPrefix),
     property(
       "test F[Option[A]].log(ignore, message) with prefix",
-      LogExtensionSpec.testFOptionALogIgnoreEmptyWithPrefix
+      LogExtensionSpec.testFOptionALogIgnoreEmptyWithPrefix,
     ),
     property(
       "test F[Option[A]].log(message, ignore) with prefix",
-      LogExtensionSpec.testFOptionALogIgnoreSomeWithPrefix
+      LogExtensionSpec.testFOptionALogIgnoreSomeWithPrefix,
     ),
     property("test F[Either[A, B]].log", LogExtensionSpec.testFEitherABLogWithPrefix),
     property(
       "test F[Either[A, B]].log(ignore, message) with prefix",
-      LogExtensionSpec.testFEitherABLogIgnoreLeftWithPrefix
+      LogExtensionSpec.testFEitherABLogIgnoreLeftWithPrefix,
     ),
     property(
       "test F[Either[A, B]].log(ignoreA, message) with prefix",
-      LogExtensionSpec.testFEitherABLogIgnoreALeftWithPrefix
+      LogExtensionSpec.testFEitherABLogIgnoreALeftWithPrefix,
     ),
     property(
       "test F[Either[A, B]].log(message, ignore) with prefix",
-      LogExtensionSpec.testFEitherABLogIgnoreRightWithPrefix
+      LogExtensionSpec.testFEitherABLogIgnoreRightWithPrefix,
     ),
     property(
       "test F[Either[A, B]].log(message, ignoreA) with prefix",
-      LogExtensionSpec.testFEitherABLogIgnoreARightWithPrefix
+      LogExtensionSpec.testFEitherABLogIgnoreARightWithPrefix,
     ),
     property("test OptionT[F, A].log with prefix", LogExtensionSpec.testLogOptionTFAWithPrefix),
     property(
       "test OptionT[F, A].log(ignore, message) with prefix",
-      LogExtensionSpec.testLogOptionTFAIgnoreEmptyWithPrefix
+      LogExtensionSpec.testLogOptionTFAIgnoreEmptyWithPrefix,
     ),
     property(
       "test OptionT[F, A].log(message, ignore) with prefix",
-      LogExtensionSpec.testLogOptionTFAIgnoreSomeWithPrefix
+      LogExtensionSpec.testLogOptionTFAIgnoreSomeWithPrefix,
     ),
     property("test EitherT[F, A, B].log with prefix", LogExtensionSpec.testLogEitherTFABWithPrefix),
     property(
       "test EitherT[F, A, B].log(ignore, message) with prefix",
-      LogExtensionSpec.testLogEitherTFABIgnoreLeftWithPrefix
+      LogExtensionSpec.testLogEitherTFABIgnoreLeftWithPrefix,
     ),
     property(
       "test EitherT[F, A, B].log(ignoreA, message) with prefix",
-      LogExtensionSpec.testLogEitherTFABIgnoreALeftWithPrefix
+      LogExtensionSpec.testLogEitherTFABIgnoreALeftWithPrefix,
     ),
     property(
       "test EitherT[F, A, B].log(message, ignore) with prefix",
-      LogExtensionSpec.testLogEitherTFABIgnoreRightWithPrefix
+      LogExtensionSpec.testLogEitherTFABIgnoreRightWithPrefix,
     ),
     property(
       "test EitherT[F, A, B].log(message, ignoreA) with prefix",
-      LogExtensionSpec.testLogEitherTFABIgnoreARightWithPrefix
+      LogExtensionSpec.testLogEitherTFABIgnoreARightWithPrefix,
     ),
   )
 
@@ -125,7 +125,7 @@ object extraSyntaxSpec extends Properties {
       debugMessages = Vector(prefixString + debugMsg),
       infoMessages = Vector(prefixString + infoMsg),
       warnMessages = Vector(prefixString + warnMsg),
-      errorMessages = Vector(prefixString + errorMsg)
+      errorMessages = Vector(prefixString + errorMsg),
     )
 
     implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
@@ -162,7 +162,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector(prefixString + logMsg),
           infoMessages = Vector(prefixString + logMsg),
           warnMessages = Vector(prefixString + logMsg),
-          errorMessages = Vector(prefixString + logMsg)
+          errorMessages = Vector(prefixString + logMsg),
         )
 
       case None =>
@@ -170,7 +170,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.fill(4)(prefixString + ifEmptyMsg)
+          errorMessages = Vector.fill(4)(prefixString + ifEmptyMsg),
         )
     }
 
@@ -207,7 +207,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector(prefixString + logMsg),
           infoMessages = Vector(prefixString + logMsg),
           warnMessages = Vector(prefixString + logMsg),
-          errorMessages = Vector(prefixString + logMsg)
+          errorMessages = Vector(prefixString + logMsg),
         )
 
       case None =>
@@ -215,7 +215,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
     }
 
@@ -253,7 +253,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
 
       case None =>
@@ -261,7 +261,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.fill(4)(prefixString + ifEmptyMsg)
+          errorMessages = Vector.fill(4)(prefixString + ifEmptyMsg),
         )
     }
 
@@ -299,7 +299,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
 
       case None =>
@@ -307,7 +307,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.fill(4)(prefixString + ifEmptyMsg)
+          errorMessages = Vector.fill(4)(prefixString + ifEmptyMsg),
         )
     }
 
@@ -347,7 +347,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector(prefixString + n.toString),
           infoMessages = Vector(prefixString + n.toString),
           warnMessages = Vector(prefixString + n.toString),
-          errorMessages = Vector(prefixString + n.toString)
+          errorMessages = Vector(prefixString + n.toString),
         )
 
       case Left(msg) =>
@@ -355,7 +355,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.fill(4)(prefixString + msg)
+          errorMessages = Vector.fill(4)(prefixString + msg),
         )
     }
 
@@ -395,7 +395,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector(prefixString + n.toString),
           infoMessages = Vector(prefixString + n.toString),
           warnMessages = Vector(prefixString + n.toString),
-          errorMessages = Vector(prefixString + n.toString)
+          errorMessages = Vector(prefixString + n.toString),
         )
 
       case Left(msg) =>
@@ -403,7 +403,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
     }
 
@@ -443,7 +443,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector(prefixString + n.toString),
           infoMessages = Vector(prefixString + n.toString),
           warnMessages = Vector(prefixString + n.toString),
-          errorMessages = Vector(prefixString + n.toString)
+          errorMessages = Vector(prefixString + n.toString),
         )
 
       case Left(msg) =>
@@ -451,7 +451,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
     }
 
@@ -491,7 +491,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
 
       case Left(msg) =>
@@ -499,7 +499,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.fill(4)(prefixString + msg)
+          errorMessages = Vector.fill(4)(prefixString + msg),
         )
     }
 
@@ -539,7 +539,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
 
       case Left(msg) =>
@@ -547,7 +547,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.fill(4)(prefixString + msg)
+          errorMessages = Vector.fill(4)(prefixString + msg),
         )
     }
 
@@ -584,7 +584,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector(prefixString + logMsg),
           infoMessages = Vector(prefixString + logMsg),
           warnMessages = Vector(prefixString + logMsg),
-          errorMessages = Vector(prefixString + logMsg)
+          errorMessages = Vector(prefixString + logMsg),
         )
 
       case None =>
@@ -592,7 +592,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector(prefixString + ifEmptyMsg)
+          errorMessages = Vector(prefixString + ifEmptyMsg),
         )
     }
 
@@ -628,7 +628,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector(prefixString + logMsg),
           infoMessages = Vector(prefixString + logMsg),
           warnMessages = Vector(prefixString + logMsg),
-          errorMessages = Vector(prefixString + logMsg)
+          errorMessages = Vector(prefixString + logMsg),
         )
 
       case None =>
@@ -636,7 +636,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
     }
 
@@ -673,7 +673,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
 
       case None =>
@@ -681,7 +681,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector(prefixString + ifEmptyMsg)
+          errorMessages = Vector(prefixString + ifEmptyMsg),
         )
     }
 
@@ -721,7 +721,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector(prefixString + n.toString),
           infoMessages = Vector(prefixString + n.toString),
           warnMessages = Vector(prefixString + n.toString),
-          errorMessages = Vector(prefixString + n.toString)
+          errorMessages = Vector(prefixString + n.toString),
         )
 
       case Left(msg) =>
@@ -729,7 +729,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector(prefixString + msg)
+          errorMessages = Vector(prefixString + msg),
         )
     }
 
@@ -769,7 +769,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector(prefixString + n.toString),
           infoMessages = Vector(prefixString + n.toString),
           warnMessages = Vector(prefixString + n.toString),
-          errorMessages = Vector(prefixString + n.toString)
+          errorMessages = Vector(prefixString + n.toString),
         )
 
       case Left(msg) =>
@@ -777,7 +777,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
     }
 
@@ -817,7 +817,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector(prefixString + n.toString),
           infoMessages = Vector(prefixString + n.toString),
           warnMessages = Vector(prefixString + n.toString),
-          errorMessages = Vector(prefixString + n.toString)
+          errorMessages = Vector(prefixString + n.toString),
         )
 
       case Left(msg) =>
@@ -825,7 +825,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
     }
 
@@ -865,7 +865,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
 
       case Left(msg) =>
@@ -873,7 +873,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector(prefixString + msg)
+          errorMessages = Vector(prefixString + msg),
         )
     }
 
@@ -913,7 +913,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
 
       case Left(msg) =>
@@ -921,7 +921,7 @@ object extraSyntaxSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector(prefixString + msg)
+          errorMessages = Vector(prefixString + msg),
         )
     }
 
@@ -963,7 +963,7 @@ object extraSyntaxSpec extends Properties {
         debugMessages = Vector(prefixString + debugMsg),
         infoMessages = Vector(prefixString + infoMsg),
         warnMessages = Vector(prefixString + warnMsg),
-        errorMessages = Vector(prefixString + errorMsg)
+        errorMessages = Vector(prefixString + errorMsg),
       )
 
       implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
@@ -1000,7 +1000,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector(prefixString + logMsg),
             infoMessages = Vector(prefixString + logMsg),
             warnMessages = Vector(prefixString + logMsg),
-            errorMessages = Vector(prefixString + logMsg)
+            errorMessages = Vector(prefixString + logMsg),
           )
 
         case None =>
@@ -1008,7 +1008,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.fill(4)(prefixString + ifEmptyMsg)
+            errorMessages = Vector.fill(4)(prefixString + ifEmptyMsg),
           )
       }
 
@@ -1045,7 +1045,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector(prefixString + logMsg),
             infoMessages = Vector(prefixString + logMsg),
             warnMessages = Vector(prefixString + logMsg),
-            errorMessages = Vector(prefixString + logMsg)
+            errorMessages = Vector(prefixString + logMsg),
           )
 
         case None =>
@@ -1053,7 +1053,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.empty
+            errorMessages = Vector.empty,
           )
       }
 
@@ -1091,7 +1091,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.empty
+            errorMessages = Vector.empty,
           )
 
         case None =>
@@ -1099,7 +1099,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.fill(4)(prefixString + ifEmptyMsg)
+            errorMessages = Vector.fill(4)(prefixString + ifEmptyMsg),
           )
       }
 
@@ -1139,7 +1139,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector(prefixString + n.toString),
             infoMessages = Vector(prefixString + n.toString),
             warnMessages = Vector(prefixString + n.toString),
-            errorMessages = Vector(prefixString + n.toString)
+            errorMessages = Vector(prefixString + n.toString),
           )
 
         case Left(msg) =>
@@ -1147,7 +1147,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.fill(4)(prefixString + msg)
+            errorMessages = Vector.fill(4)(prefixString + msg),
           )
       }
 
@@ -1187,7 +1187,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector(prefixString + n.toString),
             infoMessages = Vector(prefixString + n.toString),
             warnMessages = Vector(prefixString + n.toString),
-            errorMessages = Vector(prefixString + n.toString)
+            errorMessages = Vector(prefixString + n.toString),
           )
 
         case Left(msg) =>
@@ -1195,7 +1195,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.empty
+            errorMessages = Vector.empty,
           )
       }
 
@@ -1235,7 +1235,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector(prefixString + n.toString),
             infoMessages = Vector(prefixString + n.toString),
             warnMessages = Vector(prefixString + n.toString),
-            errorMessages = Vector(prefixString + n.toString)
+            errorMessages = Vector(prefixString + n.toString),
           )
 
         case Left(msg) =>
@@ -1243,7 +1243,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.empty
+            errorMessages = Vector.empty,
           )
       }
 
@@ -1283,7 +1283,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.empty
+            errorMessages = Vector.empty,
           )
 
         case Left(msg) =>
@@ -1291,7 +1291,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.fill(4)(prefixString + msg)
+            errorMessages = Vector.fill(4)(prefixString + msg),
           )
       }
 
@@ -1331,7 +1331,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.empty
+            errorMessages = Vector.empty,
           )
 
         case Left(msg) =>
@@ -1339,7 +1339,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.fill(4)(prefixString + msg)
+            errorMessages = Vector.fill(4)(prefixString + msg),
           )
       }
 
@@ -1376,7 +1376,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector(prefixString + logMsg),
             infoMessages = Vector(prefixString + logMsg),
             warnMessages = Vector(prefixString + logMsg),
-            errorMessages = Vector(prefixString + logMsg)
+            errorMessages = Vector(prefixString + logMsg),
           )
 
         case None =>
@@ -1384,7 +1384,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector(prefixString + ifEmptyMsg)
+            errorMessages = Vector(prefixString + ifEmptyMsg),
           )
       }
 
@@ -1420,7 +1420,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector(prefixString + logMsg),
             infoMessages = Vector(prefixString + logMsg),
             warnMessages = Vector(prefixString + logMsg),
-            errorMessages = Vector(prefixString + logMsg)
+            errorMessages = Vector(prefixString + logMsg),
           )
 
         case None =>
@@ -1428,7 +1428,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.empty
+            errorMessages = Vector.empty,
           )
       }
 
@@ -1465,7 +1465,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.empty
+            errorMessages = Vector.empty,
           )
 
         case None =>
@@ -1473,7 +1473,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector(prefixString + ifEmptyMsg)
+            errorMessages = Vector(prefixString + ifEmptyMsg),
           )
       }
 
@@ -1513,7 +1513,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector(prefixString + n.toString),
             infoMessages = Vector(prefixString + n.toString),
             warnMessages = Vector(prefixString + n.toString),
-            errorMessages = Vector(prefixString + n.toString)
+            errorMessages = Vector(prefixString + n.toString),
           )
 
         case Left(msg) =>
@@ -1521,7 +1521,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector(prefixString + msg)
+            errorMessages = Vector(prefixString + msg),
           )
       }
 
@@ -1561,7 +1561,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector(prefixString + n.toString),
             infoMessages = Vector(prefixString + n.toString),
             warnMessages = Vector(prefixString + n.toString),
-            errorMessages = Vector(prefixString + n.toString)
+            errorMessages = Vector(prefixString + n.toString),
           )
 
         case Left(msg) =>
@@ -1569,7 +1569,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.empty
+            errorMessages = Vector.empty,
           )
       }
 
@@ -1609,7 +1609,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector(prefixString + n.toString),
             infoMessages = Vector(prefixString + n.toString),
             warnMessages = Vector(prefixString + n.toString),
-            errorMessages = Vector(prefixString + n.toString)
+            errorMessages = Vector(prefixString + n.toString),
           )
 
         case Left(msg) =>
@@ -1617,7 +1617,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.empty
+            errorMessages = Vector.empty,
           )
       }
 
@@ -1657,7 +1657,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.empty
+            errorMessages = Vector.empty,
           )
 
         case Left(msg) =>
@@ -1665,7 +1665,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector(prefixString + msg)
+            errorMessages = Vector(prefixString + msg),
           )
       }
 
@@ -1705,7 +1705,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector.empty
+            errorMessages = Vector.empty,
           )
 
         case Left(msg) =>
@@ -1713,7 +1713,7 @@ object extraSyntaxSpec extends Properties {
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
             warnMessages = Vector.empty,
-            errorMessages = Vector(prefixString + msg)
+            errorMessages = Vector(prefixString + msg),
           )
       }
 

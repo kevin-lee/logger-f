@@ -54,7 +54,7 @@ object instancesSpec extends Properties {
       debugMessages = Vector(debugMsg),
       infoMessages = Vector(infoMsg),
       warnMessages = Vector(warnMsg),
-      errorMessages = Vector(errorMsg)
+      errorMessages = Vector(errorMsg),
     )
 
     import CatsEffectRunner._
@@ -89,7 +89,7 @@ object instancesSpec extends Properties {
           debugMessages = Vector(logMsg),
           infoMessages = Vector(logMsg),
           warnMessages = Vector(logMsg),
-          errorMessages = Vector(logMsg)
+          errorMessages = Vector(logMsg),
         )
 
       case None =>
@@ -97,7 +97,7 @@ object instancesSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.fill(4)(ifEmptyMsg)
+          errorMessages = Vector.fill(4)(ifEmptyMsg),
         )
     }
 
@@ -133,7 +133,7 @@ object instancesSpec extends Properties {
           debugMessages = Vector(logMsg),
           infoMessages = Vector(logMsg),
           warnMessages = Vector(logMsg),
-          errorMessages = Vector(logMsg)
+          errorMessages = Vector(logMsg),
         )
 
       case None =>
@@ -141,7 +141,7 @@ object instancesSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
     }
 
@@ -178,7 +178,7 @@ object instancesSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
 
       case None =>
@@ -186,7 +186,7 @@ object instancesSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.fill(4)(ifEmptyMsg)
+          errorMessages = Vector.fill(4)(ifEmptyMsg),
         )
     }
 
@@ -225,7 +225,7 @@ object instancesSpec extends Properties {
           debugMessages = Vector(n.toString),
           infoMessages = Vector(n.toString),
           warnMessages = Vector(n.toString),
-          errorMessages = Vector(n.toString)
+          errorMessages = Vector(n.toString),
         )
 
       case Left(msg) =>
@@ -233,7 +233,7 @@ object instancesSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.fill(4)(msg)
+          errorMessages = Vector.fill(4)(msg),
         )
     }
 
@@ -272,7 +272,7 @@ object instancesSpec extends Properties {
           debugMessages = Vector(n.toString),
           infoMessages = Vector(n.toString),
           warnMessages = Vector(n.toString),
-          errorMessages = Vector(n.toString)
+          errorMessages = Vector(n.toString),
         )
 
       case Left(msg) =>
@@ -280,7 +280,7 @@ object instancesSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
     }
 
@@ -319,7 +319,7 @@ object instancesSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.empty
+          errorMessages = Vector.empty,
         )
 
       case Left(msg) =>
@@ -327,7 +327,7 @@ object instancesSpec extends Properties {
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
-          errorMessages = Vector.fill(4)(msg)
+          errorMessages = Vector.fill(4)(msg),
         )
     }
 

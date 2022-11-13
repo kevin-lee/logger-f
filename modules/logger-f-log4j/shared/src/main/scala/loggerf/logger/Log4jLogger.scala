@@ -5,7 +5,7 @@ import org.apache.logging.log4j.{LogManager, Logger}
 import scala.reflect.ClassTag
 
 final class Log4jLogger(
-  val logger: Logger,
+  val logger: Logger
 ) extends CanLog {
 
   override def debug(message: => String): Unit =
