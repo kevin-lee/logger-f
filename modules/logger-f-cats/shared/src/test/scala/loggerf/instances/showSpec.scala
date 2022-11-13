@@ -49,7 +49,7 @@ object showSpec extends Properties {
       debugMessages = Vector(debugMsg.show),
       infoMessages = Vector(infoMsg.show),
       warnMessages = Vector(warnMsg.show),
-      errorMessages = Vector(errorMsg.show)
+      errorMessages = Vector(errorMsg.show),
     )
 
     runLog[Identity]
@@ -82,7 +82,7 @@ object showSpec extends Properties {
         debugMessages = Vector(prefixString + debugMsg.show),
         infoMessages = Vector(prefixString + infoMsg.show),
         warnMessages = Vector(prefixString + warnMsg.show),
-        errorMessages = Vector(prefixString + errorMsg.show)
+        errorMessages = Vector(prefixString + errorMsg.show),
       )
 
       runLog[Identity]

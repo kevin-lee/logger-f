@@ -13,7 +13,7 @@ trait cats {
   given logF[F[*]](
     using EF: FxCtor[F],
     canLog: CanLog,
-    MF: Monad[F]
+    MF: Monad[F],
   ): Log[F] =
     new LogF[F](EF, canLog, MF)
 

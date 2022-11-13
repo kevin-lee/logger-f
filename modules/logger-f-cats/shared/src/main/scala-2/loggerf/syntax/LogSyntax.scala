@@ -13,7 +13,7 @@ trait LogSyntax extends loggerf.core.syntax.LogSyntax {
   import LogSyntax._
 
   def log[F[*]: Log, A](
-    otfa: OptionT[F, A],
+    otfa: OptionT[F, A]
   )(
     ifEmpty: => LogMessage with MaybeIgnorable,
     toLeveledMessage: A => LogMessage with MaybeIgnorable,
@@ -21,7 +21,7 @@ trait LogSyntax extends loggerf.core.syntax.LogSyntax {
     OptionT(Log[F].log(otfa.value)(ifEmpty, toLeveledMessage))
 
   def log[F[*]: Log, A, B](
-    etfab: EitherT[F, A, B],
+    etfab: EitherT[F, A, B]
   )(
     leftToMessage: A => LogMessage with MaybeIgnorable,
     rightToMessage: B => LogMessage with MaybeIgnorable,

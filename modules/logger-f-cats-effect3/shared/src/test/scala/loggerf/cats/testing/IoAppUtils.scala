@@ -26,7 +26,7 @@ object IoAppUtils {
           blockDown()
           schedDown()
         },
-        IORuntimeConfig()
+        IORuntimeConfig(),
       )
     }
     runtime

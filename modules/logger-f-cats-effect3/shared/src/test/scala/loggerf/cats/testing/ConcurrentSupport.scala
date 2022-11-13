@@ -26,7 +26,7 @@ trait ConcurrentSupport {
           val printWriter  = new PrintWriter(stringWriter)
           th.printStackTrace(printWriter)
           logger(s"⚠️ Error in Executor: ${stringWriter.toString}")
-        }
+        },
       )
 
   def runAndShutdown[A](executorService: ExecutorService, waitFor: FiniteDuration)(a: => A): A =

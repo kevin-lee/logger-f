@@ -27,7 +27,7 @@ trait Log[F[*]] {
     foa: F[Option[A]]
   )(
     ifEmpty: => LeveledMessage | Ignore.type,
-    toLeveledMessage: A => LeveledMessage | Ignore.type
+    toLeveledMessage: A => LeveledMessage | Ignore.type,
   ): F[Option[A]] =
     flatMap0(foa) {
       case None =>
@@ -52,7 +52,7 @@ trait Log[F[*]] {
     feab: F[Either[A, B]]
   )(
     leftToMessage: A => LeveledMessage | Ignore.type,
-    rightToMessage: B => LeveledMessage | Ignore.type
+    rightToMessage: B => LeveledMessage | Ignore.type,
   ): F[Either[A, B]] =
     flatMap0(feab) {
       case Left(l) =>

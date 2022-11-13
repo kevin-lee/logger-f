@@ -20,7 +20,7 @@ trait LogSyntax {
   extension [F[*], A](foa: F[Option[A]]) {
     def log(
       ifEmpty: => LeveledMessage | Ignore.type,
-      toLeveledMessage: A => LeveledMessage | Ignore.type
+      toLeveledMessage: A => LeveledMessage | Ignore.type,
     )(
       using L: Log[F]
     ): F[Option[A]] =
@@ -30,7 +30,7 @@ trait LogSyntax {
   extension [F[*], A, B](feab: F[Either[A, B]]) {
     def log(
       leftToMessage: A => LeveledMessage | Ignore.type,
-      rightToMessage: B => LeveledMessage | Ignore.type
+      rightToMessage: B => LeveledMessage | Ignore.type,
     )(
       using L: Log[F]
     ): F[Either[A, B]] =
