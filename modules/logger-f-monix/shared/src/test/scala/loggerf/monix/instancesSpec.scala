@@ -44,7 +44,7 @@ object instancesSpec extends Properties {
         _ <- Log[F].log(effectOf(errorMsg))(error)
       } yield ())
 
-    import effectie.monix3.fx._
+    import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
     runLog[Task].runSyncUnsafe()
 
@@ -73,7 +73,7 @@ object instancesSpec extends Properties {
         _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), error)
       } yield ().some)
 
-    import effectie.monix3.fx._
+    import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
     runLog[Task](logMsg).runSyncUnsafe()
 
@@ -112,7 +112,7 @@ object instancesSpec extends Properties {
         _ <- Log[F].log(effectOf(oa))(ignore, error)
       } yield ().some)
 
-    import effectie.monix3.fx._
+    import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
     runLog[Task](logMsg).runSyncUnsafe()
 
@@ -152,7 +152,7 @@ object instancesSpec extends Properties {
         _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
       } yield ().some)
 
-    import effectie.monix3.fx._
+    import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
     runLog[Task](logMsg).runSyncUnsafe()
 
@@ -194,7 +194,7 @@ object instancesSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.monix3.fx._
+    import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
     runLog[Task](eab).runSyncUnsafe()
 
@@ -236,7 +236,7 @@ object instancesSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.monix3.fx._
+    import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
     runLog[Task](eab).runSyncUnsafe()
 
@@ -278,7 +278,7 @@ object instancesSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.monix3.fx._
+    import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
     runLog[Task](eab).runSyncUnsafe()
 

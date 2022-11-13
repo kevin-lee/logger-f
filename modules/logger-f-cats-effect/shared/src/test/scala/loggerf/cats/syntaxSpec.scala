@@ -76,7 +76,7 @@ object syntaxSpec extends Properties {
         _ <- log(effectOf(errorMsg))(error)
       } yield ())
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO].unsafeRunSync()
 
@@ -105,7 +105,7 @@ object syntaxSpec extends Properties {
         _ <- log(effectOf(oa))(error(ifEmptyMsg), error)
       } yield ().some)
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](logMsg).unsafeRunSync()
 
@@ -144,7 +144,7 @@ object syntaxSpec extends Properties {
         _ <- log(effectOf(oa))(ignore, error)
       } yield ().some)
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](logMsg).unsafeRunSync()
 
@@ -184,7 +184,7 @@ object syntaxSpec extends Properties {
         _ <- log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
       } yield ().some)
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](logMsg).unsafeRunSync()
 
@@ -224,7 +224,7 @@ object syntaxSpec extends Properties {
         _ <- log(effectOf(oa))(error(ifEmptyMsg), ignoreA)
       } yield ().some)
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](logMsg).unsafeRunSync()
 
@@ -266,7 +266,7 @@ object syntaxSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](eab).unsafeRunSync()
 
@@ -308,7 +308,7 @@ object syntaxSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](eab).unsafeRunSync()
 
@@ -350,7 +350,7 @@ object syntaxSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](eab).unsafeRunSync()
 
@@ -392,7 +392,7 @@ object syntaxSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](eab).unsafeRunSync()
 
@@ -434,7 +434,7 @@ object syntaxSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](eab).unsafeRunSync()
 
@@ -473,7 +473,7 @@ object syntaxSpec extends Properties {
       _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), error)
     } yield ()).value
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](logMsg).unsafeRunSync()
 
@@ -512,7 +512,7 @@ object syntaxSpec extends Properties {
       _ <- log(OptionT(effectOf(oa)))(ignore, error)
     } yield ()).value
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](logMsg).unsafeRunSync()
 
@@ -551,7 +551,7 @@ object syntaxSpec extends Properties {
       _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
     } yield ()).value
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](logMsg).unsafeRunSync()
 
@@ -590,7 +590,7 @@ object syntaxSpec extends Properties {
       _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), ignoreA)
     } yield ()).value
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](logMsg).unsafeRunSync()
 
@@ -632,7 +632,7 @@ object syntaxSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](eab).unsafeRunSync()
 
@@ -674,7 +674,7 @@ object syntaxSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](eab).unsafeRunSync()
 
@@ -716,7 +716,7 @@ object syntaxSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](eab).unsafeRunSync()
 
@@ -758,7 +758,7 @@ object syntaxSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](eab).unsafeRunSync()
 
@@ -800,7 +800,7 @@ object syntaxSpec extends Properties {
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-    import effectie.ce2.fx.ioFx
+    import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
     runLog[IO](eab).unsafeRunSync()
 
@@ -843,7 +843,7 @@ object syntaxSpec extends Properties {
           _ <- effectOf(errorMsg).log(error)
         } yield ())
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO].unsafeRunSync()
 
@@ -872,7 +872,7 @@ object syntaxSpec extends Properties {
           _ <- effectOf(oa).log(error(ifEmptyMsg), error)
         } yield ().some)
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](logMsg).unsafeRunSync()
 
@@ -911,7 +911,7 @@ object syntaxSpec extends Properties {
           _ <- effectOf(oa).log(ignore, error)
         } yield ().some)
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](logMsg).unsafeRunSync()
 
@@ -951,7 +951,7 @@ object syntaxSpec extends Properties {
           _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
         } yield ().some)
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](logMsg).unsafeRunSync()
 
@@ -991,7 +991,7 @@ object syntaxSpec extends Properties {
           _ <- effectOf(oa).log(error(ifEmptyMsg), ignoreA)
         } yield ().some)
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](logMsg).unsafeRunSync()
 
@@ -1033,7 +1033,7 @@ object syntaxSpec extends Properties {
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](eab).unsafeRunSync()
 
@@ -1075,7 +1075,7 @@ object syntaxSpec extends Properties {
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](eab).unsafeRunSync()
 
@@ -1117,7 +1117,7 @@ object syntaxSpec extends Properties {
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](eab).unsafeRunSync()
 
@@ -1159,7 +1159,7 @@ object syntaxSpec extends Properties {
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](eab).unsafeRunSync()
 
@@ -1201,7 +1201,7 @@ object syntaxSpec extends Properties {
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](eab).unsafeRunSync()
 
@@ -1240,7 +1240,7 @@ object syntaxSpec extends Properties {
         _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), error)
       } yield ()).value
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](logMsg).unsafeRunSync()
 
@@ -1279,7 +1279,7 @@ object syntaxSpec extends Properties {
         _ <- OptionT(effectOf(oa)).log(ignore, error)
       } yield ()).value
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](logMsg).unsafeRunSync()
 
@@ -1318,7 +1318,7 @@ object syntaxSpec extends Properties {
         _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
       } yield ()).value
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](logMsg).unsafeRunSync()
 
@@ -1357,7 +1357,7 @@ object syntaxSpec extends Properties {
         _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), ignoreA)
       } yield ()).value
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](logMsg).unsafeRunSync()
 
@@ -1399,7 +1399,7 @@ object syntaxSpec extends Properties {
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](eab).unsafeRunSync()
 
@@ -1441,7 +1441,7 @@ object syntaxSpec extends Properties {
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](eab).unsafeRunSync()
 
@@ -1483,7 +1483,7 @@ object syntaxSpec extends Properties {
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](eab).unsafeRunSync()
 
@@ -1525,7 +1525,7 @@ object syntaxSpec extends Properties {
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](eab).unsafeRunSync()
 
@@ -1567,7 +1567,7 @@ object syntaxSpec extends Properties {
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
-      import effectie.ce2.fx.ioFx
+      import effectie.instances.ce2.fx.ioFx
       import loggerf.instances.cats.logF
       runLog[IO](eab).unsafeRunSync()
 
