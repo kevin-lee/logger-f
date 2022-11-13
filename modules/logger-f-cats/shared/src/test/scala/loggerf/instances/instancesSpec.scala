@@ -67,6 +67,7 @@ object instancesSpec extends Properties {
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      import effectie.instances.future.fx._
 
       runLog[Future]
 
@@ -113,6 +114,7 @@ object instancesSpec extends Properties {
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      import effectie.instances.future.fx._
       runLog[Future](logMsg)
     }
 
@@ -156,6 +158,7 @@ object instancesSpec extends Properties {
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      import effectie.instances.future.fx._
       runLog[Future](logMsg)
     }
 
@@ -200,6 +203,7 @@ object instancesSpec extends Properties {
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      import effectie.instances.future.fx._
       runLog[Future](logMsg)
     }
 
@@ -246,6 +250,7 @@ object instancesSpec extends Properties {
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      import effectie.instances.future.fx._
       runLog[Future](eab)
     }
 
@@ -292,6 +297,7 @@ object instancesSpec extends Properties {
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      import effectie.instances.future.fx._
       runLog[Future](eab)
     }
 
@@ -338,6 +344,7 @@ object instancesSpec extends Properties {
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      import effectie.instances.future.fx._
       runLog[Future](eab)
     }
 

@@ -58,7 +58,7 @@ object instancesSpec extends Properties {
     )
 
     import CatsEffectRunner._
-    import effectie.ce3.fx.ioFx
+    import effectie.instances.ce3.fx.ioFx
     import loggerf.instances.cats.logF
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO].completeAs(())
@@ -102,7 +102,7 @@ object instancesSpec extends Properties {
     }
 
     import CatsEffectRunner._
-    import effectie.ce3.fx.ioFx
+    import effectie.instances.ce3.fx.ioFx
     import loggerf.instances.cats.logF
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](logMsg).completeThen { _ =>
@@ -146,7 +146,7 @@ object instancesSpec extends Properties {
     }
 
     import CatsEffectRunner._
-    import effectie.ce3.fx.ioFx
+    import effectie.instances.ce3.fx.ioFx
     import loggerf.instances.cats.logF
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](logMsg).completeThen { _ =>
@@ -191,7 +191,7 @@ object instancesSpec extends Properties {
     }
 
     import CatsEffectRunner._
-    import effectie.ce3.fx.ioFx
+    import effectie.instances.ce3.fx.ioFx
     import loggerf.instances.cats.logF
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](logMsg).completeThen { _ =>
@@ -238,7 +238,7 @@ object instancesSpec extends Properties {
     }
 
     import CatsEffectRunner._
-    import effectie.ce3.fx.ioFx
+    import effectie.instances.ce3.fx.ioFx
     import loggerf.instances.cats.logF
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](eab).completeThen { _ =>
@@ -285,7 +285,7 @@ object instancesSpec extends Properties {
     }
 
     import CatsEffectRunner._
-    import effectie.ce3.fx.ioFx
+    import effectie.instances.ce3.fx.ioFx
     import loggerf.instances.cats.logF
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](eab).completeThen { _ =>
@@ -332,7 +332,7 @@ object instancesSpec extends Properties {
     }
 
     import CatsEffectRunner._
-    import effectie.ce3.fx.ioFx
+    import effectie.instances.ce3.fx.ioFx
     import loggerf.instances.cats.logF
     implicit val ticket: Ticker = Ticker(TestContext())
     runLog[IO](eab).completeThen { _ =>

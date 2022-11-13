@@ -3,6 +3,7 @@ package loggerf.instances
 import cats.Monad
 import cats.syntax.all._
 import effectie.core._
+import effectie.instances.future.fx._
 import extras.concurrent.testing.ConcurrentSupport
 import extras.concurrent.testing.types.{ErrorLogger, WaitFor}
 import hedgehog._
