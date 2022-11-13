@@ -416,9 +416,9 @@ lazy val props =
 
     final val IncludeTest = "compile->compile;test->test"
 
-    final val hedgehogVersion = "0.8.0"
+    final val HedgehogVersion = "0.8.0"
 
-    final val effectieVersion = "2.0.0-beta2"
+    final val EffectieVersion = "2.0.0-beta2"
 
     final val CatsVersion = "2.6.1"
 
@@ -426,41 +426,41 @@ lazy val props =
 
     final val ExtrasVersion = "0.4.0"
 
-    final val slf4JVersion   = "1.7.36"
-    final val logbackVersion = "1.2.11"
+    final val Slf4JVersion   = "1.7.36"
+    final val LogbackVersion = "1.2.11"
 
-    final val log4sVersion = "1.10.0"
+    final val Log4sVersion = "1.10.0"
 
-    final val log4JVersion = "2.19.0"
+    final val Log4JVersion = "2.19.0"
   }
 
 lazy val libs =
   new {
 
     lazy val hedgehogLibs: List[ModuleID] = List(
-      "qa.hedgehog" %% "hedgehog-core"   % props.hedgehogVersion % Test,
-      "qa.hedgehog" %% "hedgehog-runner" % props.hedgehogVersion % Test,
-      "qa.hedgehog" %% "hedgehog-sbt"    % props.hedgehogVersion % Test
+      "qa.hedgehog" %% "hedgehog-core"   % props.HedgehogVersion % Test,
+      "qa.hedgehog" %% "hedgehog-runner" % props.HedgehogVersion % Test,
+      "qa.hedgehog" %% "hedgehog-sbt"    % props.HedgehogVersion % Test
     )
 
-    lazy val slf4jApi: ModuleID       = "org.slf4j"      % "slf4j-api"       % props.slf4JVersion
-    lazy val logbackClassic: ModuleID = "ch.qos.logback" % "logback-classic" % props.logbackVersion
+    lazy val slf4jApi: ModuleID       = "org.slf4j"      % "slf4j-api"       % props.Slf4JVersion
+    lazy val logbackClassic: ModuleID = "ch.qos.logback" % "logback-classic" % props.LogbackVersion
 
-    lazy val log4sLib: ModuleID = "org.log4s" %% "log4s" % props.log4sVersion
+    lazy val log4sLib: ModuleID = "org.log4s" %% "log4s" % props.Log4sVersion
 
-    lazy val log4jApi  = "org.apache.logging.log4j" % "log4j-api"  % props.log4JVersion
-    lazy val log4jCore = "org.apache.logging.log4j" % "log4j-core" % props.log4JVersion
+    lazy val log4jApi  = "org.apache.logging.log4j" % "log4j-api"  % props.Log4JVersion
+    lazy val log4jCore = "org.apache.logging.log4j" % "log4j-core" % props.Log4JVersion
 
     lazy val sbtLoggingLib = "org.scala-sbt" %% "util-logging"
 
     lazy val cats = "org.typelevel" %% "cats-core" % props.CatsVersion
 
-    lazy val effectieCore: ModuleID        = "io.kevinlee" %% "effectie-core"         % props.effectieVersion
-    lazy val effectieSyntax: ModuleID      = "io.kevinlee" %% "effectie-syntax"       % props.effectieVersion
-    lazy val effectieCatsEffect: ModuleID  = "io.kevinlee" %% "effectie-cats-effect2" % props.effectieVersion
-    lazy val effectieCatsEffect3: ModuleID = "io.kevinlee" %% "effectie-cats-effect3" % props.effectieVersion
+    lazy val effectieCore: ModuleID        = "io.kevinlee" %% "effectie-core"         % props.EffectieVersion
+    lazy val effectieSyntax: ModuleID      = "io.kevinlee" %% "effectie-syntax"       % props.EffectieVersion
+    lazy val effectieCatsEffect: ModuleID  = "io.kevinlee" %% "effectie-cats-effect2" % props.EffectieVersion
+    lazy val effectieCatsEffect3: ModuleID = "io.kevinlee" %% "effectie-cats-effect3" % props.EffectieVersion
 
-    lazy val effectieMonix: ModuleID = "io.kevinlee" %% "effectie-monix3" % props.effectieVersion
+    lazy val effectieMonix: ModuleID = "io.kevinlee" %% "effectie-monix3" % props.EffectieVersion
 
     lazy val extrasCats = "io.kevinlee" %% "extras-cats" % props.ExtrasVersion
 
