@@ -23,6 +23,9 @@ object future {
     override val canLog: CanLog,
     val EC: ExecutionContext,
   ) extends Log[Future] {
+
+    override def map0[A, B](fa: Future[A])(f: A => B): Future[B] = fa.map(f)(EC)
+
     override def flatMap0[A, B](fa: Future[A])(f: A => Future[B]): Future[B] = fa.flatMap(f)(using EC)
   }
 

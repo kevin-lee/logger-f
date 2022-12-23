@@ -1,6 +1,5 @@
 import ProjectInfo.{ProjectName, _}
 import just.semver.SemVer
-import SemVer.{Major, Minor}
 import kevinlee.sbt.SbtCommon.crossVersionProps
 import sbtcrossproject.CrossProject
 

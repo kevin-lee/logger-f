@@ -29,6 +29,9 @@ object cats extends cats {
     override val canLog: CanLog,
     val MF: Monad[F],
   ) extends Log[F] {
+
+    @inline override def map0[A, B](fa: F[A])(f: A => B): F[B] = MF.map(fa)(f)
+
     @inline override def flatMap0[A, B](fa: F[A])(f: A => F[B]): F[B] = MF.flatMap(fa)(f)
   }
 
