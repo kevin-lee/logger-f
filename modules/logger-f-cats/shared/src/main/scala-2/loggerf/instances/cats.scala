@@ -23,7 +23,6 @@ trait cats {
 
 object cats extends cats {
 
-  @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   final class LogF[F[*]](
     override val EF: FxCtor[F],
     override val canLog: CanLog,

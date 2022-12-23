@@ -10,7 +10,7 @@ import loggerf.logger.CanLog
   */
 trait Log[F[*]] {
 
-  implicit val EF: FxCtor[F]
+  implicit def EF: FxCtor[F]
   def map0[A, B](fa: F[A])(f: A => B): F[B]
 
   def flatMap0[A, B](fa: F[A])(f: A => F[B]): F[B]
