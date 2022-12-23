@@ -12,7 +12,9 @@ import scala.util.control.NonFatal
 final case class LogForTesting(canLog0: LoggerForTesting) extends Log[Identity] {
   override implicit val EF: FxCtor[Identity] = LogForTesting.FxCtorForTesting
 
-  override def flatMap0[A, B](fa: Identity[A])(f: A => Identity[B]): Identity[B] = f(fa)
+  @inline override def map0[A, B](fa: Identity[A])(f: A => B): Identity[B] = f(fa)
+
+  @inline override def flatMap0[A, B](fa: Identity[A])(f: A => Identity[B]): Identity[B] = f(fa)
 
   override def canLog: CanLog = canLog0
 }

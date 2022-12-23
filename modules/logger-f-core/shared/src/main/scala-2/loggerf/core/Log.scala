@@ -11,6 +11,8 @@ import loggerf.logger.CanLog
 trait Log[F[*]] {
 
   implicit val EF: FxCtor[F]
+  def map0[A, B](fa: F[A])(f: A => B): F[B]
+
   def flatMap0[A, B](fa: F[A])(f: A => F[B]): F[B]
 
   def canLog: CanLog
@@ -22,6 +24,9 @@ trait Log[F[*]] {
           flatMap0(EF.effectOf(canLog.getLogger(level)(message)))(_ => EF.pureOf(a))
       }
     }
+
+  def log_[A](fa: F[A])(toLeveledMessage: A => LogMessage with NotIgnorable): F[Unit] =
+    map0(log(fa)(toLeveledMessage))(_ => ())
 
   def log[A](
     foa: F[Option[A]]
@@ -48,6 +53,14 @@ trait Log[F[*]] {
         }
     }
 
+  def log_[A](
+    foa: F[Option[A]]
+  )(
+    ifEmpty: => LogMessage with MaybeIgnorable,
+    toLeveledMessage: A => LogMessage with MaybeIgnorable,
+  ): F[Unit] =
+    map0(log(foa)(ifEmpty, toLeveledMessage))(_ => ())
+
   def log[A, B](
     feab: F[Either[A, B]]
   )(
@@ -72,6 +85,14 @@ trait Log[F[*]] {
             EF.pureOf(Right(r))
         }
     }
+
+  def log_[A, B](
+    feab: F[Either[A, B]]
+  )(
+    leftToMessage: A => LogMessage with MaybeIgnorable,
+    rightToMessage: B => LogMessage with MaybeIgnorable,
+  ): F[Unit] =
+    map0(log(feab)(leftToMessage, rightToMessage))(_ => ())
 
 }
 

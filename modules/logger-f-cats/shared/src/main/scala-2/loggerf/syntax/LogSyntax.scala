@@ -4,7 +4,6 @@ import cats.data.{EitherT, OptionT}
 import loggerf.LogMessage
 import loggerf.LogMessage.MaybeIgnorable
 import loggerf.core.Log
-import loggerf.core.syntax.{LogSyntax => CoreLogSyntax}
 
 /** @author Kevin Lee
   */
@@ -20,6 +19,14 @@ trait LogSyntax extends loggerf.core.syntax.LogSyntax {
   ): OptionT[F, A] =
     OptionT(Log[F].log(otfa.value)(ifEmpty, toLeveledMessage))
 
+  def log_[F[*]: Log, A](
+    otfa: OptionT[F, A]
+  )(
+    ifEmpty: => LogMessage with MaybeIgnorable,
+    toLeveledMessage: A => LogMessage with MaybeIgnorable,
+  ): OptionT[F, Unit] =
+    OptionT(Log[F].map0(Log[F].log(otfa.value)(ifEmpty, toLeveledMessage))(_.map(_ => ())))
+
   def log[F[*]: Log, A, B](
     etfab: EitherT[F, A, B]
   )(
@@ -27,6 +34,14 @@ trait LogSyntax extends loggerf.core.syntax.LogSyntax {
     rightToMessage: B => LogMessage with MaybeIgnorable,
   ): EitherT[F, A, B] =
     EitherT(Log[F].log(etfab.value)(leftToMessage, rightToMessage))
+
+  def log_[F[*]: Log, A, B](
+    etfab: EitherT[F, A, B]
+  )(
+    leftToMessage: A => LogMessage with MaybeIgnorable,
+    rightToMessage: B => LogMessage with MaybeIgnorable,
+  ): EitherT[F, A, Unit] =
+    EitherT(Log[F].map0(Log[F].log(etfab.value)(leftToMessage, rightToMessage))(_.map(_ => ())))
 
   // /
 
@@ -47,7 +62,13 @@ object LogSyntax extends LogSyntax {
       ifEmpty: => LogMessage with MaybeIgnorable,
       toLeveledMessage: A => LogMessage with MaybeIgnorable,
     )(implicit L: Log[F]): OptionT[F, A] =
-      OptionT(CoreLogSyntax.log(otfa.value)(ifEmpty, toLeveledMessage))
+      LogSyntax.log(otfa)(ifEmpty, toLeveledMessage)
+
+    def log_(
+      ifEmpty: => LogMessage with MaybeIgnorable,
+      toLeveledMessage: A => LogMessage with MaybeIgnorable,
+    )(implicit L: Log[F]): OptionT[F, Unit] =
+      LogSyntax.log_(otfa)(ifEmpty, toLeveledMessage)
   }
 
   final class LogEitherTFABSyntax[F[*], A, B](val etfab: EitherT[F, A, B]) extends AnyVal {
@@ -55,7 +76,13 @@ object LogSyntax extends LogSyntax {
       leftToMessage: A => LogMessage with MaybeIgnorable,
       rightToMessage: B => LogMessage with MaybeIgnorable,
     )(implicit L: Log[F]): EitherT[F, A, B] =
-      EitherT(CoreLogSyntax.log(etfab.value)(leftToMessage, rightToMessage))
+      LogSyntax.log(etfab)(leftToMessage, rightToMessage)
+
+    def log_(
+      leftToMessage: A => LogMessage with MaybeIgnorable,
+      rightToMessage: B => LogMessage with MaybeIgnorable,
+    )(implicit L: Log[F]): EitherT[F, A, Unit] =
+      LogSyntax.log_(etfab)(leftToMessage, rightToMessage)
 
   }
 }
