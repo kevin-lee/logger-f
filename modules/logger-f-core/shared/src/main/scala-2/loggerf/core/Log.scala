@@ -28,6 +28,12 @@ trait Log[F[*]] {
   def log_[A](fa: F[A])(toLeveledMessage: A => LogMessage with NotIgnorable): F[Unit] =
     map0(log(fa)(toLeveledMessage))(_ => ())
 
+  def logS(message: String)(toLeveledMessage: String => LogMessage with NotIgnorable): F[String] =
+    toLeveledMessage(message) match {
+      case LogMessage.LeveledMessage(msg, level) =>
+        map0(EF.effectOf(canLog.getLogger(level)(msg)))(_ => message)
+    }
+
   def log[A](
     foa: F[Option[A]]
   )(

@@ -22,6 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 object syntaxSpec extends Properties {
   override def tests: List[Test] = List(
     property("test log(F[A])", testLogFA),
+    property("test log(String)", testLogString),
     property("test log_(F[A])", testLog_FA),
     property("test log(F[Option[A]])", testLogFOptionA),
     property("test log(F[Option[A]])(ignore, message)", testLogFOptionAIgnoreEmpty),
@@ -37,6 +38,7 @@ object syntaxSpec extends Properties {
     property("test log_(F[Either[A, B]])(ignore, message)", testLog_FEitherABIgnoreRight),
   ) ++ List(
     property("test F[A].log", LogExtensionSpec.testFALog),
+    property("test String.log", LogExtensionSpec.testStringLog),
     property("test F[A].log_", LogExtensionSpec.testFALog_()),
     property("test F[Option[A]].log", LogExtensionSpec.testFOptionALog),
     property("test F[Option[A]].log(ignore, message)", LogExtensionSpec.testFOptionALogIgnoreEmpty),
@@ -90,6 +92,43 @@ object syntaxSpec extends Properties {
     }
 
     logger ==== expected
+  }
+
+  def testLogString: Property = for {
+    debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+    infoMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+    warnMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+    errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: FxCtor: Log: Monad]: F[(String, String, String, String)] =
+      for {
+        msg1 <- logS(debugMsg)(debug)
+        msg2 <- logS(infoMsg)(info)
+        msg3 <- logS(warnMsg)(warn)
+        msg4 <- logS(errorMsg)(error)
+      } yield (msg1, msg2, msg3, msg4)
+
+    val expectedLogger = LoggerForTesting(
+      debugMessages = Vector(debugMsg),
+      infoMessages = Vector(infoMsg),
+      warnMessages = Vector(warnMsg),
+      errorMessages = Vector(errorMsg),
+    )
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    val expected = (debugMsg, infoMsg, warnMsg, errorMsg)
+    val actual   = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      import loggerf.instances.future.logFuture
+      runLog[Future]
+    }
+
+    actual ==== expected and logger ==== expectedLogger
   }
 
   def testLog_FA: Property = for {
@@ -705,6 +744,43 @@ object syntaxSpec extends Properties {
       }
 
       logger ==== expected
+    }
+
+    def testStringLog: Property = for {
+      debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+      infoMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+      warnMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+      errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[*]: FxCtor: Log: Monad]: F[(String, String, String, String)] =
+        for {
+          msg1 <- debugMsg.logS(debug)
+          msg2 <- infoMsg.logS(info)
+          msg3 <- warnMsg.logS(warn)
+          msg4 <- errorMsg.logS(error)
+        } yield (msg1, msg2, msg3, msg4)
+
+      val expectedLogger = LoggerForTesting(
+        debugMessages = Vector(debugMsg),
+        infoMessages = Vector(infoMsg),
+        warnMessages = Vector(warnMsg),
+        errorMessages = Vector(errorMsg),
+      )
+
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+      implicit val ec: ExecutionContext =
+        ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+      val expected = (debugMsg, infoMsg, warnMsg, errorMsg)
+      val actual   = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+        import loggerf.instances.future.logFuture
+        runLog[Future]
+      }
+
+      actual ==== expected and logger ==== expectedLogger
     }
 
     def testFALog_(): Property =

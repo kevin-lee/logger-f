@@ -29,6 +29,12 @@ trait Log[F[*]] {
   def log_[A](fa: F[A])(toLeveledMessage: A => LeveledMessage): F[Unit] =
     map0(log(fa)(toLeveledMessage))(_ => ())
 
+  def logS(message: String)(toLeveledMessage: String => LeveledMessage): F[String] =
+    toLeveledMessage(message) match {
+      case LeveledMessage(msg, level) =>
+        map0(EF.effectOf(canLog.getLogger(level)(msg)))(_ => message)
+    }
+
   def log[A](
     foa: F[Option[A]]
   )(
