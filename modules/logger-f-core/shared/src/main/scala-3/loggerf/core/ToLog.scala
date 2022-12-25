@@ -14,5 +14,5 @@ object ToLog {
 
   def fromToString[A]: ToLog[A] = _.toString
 
-  given stringToLog: ToLog[String] = identity(_)
+  inline given stringToLog: ToLog[String] = identity(_)
 }

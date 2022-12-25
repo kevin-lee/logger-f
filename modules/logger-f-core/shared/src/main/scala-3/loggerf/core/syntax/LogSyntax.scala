@@ -20,6 +20,13 @@ trait LogSyntax {
       L.log_(fa)(toLeveledMessage)
   }
 
+  extension (message: String) {
+    def logS[F[*]](toLeveledMessage: String => LeveledMessage)(using L: Log[F]
+
+    ): F[String] =
+      L.logS(message)(toLeveledMessage)
+  }
+
   extension [F[*], A](foa: F[Option[A]]) {
     def log(
       ifEmpty: => LeveledMessage | Ignore.type,
