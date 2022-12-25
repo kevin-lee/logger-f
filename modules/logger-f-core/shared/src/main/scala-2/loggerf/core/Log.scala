@@ -34,6 +34,12 @@ trait Log[F[*]] {
         map0(EF.effectOf(canLog.getLogger(level)(msg)))(_ => message)
     }
 
+  def logS_(message: String)(toLeveledMessage: String => LogMessage with NotIgnorable): F[Unit] =
+    toLeveledMessage(message) match {
+      case LogMessage.LeveledMessage(msg, level) =>
+        EF.effectOf(canLog.getLogger(level)(msg))
+    }
+
   def log[A](
     foa: F[Option[A]]
   )(

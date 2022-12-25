@@ -25,6 +25,7 @@ object instancesSpec extends Properties {
     property("test Log.log(F[A])", testLogFA),
     property("test Log.log_(F[A])", testLog_FA),
     property("test Log.logS(String)", testLogS),
+    property("test Log.logS_(String)", testLogS_()),
     property("test Log.log(F[Option[A]])", testLogFOptionA),
     property("test Log.log(F[Option[A]])(ignore, message)", testLogFOptionAIgnoreEmpty),
     property("test Log.log(F[Option[A]])(message, ignore)", testLogFOptionAIgnoreSome),
@@ -149,6 +150,42 @@ object instancesSpec extends Properties {
       runLog[Future]
     }
     actual ==== expected and logger ==== expectedLogger
+
+  }
+
+  def testLogS_(): Property = for {
+    debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+    infoMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+    warnMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+    errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*] : Fx : Log : Monad]: F[Unit] =
+      Log[F]
+        .logS_(debugMsg)(debug)
+        .flatMap { _ => Log[F].logS_(infoMsg)(info) }
+        .flatMap { _ => Log[F].logS_(warnMsg)(warn) }
+        .flatMap { _ => Log[F].logS_(errorMsg)(error) }
+
+    val expected = LoggerForTesting(
+      debugMessages = Vector(debugMsg),
+      infoMessages = Vector(infoMsg),
+      warnMessages = Vector(warnMsg),
+      errorMessages = Vector(errorMsg),
+    )
+
+    implicit val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+
+      runLog[Future]
+
+    }
+    logger ==== expected
 
   }
 
