@@ -27,6 +27,11 @@ trait LogSyntax {
   ): F[String] =
     L.logS(message)(toLeveledMessage)
 
+  @inline def logS_[F[*]](message: String)(toLeveledMessage: String => LogMessage with NotIgnorable)(
+    implicit L: Log[F]
+  ): F[Unit] =
+    L.logS_(message)(toLeveledMessage)
+
   @inline def log[F[*], A](
     foa: F[Option[A]]
   )(
@@ -94,6 +99,9 @@ object LogSyntax extends LogSyntax {
   final class LogFForStringSyntax(private val message: String) extends AnyVal {
     @inline def logS[F[*]](toLeveledMessage: String => LogMessage with NotIgnorable)(implicit L: Log[F]): F[String] =
       LogSyntax.logS(message)(toLeveledMessage)
+
+    @inline def logS_[F[*]](toLeveledMessage: String => LogMessage with NotIgnorable)(implicit L: Log[F]): F[Unit] =
+      LogSyntax.logS_(message)(toLeveledMessage)
   }
 
   final class LogFOfOptionSyntax[F[*], A](private val foa: F[Option[A]]) extends AnyVal {
