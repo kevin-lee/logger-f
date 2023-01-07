@@ -13,7 +13,7 @@ trait CanLog {
 }
 
 object CanLog {
-  implicit class GetLogger(val canLog: CanLog) extends AnyVal {
+  implicit class GetLogger(private val canLog: CanLog) extends AnyVal {
     @inline def getLogger(level: Level): (=> String) => Unit = level match {
       case Level.Debug => canLog.debug
       case Level.Info => canLog.info
