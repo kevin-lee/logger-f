@@ -25,26 +25,26 @@ object LoggerForTesting {
 
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   final case class MessageKeeper(
-    private var _debugMessages: Vector[String],
-    private var _infoMessages: Vector[String],
-    private var _warnMessages: Vector[String],
-    private var _errorMessages: Vector[String],
+    private var _debugMessages: Vector[String], // scalafix:ok DisableSyntax.var
+    private var _infoMessages: Vector[String], // scalafix:ok DisableSyntax.var
+    private var _warnMessages: Vector[String], // scalafix:ok DisableSyntax.var
+    private var _errorMessages: Vector[String], // scalafix:ok DisableSyntax.var
   ) {
-    def debugMessages: Vector[String]                                                  = _debugMessages
-    private[LoggerForTesting] def debugMessages_=(debugMessages: Vector[String]): Unit =
-      _debugMessages = debugMessages
+    def debugMessages: Vector[String] = _debugMessages
 
-    def infoMessages: Vector[String]                                                 = _infoMessages
-    private[LoggerForTesting] def infoMessages_=(infoMessages: Vector[String]): Unit =
-      _infoMessages = infoMessages
+    private[LoggerForTesting] def debugMessages_=(debugMessages: Vector[String]): Unit = _debugMessages = debugMessages
 
-    def warnMessages: Vector[String]                                                 = _warnMessages
-    private[LoggerForTesting] def warnMessages_=(warnMessages: Vector[String]): Unit =
-      _warnMessages = warnMessages
+    def infoMessages: Vector[String] = _infoMessages
 
-    def errorMessages: Vector[String]                                                  = _errorMessages
-    private[LoggerForTesting] def errorMessages_=(errorMessages: Vector[String]): Unit =
-      _errorMessages = errorMessages
+    private[LoggerForTesting] def infoMessages_=(infoMessages: Vector[String]): Unit = _infoMessages = infoMessages
+
+    def warnMessages: Vector[String] = _warnMessages
+
+    private[LoggerForTesting] def warnMessages_=(warnMessages: Vector[String]): Unit = _warnMessages = warnMessages
+
+    def errorMessages: Vector[String] = _errorMessages
+
+    private[LoggerForTesting] def errorMessages_=(errorMessages: Vector[String]): Unit = _errorMessages = errorMessages
   }
 
   def apply(
