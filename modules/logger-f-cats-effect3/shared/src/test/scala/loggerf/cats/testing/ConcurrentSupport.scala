@@ -51,7 +51,7 @@ trait ConcurrentSupport {
         @SuppressWarnings(Array("org.wartremover.warts.ToString"))
         val message = ex.toString
         println(s"TimeoutException ⚠️: $message")
-        throw ex
+        throw ex // scalafix:ok DisableSyntax.throw
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter", "org.wartremover.warts.Throw"))
@@ -65,7 +65,7 @@ trait ConcurrentSupport {
         @SuppressWarnings(Array("org.wartremover.warts.ToString"))
         val message = ex.toString
         println(s"ex: $message")
-        throw ex
+        throw ex // scalafix:ok DisableSyntax.throw
     } finally {
       try {
         ExecutorServiceOps.shutdownAndAwaitTerminationWithLogger(executorService, waitFor)(println(_))

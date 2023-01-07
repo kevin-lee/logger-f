@@ -30,13 +30,13 @@ object LogForTesting {
     override def pureOrError[A](a: => A): Identity[A] =
       try a
       catch {
-        case NonFatal(ex) => throw ex // scalafix: ok Disable:throw
+        case NonFatal(ex) => throw ex // scalafix:ok DisableSyntax.throw
       }
 
     override def unitOf: Identity[Unit] = ()
 
     @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-    override def errorOf[A](throwable: Throwable): Identity[A] = throw throwable
+    override def errorOf[A](throwable: Throwable): Identity[A] = throw throwable // scalafix:ok DisableSyntax.throw
 
     override def fromEither[A](either: Either[Throwable, A]): Identity[A] = either.fold(errorOf, pureOf)
 

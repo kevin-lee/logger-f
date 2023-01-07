@@ -27,6 +27,29 @@ ThisBuild / licenses   := props.licenses
 
 ThisBuild / resolvers += "sonatype-snapshots" at s"https://${props.SonatypeCredentialHost}/content/repositories/snapshots"
 
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+
+ThisBuild / scalafixConfig := (
+  if (scalaVersion.value.startsWith("3")) file(".scalafix-scala3.conf").some
+  else file(".scalafix-scala2.conf").some
+  )
+
+ThisBuild / scalafixScalaBinaryVersion := {
+  val log = sLog.value
+  val newVersion = if (scalaVersion.value.startsWith("3")) {
+    (ThisBuild / scalafixScalaBinaryVersion).value
+  } else {
+    CrossVersion.binaryScalaVersion(scalaVersion.value)
+  }
+
+  log.info(s">> Change ThisBuild / scalafixScalaBinaryVersion from ${(ThisBuild / scalafixScalaBinaryVersion).value} to $newVersion")
+  newVersion
+}
+
+ThisBuild / scalafixDependencies += "com.github.xuwei-k" %% "scalafix-rules" % "0.2.12"
+
+
 lazy val loggerF = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin)
   .settings(
