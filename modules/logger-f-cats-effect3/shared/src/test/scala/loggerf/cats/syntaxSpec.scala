@@ -8,12 +8,12 @@ import cats.syntax.all._
 import effectie.core.FxCtor
 import effectie.syntax.all._
 import extras.concurrent.testing.ConcurrentSupport
-import extras.hedgehog.cats.effect.CatsEffectRunner
+import extras.hedgehog.ce3.syntax.runner._
 import hedgehog._
 import hedgehog.runner._
-import loggerf.syntax.all._
 import loggerf.core.Log
 import loggerf.logger.LoggerForTesting
+import loggerf.syntax.all._
 
 import java.util.concurrent.ExecutorService
 
@@ -51,610 +51,23 @@ object syntaxSpec extends Properties {
     property("test EitherT[F, A, B].log(message, ignore)", LogExtensionSpec.testLogEitherTFABIgnoreRight),
   )
 
-  def testLogFA: Property = for {
-    debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
-    infoMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
-    warnMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
-    errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
-  } yield {
-
-    implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: FxCtor: Monad: Log]: F[Unit] =
-      (for {
-        _ <- log(effectOf(debugMsg))(debug)
-        _ <- log(effectOf(infoMsg))(info)
-        _ <- log(effectOf(warnMsg))(warn)
-        _ <- log(effectOf(errorMsg))(error)
-      } yield ())
-
-    val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-    implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
-    val expected = LoggerForTesting(
-      debugMessages = Vector(debugMsg),
-      infoMessages = Vector(infoMsg),
-      warnMessages = Vector(warnMsg),
-      errorMessages = Vector(errorMsg),
-    )
-
-    import CatsEffectRunner._
-    import effectie.instances.ce3.fx.ioFx
-    import loggerf.instances.cats.logF
-    implicit val ticket: Ticker = Ticker(TestContext())
-    runLog[IO].completeThen { _ =>
-      logger ==== expected
-    }
-  }
-
-  def testLogFOptionA: Property = for {
-    logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
-    ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
-  } yield {
-
-    implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] =
-      (for {
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), debug)
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), info)
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), warn)
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), error)
-      } yield ().some)
-
-    val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-    implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
-    val expected = logMsg match {
-      case Some(logMsg) =>
-        LoggerForTesting(
-          debugMessages = Vector(logMsg),
-          infoMessages = Vector(logMsg),
-          warnMessages = Vector(logMsg),
-          errorMessages = Vector(logMsg),
-        )
-
-      case None =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector.fill(4)(ifEmptyMsg),
-        )
-    }
-
-    import CatsEffectRunner._
-    import effectie.instances.ce3.fx.ioFx
-    import loggerf.instances.cats.logF
-    implicit val ticket: Ticker = Ticker(TestContext())
-    runLog[IO](logMsg).completeThen { _ =>
-      logger ==== expected
-    }
-  }
-
-  def testLogFOptionAIgnoreEmpty: Property = for {
-    logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
-  } yield {
-
-    implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] =
-      (for {
-        _ <- log(effectOf(oa))(ignore, debug)
-        _ <- log(effectOf(oa))(ignore, info)
-        _ <- log(effectOf(oa))(ignore, warn)
-        _ <- log(effectOf(oa))(ignore, error)
-      } yield ().some)
-
-    val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-    implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
-    val expected = logMsg match {
-      case Some(logMsg) =>
-        LoggerForTesting(
-          debugMessages = Vector(logMsg),
-          infoMessages = Vector(logMsg),
-          warnMessages = Vector(logMsg),
-          errorMessages = Vector(logMsg),
-        )
-
-      case None =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector.empty,
-        )
-    }
-
-    import CatsEffectRunner._
-    import effectie.instances.ce3.fx.ioFx
-    import loggerf.instances.cats.logF
-    implicit val ticket: Ticker = Ticker(TestContext())
-    runLog[IO](logMsg).completeThen { _ =>
-      logger ==== expected
-    }
-  }
-
-  def testLogFOptionAIgnoreSome: Property = for {
-    logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
-    ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
-  } yield {
-
-    implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] =
-      (for {
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
-        _ <- log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
-      } yield ().some)
-
-    val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-    implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
-    val expected = logMsg match {
-      case Some(logMsg) =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector.empty,
-        )
-
-      case None =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector.fill(4)(ifEmptyMsg),
-        )
-    }
-
-    import CatsEffectRunner._
-    import effectie.instances.ce3.fx.ioFx
-    import loggerf.instances.cats.logF
-    implicit val ticket: Ticker = Ticker(TestContext())
-    runLog[IO](logMsg).completeThen { _ =>
-      logger ==== expected
-    }
-  }
-
-  def testLogFEitherAB: Property = for {
-    rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
-    leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRight    <- Gen.boolean.log("isRight")
-  } yield {
-
-    implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = for {
-      _ <- log(effectOf(eab))(error, b => debug(b.toString))
-      _ <- log(effectOf(eab))(error, b => info(b.toString))
-      _ <- log(effectOf(eab))(error, b => warn(b.toString))
-      _ <- log(effectOf(eab))(error, b => error(b.toString))
-    } yield ().asRight[String]
-
-    val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
-
-    val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-    implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
-    val expected = eab match {
-      case Right(n) =>
-        LoggerForTesting(
-          debugMessages = Vector(n.toString),
-          infoMessages = Vector(n.toString),
-          warnMessages = Vector(n.toString),
-          errorMessages = Vector(n.toString),
-        )
-
-      case Left(msg) =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector.fill(4)(msg),
-        )
-    }
-
-    import CatsEffectRunner._
-    import effectie.instances.ce3.fx.ioFx
-    import loggerf.instances.cats.logF
-    implicit val ticket: Ticker = Ticker(TestContext())
-    runLog[IO](eab).completeThen { _ =>
-      logger ==== expected
-    }
-  }
-
-  def testLogFEitherABIgnoreLeft: Property = for {
-    rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
-    leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRight    <- Gen.boolean.log("isRight")
-  } yield {
-
-    implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = for {
-      _ <- log(effectOf(eab))(_ => ignore, b => debug(b.toString))
-      _ <- log(effectOf(eab))(_ => ignore, b => info(b.toString))
-      _ <- log(effectOf(eab))(_ => ignore, b => warn(b.toString))
-      _ <- log(effectOf(eab))(_ => ignore, b => error(b.toString))
-    } yield ().asRight[String]
-
-    val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
-
-    val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-    implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
-    val expected = eab match {
-      case Right(n) =>
-        LoggerForTesting(
-          debugMessages = Vector(n.toString),
-          infoMessages = Vector(n.toString),
-          warnMessages = Vector(n.toString),
-          errorMessages = Vector(n.toString),
-        )
-
-      case Left(msg) =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector.empty,
-        )
-    }
-
-    import CatsEffectRunner._
-    import effectie.instances.ce3.fx.ioFx
-    import loggerf.instances.cats.logF
-    implicit val ticket: Ticker = Ticker(TestContext())
-    runLog[IO](eab).completeThen { _ =>
-      logger ==== expected
-    }
-  }
-
-  def testLogFEitherABIgnoreRight: Property = for {
-    rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
-    leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRight    <- Gen.boolean.log("isRight")
-  } yield {
-
-    implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = for {
-      _ <- log(effectOf(eab))(error, _ => ignore)
-      _ <- log(effectOf(eab))(error, _ => ignore)
-      _ <- log(effectOf(eab))(error, _ => ignore)
-      _ <- log(effectOf(eab))(error, _ => ignore)
-    } yield ().asRight[String]
-
-    val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
-
-    val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-    implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
-    val expected = eab match {
-      case Right(n) =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector.empty,
-        )
-
-      case Left(msg) =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector.fill(4)(msg),
-        )
-    }
-
-    import CatsEffectRunner._
-    import effectie.instances.ce3.fx.ioFx
-    import loggerf.instances.cats.logF
-    implicit val ticket: Ticker = Ticker(TestContext())
-    runLog[IO](eab).completeThen { _ =>
-      logger ==== expected
-    }
-  }
-
-  def testLogOptionTFA: Property = for {
-    logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
-    ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
-  } yield {
-
-    implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] = (for {
-      _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), debug)
-      _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), info)
-      _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), warn)
-      _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), error)
-    } yield ()).value
-
-    val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-    implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
-    val expected = logMsg match {
-      case Some(logMsg) =>
-        LoggerForTesting(
-          debugMessages = Vector(logMsg),
-          infoMessages = Vector(logMsg),
-          warnMessages = Vector(logMsg),
-          errorMessages = Vector(logMsg),
-        )
-
-      case None =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector(ifEmptyMsg),
-        )
-    }
-
-    import CatsEffectRunner._
-    import effectie.instances.ce3.fx.ioFx
-    import loggerf.instances.cats.logF
-    implicit val ticket: Ticker = Ticker(TestContext())
-    runLog[IO](logMsg).completeThen { _ =>
-      logger ==== expected
-    }
-  }
-
-  def testLogOptionTFAIgnoreEmpty: Property = for {
-    logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
-    ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
-  } yield {
-
-    implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] = (for {
-      _ <- log(OptionT(effectOf(oa)))(ignore, debug)
-      _ <- log(OptionT(effectOf(oa)))(ignore, info)
-      _ <- log(OptionT(effectOf(oa)))(ignore, warn)
-      _ <- log(OptionT(effectOf(oa)))(ignore, error)
-    } yield ()).value
-
-    val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-    implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
-    val expected = logMsg match {
-      case Some(logMsg) =>
-        LoggerForTesting(
-          debugMessages = Vector(logMsg),
-          infoMessages = Vector(logMsg),
-          warnMessages = Vector(logMsg),
-          errorMessages = Vector(logMsg),
-        )
-
-      case None =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector.empty,
-        )
-    }
-
-    import CatsEffectRunner._
-    import effectie.instances.ce3.fx.ioFx
-    import loggerf.instances.cats.logF
-    implicit val ticket: Ticker = Ticker(TestContext())
-    runLog[IO](logMsg).completeThen { _ =>
-      logger ==== expected
-    }
-  }
-
-  def testLogOptionTFAIgnoreSome: Property = for {
-    logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
-    ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
-  } yield {
-
-    implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] = (for {
-      _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
-      _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
-      _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
-      _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
-    } yield ()).value
-
-    val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-    implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
-    val expected = logMsg match {
-      case Some(logMsg) =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector.empty,
-        )
-
-      case None =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector(ifEmptyMsg),
-        )
-    }
-
-    import CatsEffectRunner._
-    import effectie.instances.ce3.fx.ioFx
-    import loggerf.instances.cats.logF
-    implicit val ticket: Ticker = Ticker(TestContext())
-    runLog[IO](logMsg).completeThen { _ =>
-      logger ==== expected
-    }
-  }
-
-  def testLogEitherTFAB: Property = for {
-    rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
-    leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRight    <- Gen.boolean.log("isRight")
-  } yield {
-
-    implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
-      _ <- log(EitherT(effectOf(eab)))(error, b => debug(b.toString))
-      _ <- log(EitherT(effectOf(eab)))(error, b => info(b.toString))
-      _ <- log(EitherT(effectOf(eab)))(error, b => warn(b.toString))
-      _ <- log(EitherT(effectOf(eab)))(error, b => error(b.toString))
-    } yield ()).value
-
-    val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
-
-    val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-    implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
-    val expected = eab match {
-      case Right(n) =>
-        LoggerForTesting(
-          debugMessages = Vector(n.toString),
-          infoMessages = Vector(n.toString),
-          warnMessages = Vector(n.toString),
-          errorMessages = Vector(n.toString),
-        )
-
-      case Left(msg) =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector(msg),
-        )
-    }
-
-    import CatsEffectRunner._
-    import effectie.instances.ce3.fx.ioFx
-    import loggerf.instances.cats.logF
-    implicit val ticket: Ticker = Ticker(TestContext())
-    runLog[IO](eab).completeThen { _ =>
-      logger ==== expected
-    }
-  }
-
-  def testLogEitherTFABIgnoreLeft: Property = for {
-    rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
-    leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRight    <- Gen.boolean.log("isRight")
-  } yield {
-
-    implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
-      _ <- log(EitherT(effectOf(eab)))(_ => ignore, b => debug(b.toString))
-      _ <- log(EitherT(effectOf(eab)))(_ => ignore, b => info(b.toString))
-      _ <- log(EitherT(effectOf(eab)))(_ => ignore, b => warn(b.toString))
-      _ <- log(EitherT(effectOf(eab)))(_ => ignore, b => error(b.toString))
-    } yield ()).value
-
-    val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
-
-    val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-    implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
-    val expected = eab match {
-      case Right(n) =>
-        LoggerForTesting(
-          debugMessages = Vector(n.toString),
-          infoMessages = Vector(n.toString),
-          warnMessages = Vector(n.toString),
-          errorMessages = Vector(n.toString),
-        )
-
-      case Left(msg) =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector.empty,
-        )
-    }
-
-    import CatsEffectRunner._
-    import effectie.instances.ce3.fx.ioFx
-    import loggerf.instances.cats.logF
-    implicit val ticket: Ticker = Ticker(TestContext())
-    runLog[IO](eab).completeThen { _ =>
-      logger ==== expected
-    }
-  }
-
-  def testLogEitherTFABIgnoreRight: Property = for {
-    rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
-    leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
-    isRight    <- Gen.boolean.log("isRight")
-  } yield {
-
-    implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
-      _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
-      _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
-      _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
-      _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
-    } yield ()).value
-
-    val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
-
-    val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-    implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
-    val expected = eab match {
-      case Right(n) =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector.empty,
-        )
-
-      case Left(msg) =>
-        LoggerForTesting(
-          debugMessages = Vector.empty,
-          infoMessages = Vector.empty,
-          warnMessages = Vector.empty,
-          errorMessages = Vector(msg),
-        )
-    }
-
-    import CatsEffectRunner._
-    import effectie.instances.ce3.fx.ioFx
-    import loggerf.instances.cats.logF
-    implicit val ticket: Ticker = Ticker(TestContext())
-    runLog[IO](eab).completeThen { _ =>
-      logger ==== expected
-    }
-  }
-
-  object LogExtensionSpec {
-    def testLogFA: Property = for {
+  def testLogFA: Property =
+    for {
       debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
       infoMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
       warnMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
       errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
-    } yield {
+    } yield withIO { implicit ticker =>
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Monad: Log]: F[Unit] =
-        (for {
-          _ <- effectOf(debugMsg).log(debug)
-          _ <- effectOf(infoMsg).log(info)
-          _ <- effectOf(warnMsg).log(warn)
-          _ <- effectOf(errorMsg).log(error)
-        } yield ())
-
-      val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-      implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
+        for {
+          _ <- log(effectOf(debugMsg))(debug)
+          _ <- log(effectOf(infoMsg))(info)
+          _ <- log(effectOf(warnMsg))(warn)
+          _ <- log(effectOf(errorMsg))(error)
+        } yield ()
 
       val expected = LoggerForTesting(
         debugMessages = Vector(debugMsg),
@@ -663,28 +76,27 @@ object syntaxSpec extends Properties {
         errorMessages = Vector(errorMsg),
       )
 
-      import CatsEffectRunner._
       import effectie.instances.ce3.fx.ioFx
       import loggerf.instances.cats.logF
-      implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO].completeThen { _ =>
         logger ==== expected
       }
     }
 
-    def testLogFOptionA: Property = for {
+  def testLogFOptionA: Property =
+    for {
       logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
-    } yield {
+    } yield withIO { implicit ticker =>
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] =
         (for {
-          _ <- effectOf(oa).log(error(ifEmptyMsg), debug)
-          _ <- effectOf(oa).log(error(ifEmptyMsg), info)
-          _ <- effectOf(oa).log(error(ifEmptyMsg), warn)
-          _ <- effectOf(oa).log(error(ifEmptyMsg), error)
+          _ <- log(effectOf(oa))(error(ifEmptyMsg), debug)
+          _ <- log(effectOf(oa))(error(ifEmptyMsg), info)
+          _ <- log(effectOf(oa))(error(ifEmptyMsg), warn)
+          _ <- log(effectOf(oa))(error(ifEmptyMsg), error)
         } yield ().some)
 
       val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
@@ -708,27 +120,26 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import CatsEffectRunner._
       import effectie.instances.ce3.fx.ioFx
       import loggerf.instances.cats.logF
-      implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
         logger ==== expected
       }
     }
 
-    def testLogFOptionAIgnoreEmpty: Property = for {
+  def testLogFOptionAIgnoreEmpty: Property =
+    for {
       logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
-    } yield {
+    } yield withIO { implicit ticker =>
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] =
         (for {
-          _ <- effectOf(oa).log(ignore, debug)
-          _ <- effectOf(oa).log(ignore, info)
-          _ <- effectOf(oa).log(ignore, warn)
-          _ <- effectOf(oa).log(ignore, error)
+          _ <- log(effectOf(oa))(ignore, debug)
+          _ <- log(effectOf(oa))(ignore, info)
+          _ <- log(effectOf(oa))(ignore, warn)
+          _ <- log(effectOf(oa))(ignore, error)
         } yield ().some)
 
       val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
@@ -752,32 +163,28 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import CatsEffectRunner._
       import effectie.instances.ce3.fx.ioFx
       import loggerf.instances.cats.logF
-      implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
         logger ==== expected
       }
     }
 
-    def testLogFOptionAIgnoreSome: Property = for {
+  def testLogFOptionAIgnoreSome: Property =
+    for {
       logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
-    } yield {
+    } yield withIO { implicit ticker =>
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] =
         (for {
-          _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
-          _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
-          _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
-          _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
+          _ <- log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
+          _ <- log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
+          _ <- log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
+          _ <- log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
         } yield ().some)
-
-      val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-      implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
       val expected = logMsg match {
         case Some(logMsg) =>
@@ -797,34 +204,30 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import CatsEffectRunner._
       import effectie.instances.ce3.fx.ioFx
       import loggerf.instances.cats.logF
-      implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
         logger ==== expected
       }
     }
 
-    def testLogFEitherAB: Property = for {
+  def testLogFEitherAB: Property =
+    for {
       rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
       isRight    <- Gen.boolean.log("isRight")
-    } yield {
+    } yield withIO { implicit ticker =>
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = for {
-        _ <- effectOf(eab).log(error, b => debug(b.toString))
-        _ <- effectOf(eab).log(error, b => info(b.toString))
-        _ <- effectOf(eab).log(error, b => warn(b.toString))
-        _ <- effectOf(eab).log(error, b => error(b.toString))
+        _ <- log(effectOf(eab))(error, b => debug(b.toString))
+        _ <- log(effectOf(eab))(error, b => info(b.toString))
+        _ <- log(effectOf(eab))(error, b => warn(b.toString))
+        _ <- log(effectOf(eab))(error, b => error(b.toString))
       } yield ().asRight[String]
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
-
-      val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-      implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
       val expected = eab match {
         case Right(n) =>
@@ -844,34 +247,30 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import CatsEffectRunner._
       import effectie.instances.ce3.fx.ioFx
       import loggerf.instances.cats.logF
-      implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
         logger ==== expected
       }
     }
 
-    def testLogFEitherABIgnoreLeft: Property = for {
+  def testLogFEitherABIgnoreLeft: Property =
+    for {
       rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
       isRight    <- Gen.boolean.log("isRight")
-    } yield {
+    } yield withIO { implicit ticker =>
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = for {
-        _ <- effectOf(eab).log(_ => ignore, b => debug(b.toString))
-        _ <- effectOf(eab).log(_ => ignore, b => info(b.toString))
-        _ <- effectOf(eab).log(_ => ignore, b => warn(b.toString))
-        _ <- effectOf(eab).log(_ => ignore, b => error(b.toString))
+        _ <- log(effectOf(eab))(_ => ignore, b => debug(b.toString))
+        _ <- log(effectOf(eab))(_ => ignore, b => info(b.toString))
+        _ <- log(effectOf(eab))(_ => ignore, b => warn(b.toString))
+        _ <- log(effectOf(eab))(_ => ignore, b => error(b.toString))
       } yield ().asRight[String]
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
-
-      val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-      implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
       val expected = eab match {
         case Right(n) =>
@@ -891,34 +290,30 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import CatsEffectRunner._
       import effectie.instances.ce3.fx.ioFx
       import loggerf.instances.cats.logF
-      implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
         logger ==== expected
       }
     }
 
-    def testLogFEitherABIgnoreRight: Property = for {
+  def testLogFEitherABIgnoreRight: Property =
+    for {
       rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
       isRight    <- Gen.boolean.log("isRight")
-    } yield {
+    } yield withIO { implicit ticker =>
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = for {
-        _ <- effectOf(eab).log(error, _ => ignore)
-        _ <- effectOf(eab).log(error, _ => ignore)
-        _ <- effectOf(eab).log(error, _ => ignore)
-        _ <- effectOf(eab).log(error, _ => ignore)
+        _ <- log(effectOf(eab))(error, _ => ignore)
+        _ <- log(effectOf(eab))(error, _ => ignore)
+        _ <- log(effectOf(eab))(error, _ => ignore)
+        _ <- log(effectOf(eab))(error, _ => ignore)
       } yield ().asRight[String]
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
-
-      val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-      implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
       val expected = eab match {
         case Right(n) =>
@@ -938,31 +333,27 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import CatsEffectRunner._
       import effectie.instances.ce3.fx.ioFx
       import loggerf.instances.cats.logF
-      implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
         logger ==== expected
       }
     }
 
-    def testLogOptionTFA: Property = for {
+  def testLogOptionTFA: Property =
+    for {
       logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
-    } yield {
+    } yield withIO { implicit ticker =>
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] = (for {
-        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), debug)
-        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), info)
-        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), warn)
-        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), error)
+        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), debug)
+        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), info)
+        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), warn)
+        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), error)
       } yield ()).value
-
-      val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-      implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
       val expected = logMsg match {
         case Some(logMsg) =>
@@ -982,31 +373,27 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import CatsEffectRunner._
       import effectie.instances.ce3.fx.ioFx
       import loggerf.instances.cats.logF
-      implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
         logger ==== expected
       }
     }
 
-    def testLogOptionTFAIgnoreEmpty: Property = for {
+  def testLogOptionTFAIgnoreEmpty: Property =
+    for {
       logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
-    } yield {
+    } yield withIO { implicit ticker =>
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] = (for {
-        _ <- OptionT(effectOf(oa)).log(ignore, debug)
-        _ <- OptionT(effectOf(oa)).log(ignore, info)
-        _ <- OptionT(effectOf(oa)).log(ignore, warn)
-        _ <- OptionT(effectOf(oa)).log(ignore, error)
+        _ <- log(OptionT(effectOf(oa)))(ignore, debug)
+        _ <- log(OptionT(effectOf(oa)))(ignore, info)
+        _ <- log(OptionT(effectOf(oa)))(ignore, warn)
+        _ <- log(OptionT(effectOf(oa)))(ignore, error)
       } yield ()).value
-
-      val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-      implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
       val expected = logMsg match {
         case Some(logMsg) =>
@@ -1026,27 +413,26 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import CatsEffectRunner._
       import effectie.instances.ce3.fx.ioFx
       import loggerf.instances.cats.logF
-      implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
         logger ==== expected
       }
     }
 
-    def testLogOptionTFAIgnoreSome: Property = for {
+  def testLogOptionTFAIgnoreSome: Property =
+    for {
       logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
-    } yield {
+    } yield withIO { implicit ticker =>
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] = (for {
-        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
-        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
-        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
-        _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
+        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
+        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
+        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
+        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
       } yield ()).value
 
       val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
@@ -1070,34 +456,30 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import CatsEffectRunner._
       import effectie.instances.ce3.fx.ioFx
       import loggerf.instances.cats.logF
-      implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](logMsg).completeThen { _ =>
         logger ==== expected
       }
     }
 
-    def testLogEitherTFAB: Property = for {
+  def testLogEitherTFAB: Property =
+    for {
       rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
       isRight    <- Gen.boolean.log("isRight")
-    } yield {
+    } yield withIO { implicit ticker =>
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
-        _ <- EitherT(effectOf(eab)).log(error, b => debug(b.toString))
-        _ <- EitherT(effectOf(eab)).log(error, b => info(b.toString))
-        _ <- EitherT(effectOf(eab)).log(error, b => warn(b.toString))
-        _ <- EitherT(effectOf(eab)).log(error, b => error(b.toString))
+        _ <- log(EitherT(effectOf(eab)))(error, b => debug(b.toString))
+        _ <- log(EitherT(effectOf(eab)))(error, b => info(b.toString))
+        _ <- log(EitherT(effectOf(eab)))(error, b => warn(b.toString))
+        _ <- log(EitherT(effectOf(eab)))(error, b => error(b.toString))
       } yield ()).value
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
-
-      val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-      implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
       val expected = eab match {
         case Right(n) =>
@@ -1117,34 +499,30 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import CatsEffectRunner._
       import effectie.instances.ce3.fx.ioFx
       import loggerf.instances.cats.logF
-      implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
         logger ==== expected
       }
     }
 
-    def testLogEitherTFABIgnoreLeft: Property = for {
+  def testLogEitherTFABIgnoreLeft: Property =
+    for {
       rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
       isRight    <- Gen.boolean.log("isRight")
-    } yield {
+    } yield withIO { implicit ticker =>
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
-        _ <- EitherT(effectOf(eab)).log(_ => ignore, b => debug(b.toString))
-        _ <- EitherT(effectOf(eab)).log(_ => ignore, b => info(b.toString))
-        _ <- EitherT(effectOf(eab)).log(_ => ignore, b => warn(b.toString))
-        _ <- EitherT(effectOf(eab)).log(_ => ignore, b => error(b.toString))
+        _ <- log(EitherT(effectOf(eab)))(_ => ignore, b => debug(b.toString))
+        _ <- log(EitherT(effectOf(eab)))(_ => ignore, b => info(b.toString))
+        _ <- log(EitherT(effectOf(eab)))(_ => ignore, b => warn(b.toString))
+        _ <- log(EitherT(effectOf(eab)))(_ => ignore, b => error(b.toString))
       } yield ()).value
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
-
-      val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-      implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
       val expected = eab match {
         case Right(n) =>
@@ -1164,34 +542,30 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import CatsEffectRunner._
       import effectie.instances.ce3.fx.ioFx
       import loggerf.instances.cats.logF
-      implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
         logger ==== expected
       }
     }
 
-    def testLogEitherTFABIgnoreRight: Property = for {
+  def testLogEitherTFABIgnoreRight: Property =
+    for {
       rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
       leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
       isRight    <- Gen.boolean.log("isRight")
-    } yield {
+    } yield withIO { implicit ticker =>
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
-        _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
-        _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
-        _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
-        _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
+        _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
+        _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
+        _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
+        _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
       } yield ()).value
 
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
-
-      val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-      implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
       val expected = eab match {
         case Right(n) =>
@@ -1211,14 +585,545 @@ object syntaxSpec extends Properties {
           )
       }
 
-      import CatsEffectRunner._
       import effectie.instances.ce3.fx.ioFx
       import loggerf.instances.cats.logF
-      implicit val ticket: Ticker = Ticker(TestContext())
       runLog[IO](eab).completeThen { _ =>
         logger ==== expected
       }
     }
+
+  object LogExtensionSpec {
+    def testLogFA: Property =
+      for {
+        debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+        infoMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+        warnMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+        errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+      } yield withIO { implicit ticker =>
+
+        implicit val logger: LoggerForTesting = LoggerForTesting()
+
+        def runLog[F[*]: FxCtor: Monad: Log]: F[Unit] =
+          (for {
+            _ <- effectOf(debugMsg).log(debug)
+            _ <- effectOf(infoMsg).log(info)
+            _ <- effectOf(warnMsg).log(warn)
+            _ <- effectOf(errorMsg).log(error)
+          } yield ())
+
+        val expected = LoggerForTesting(
+          debugMessages = Vector(debugMsg),
+          infoMessages = Vector(infoMsg),
+          warnMessages = Vector(warnMsg),
+          errorMessages = Vector(errorMsg),
+        )
+
+        import effectie.instances.ce3.fx.ioFx
+        import loggerf.instances.cats.logF
+        runLog[IO].completeThen { _ =>
+          logger ==== expected
+        }
+      }
+
+    def testLogFOptionA: Property =
+      for {
+        logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+        ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+      } yield withIO { implicit ticker =>
+
+        implicit val logger: LoggerForTesting = LoggerForTesting()
+
+        def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] =
+          (for {
+            _ <- effectOf(oa).log(error(ifEmptyMsg), debug)
+            _ <- effectOf(oa).log(error(ifEmptyMsg), info)
+            _ <- effectOf(oa).log(error(ifEmptyMsg), warn)
+            _ <- effectOf(oa).log(error(ifEmptyMsg), error)
+          } yield ().some)
+
+        val expected = logMsg match {
+          case Some(logMsg) =>
+            LoggerForTesting(
+              debugMessages = Vector(logMsg),
+              infoMessages = Vector(logMsg),
+              warnMessages = Vector(logMsg),
+              errorMessages = Vector(logMsg),
+            )
+
+          case None =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector.fill(4)(ifEmptyMsg),
+            )
+        }
+
+        import effectie.instances.ce3.fx.ioFx
+        import loggerf.instances.cats.logF
+        runLog[IO](logMsg).completeThen { _ =>
+          logger ==== expected
+        }
+      }
+
+    def testLogFOptionAIgnoreEmpty: Property =
+      for {
+        logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+      } yield withIO { implicit ticker =>
+
+        implicit val logger: LoggerForTesting = LoggerForTesting()
+
+        def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] =
+          (for {
+            _ <- effectOf(oa).log(ignore, debug)
+            _ <- effectOf(oa).log(ignore, info)
+            _ <- effectOf(oa).log(ignore, warn)
+            _ <- effectOf(oa).log(ignore, error)
+          } yield ().some)
+
+        val expected = logMsg match {
+          case Some(logMsg) =>
+            LoggerForTesting(
+              debugMessages = Vector(logMsg),
+              infoMessages = Vector(logMsg),
+              warnMessages = Vector(logMsg),
+              errorMessages = Vector(logMsg),
+            )
+
+          case None =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector.empty,
+            )
+        }
+
+        import effectie.instances.ce3.fx.ioFx
+        import loggerf.instances.cats.logF
+        runLog[IO](logMsg).completeThen { _ =>
+          logger ==== expected
+        }
+      }
+
+    def testLogFOptionAIgnoreSome: Property =
+      for {
+        logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+        ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+      } yield withIO { implicit ticker =>
+
+        implicit val logger: LoggerForTesting = LoggerForTesting()
+
+        def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] =
+          (for {
+            _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
+            _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
+            _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
+            _ <- effectOf(oa).log(error(ifEmptyMsg), _ => ignore)
+          } yield ().some)
+
+        val expected = logMsg match {
+          case Some(logMsg) =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector.empty,
+            )
+
+          case None =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector.fill(4)(ifEmptyMsg),
+            )
+        }
+
+        import effectie.instances.ce3.fx.ioFx
+        import loggerf.instances.cats.logF
+        runLog[IO](logMsg).completeThen { _ =>
+          logger ==== expected
+        }
+      }
+
+    def testLogFEitherAB: Property =
+      for {
+        rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+        leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+        isRight    <- Gen.boolean.log("isRight")
+      } yield withIO { implicit ticker =>
+
+        implicit val logger: LoggerForTesting = LoggerForTesting()
+
+        def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+          _ <- effectOf(eab).log(error, b => debug(b.toString))
+          _ <- effectOf(eab).log(error, b => info(b.toString))
+          _ <- effectOf(eab).log(error, b => warn(b.toString))
+          _ <- effectOf(eab).log(error, b => error(b.toString))
+        } yield ().asRight[String]
+
+        val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+        val expected = eab match {
+          case Right(n) =>
+            LoggerForTesting(
+              debugMessages = Vector(n.toString),
+              infoMessages = Vector(n.toString),
+              warnMessages = Vector(n.toString),
+              errorMessages = Vector(n.toString),
+            )
+
+          case Left(msg) =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector.fill(4)(msg),
+            )
+        }
+
+        import effectie.instances.ce3.fx.ioFx
+        import loggerf.instances.cats.logF
+        runLog[IO](eab).completeThen { _ =>
+          logger ==== expected
+        }
+      }
+
+    def testLogFEitherABIgnoreLeft: Property =
+      for {
+        rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+        leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+        isRight    <- Gen.boolean.log("isRight")
+      } yield withIO { implicit ticker =>
+
+        implicit val logger: LoggerForTesting = LoggerForTesting()
+
+        def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+          _ <- effectOf(eab).log(_ => ignore, b => debug(b.toString))
+          _ <- effectOf(eab).log(_ => ignore, b => info(b.toString))
+          _ <- effectOf(eab).log(_ => ignore, b => warn(b.toString))
+          _ <- effectOf(eab).log(_ => ignore, b => error(b.toString))
+        } yield ().asRight[String]
+
+        val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+        val expected = eab match {
+          case Right(n) =>
+            LoggerForTesting(
+              debugMessages = Vector(n.toString),
+              infoMessages = Vector(n.toString),
+              warnMessages = Vector(n.toString),
+              errorMessages = Vector(n.toString),
+            )
+
+          case Left(msg) =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector.empty,
+            )
+        }
+
+        import effectie.instances.ce3.fx.ioFx
+        import loggerf.instances.cats.logF
+        runLog[IO](eab).completeThen { _ =>
+          logger ==== expected
+        }
+      }
+
+    def testLogFEitherABIgnoreRight: Property =
+      for {
+        rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+        leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+        isRight    <- Gen.boolean.log("isRight")
+      } yield withIO { implicit ticker =>
+
+        implicit val logger: LoggerForTesting = LoggerForTesting()
+
+        def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = for {
+          _ <- effectOf(eab).log(error, _ => ignore)
+          _ <- effectOf(eab).log(error, _ => ignore)
+          _ <- effectOf(eab).log(error, _ => ignore)
+          _ <- effectOf(eab).log(error, _ => ignore)
+        } yield ().asRight[String]
+
+        val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+        val expected = eab match {
+          case Right(n) =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector.empty,
+            )
+
+          case Left(msg) =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector.fill(4)(msg),
+            )
+        }
+
+        import effectie.instances.ce3.fx.ioFx
+        import loggerf.instances.cats.logF
+        runLog[IO](eab).completeThen { _ =>
+          logger ==== expected
+        }
+      }
+
+    def testLogOptionTFA: Property =
+      for {
+        logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+        ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+      } yield withIO { implicit ticker =>
+
+        implicit val logger: LoggerForTesting = LoggerForTesting()
+
+        def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] = (for {
+          _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), debug)
+          _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), info)
+          _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), warn)
+          _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), error)
+        } yield ()).value
+
+        val expected = logMsg match {
+          case Some(logMsg) =>
+            LoggerForTesting(
+              debugMessages = Vector(logMsg),
+              infoMessages = Vector(logMsg),
+              warnMessages = Vector(logMsg),
+              errorMessages = Vector(logMsg),
+            )
+
+          case None =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector(ifEmptyMsg),
+            )
+        }
+
+        import effectie.instances.ce3.fx.ioFx
+        import loggerf.instances.cats.logF
+        runLog[IO](logMsg).completeThen { _ =>
+          logger ==== expected
+        }
+      }
+
+    def testLogOptionTFAIgnoreEmpty: Property =
+      for {
+        logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+        ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+      } yield withIO { implicit ticker =>
+
+        implicit val logger: LoggerForTesting = LoggerForTesting()
+
+        def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] = (for {
+          _ <- OptionT(effectOf(oa)).log(ignore, debug)
+          _ <- OptionT(effectOf(oa)).log(ignore, info)
+          _ <- OptionT(effectOf(oa)).log(ignore, warn)
+          _ <- OptionT(effectOf(oa)).log(ignore, error)
+        } yield ()).value
+
+        val expected = logMsg match {
+          case Some(logMsg) =>
+            LoggerForTesting(
+              debugMessages = Vector(logMsg),
+              infoMessages = Vector(logMsg),
+              warnMessages = Vector(logMsg),
+              errorMessages = Vector(logMsg),
+            )
+
+          case None =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector.empty,
+            )
+        }
+
+        import effectie.instances.ce3.fx.ioFx
+        import loggerf.instances.cats.logF
+        runLog[IO](logMsg).completeThen { _ =>
+          logger ==== expected
+        }
+      }
+
+    def testLogOptionTFAIgnoreSome: Property =
+      for {
+        logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+        ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+      } yield withIO { implicit ticker =>
+
+        implicit val logger: LoggerForTesting = LoggerForTesting()
+
+        def runLog[F[*]: FxCtor: Monad: Log](oa: Option[String]): F[Option[Unit]] = (for {
+          _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
+          _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
+          _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
+          _ <- OptionT(effectOf(oa)).log(error(ifEmptyMsg), _ => ignore)
+        } yield ()).value
+
+        val expected = logMsg match {
+          case Some(logMsg) =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector.empty,
+            )
+
+          case None =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector(ifEmptyMsg),
+            )
+        }
+
+        import effectie.instances.ce3.fx.ioFx
+        import loggerf.instances.cats.logF
+        runLog[IO](logMsg).completeThen { _ =>
+          logger ==== expected
+        }
+      }
+
+    def testLogEitherTFAB: Property =
+      for {
+        rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+        leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+        isRight    <- Gen.boolean.log("isRight")
+      } yield withIO { implicit ticker =>
+
+        implicit val logger: LoggerForTesting = LoggerForTesting()
+
+        def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+          _ <- EitherT(effectOf(eab)).log(error, b => debug(b.toString))
+          _ <- EitherT(effectOf(eab)).log(error, b => info(b.toString))
+          _ <- EitherT(effectOf(eab)).log(error, b => warn(b.toString))
+          _ <- EitherT(effectOf(eab)).log(error, b => error(b.toString))
+        } yield ()).value
+
+        val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+        val expected = eab match {
+          case Right(n) =>
+            LoggerForTesting(
+              debugMessages = Vector(n.toString),
+              infoMessages = Vector(n.toString),
+              warnMessages = Vector(n.toString),
+              errorMessages = Vector(n.toString),
+            )
+
+          case Left(msg) =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector(msg),
+            )
+        }
+
+        import effectie.instances.ce3.fx.ioFx
+        import loggerf.instances.cats.logF
+        runLog[IO](eab).completeThen { _ =>
+          logger ==== expected
+        }
+      }
+
+    def testLogEitherTFABIgnoreLeft: Property =
+      for {
+        rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+        leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+        isRight    <- Gen.boolean.log("isRight")
+      } yield withIO { implicit ticker =>
+
+        implicit val logger: LoggerForTesting = LoggerForTesting()
+
+        def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+          _ <- EitherT(effectOf(eab)).log(_ => ignore, b => debug(b.toString))
+          _ <- EitherT(effectOf(eab)).log(_ => ignore, b => info(b.toString))
+          _ <- EitherT(effectOf(eab)).log(_ => ignore, b => warn(b.toString))
+          _ <- EitherT(effectOf(eab)).log(_ => ignore, b => error(b.toString))
+        } yield ()).value
+
+        val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+        val expected = eab match {
+          case Right(n) =>
+            LoggerForTesting(
+              debugMessages = Vector(n.toString),
+              infoMessages = Vector(n.toString),
+              warnMessages = Vector(n.toString),
+              errorMessages = Vector(n.toString),
+            )
+
+          case Left(msg) =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector.empty,
+            )
+        }
+
+        import effectie.instances.ce3.fx.ioFx
+        import loggerf.instances.cats.logF
+        runLog[IO](eab).completeThen { _ =>
+          logger ==== expected
+        }
+      }
+
+    def testLogEitherTFABIgnoreRight: Property =
+      for {
+        rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+        leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+        isRight    <- Gen.boolean.log("isRight")
+      } yield withIO { implicit ticker =>
+
+        implicit val logger: LoggerForTesting = LoggerForTesting()
+
+        def runLog[F[*]: FxCtor: Monad: Log](eab: Either[String, Int]): F[Either[String, Unit]] = (for {
+          _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
+          _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
+          _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
+          _ <- EitherT(effectOf(eab)).log(error, _ => ignore)
+        } yield ()).value
+
+        val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
+
+        val expected = eab match {
+          case Right(n) =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector.empty,
+            )
+
+          case Left(msg) =>
+            LoggerForTesting(
+              debugMessages = Vector.empty,
+              infoMessages = Vector.empty,
+              warnMessages = Vector.empty,
+              errorMessages = Vector(msg),
+            )
+        }
+
+        import effectie.instances.ce3.fx.ioFx
+        import loggerf.instances.cats.logF
+        runLog[IO](eab).completeThen { _ =>
+          logger ==== expected
+        }
+      }
 
   }
 }

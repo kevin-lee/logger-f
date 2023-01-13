@@ -440,13 +440,13 @@ lazy val props =
 
     final val HedgehogVersion = "0.8.0"
 
-    final val EffectieVersion = "2.0.0-beta4"
+    final val EffectieVersion = "2.0.0-beta5"
 
-    final val CatsVersion = "2.6.1"
+    final val CatsVersion = "2.7.0"
 
     final val LoggerF1Version = "1.20.0"
 
-    final val ExtrasVersion = "0.4.0"
+    final val ExtrasVersion = "0.25.0"
 
     final val Slf4JVersion   = "2.0.6"
     final val LogbackVersion = "1.4.5"
@@ -489,7 +489,7 @@ lazy val libs =
     lazy val extrasConcurrent        = "io.kevinlee" %% "extras-concurrent"         % props.ExtrasVersion % Test
     lazy val extrasConcurrentTesting = "io.kevinlee" %% "extras-concurrent-testing" % props.ExtrasVersion % Test
 
-    lazy val extrasHedgehogCatsEffect3 = "io.kevinlee" %% "extras-hedgehog-cats-effect3" % props.ExtrasVersion % Test
+    lazy val extrasHedgehogCatsEffect3 = "io.kevinlee" %% "extras-hedgehog-ce3" % props.ExtrasVersion % Test
   }
 
 // scalafmt: off

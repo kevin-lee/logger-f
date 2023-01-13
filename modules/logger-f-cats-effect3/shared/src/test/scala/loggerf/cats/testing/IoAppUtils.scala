@@ -1,10 +1,15 @@
 package loggerf.cats.testing
 
 import cats.effect.unsafe.{IORuntime, IORuntimeConfig}
+import hedgehog.Result
 
 import java.util.concurrent.ExecutorService
 
 object IoAppUtils {
+
+  def runWithRuntime(runtime: IORuntime)(test: IORuntime => Result): Result =
+    try test(runtime)
+    finally runtime.shutdown()
 
   def runtime(es: ExecutorService): IORuntime = {
     lazy val runtime: IORuntime = {
