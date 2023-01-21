@@ -6,31 +6,23 @@ import scala.reflect.ClassTag
 
 final class Slf4JLogger(val logger: Logger) extends CanLog {
 
-  private def constructLog(isAvailable: Boolean, logFunction: String => Unit): (=> String) => Unit =
+  @inline private def constructLog(isAvailable: Boolean, logFunction: String => Unit): (=> String) => Unit =
     if (isAvailable)
       message => logFunction(message)
     else
       _ => ()
 
-  val debug0: (=> String) => Unit =
-    constructLog(logger.isDebugEnabled, logger.debug)
+  @inline override def debug(message: => String): Unit =
+    constructLog(logger.isDebugEnabled, logger.debug)(message)
 
-  override def debug(message: => String): Unit = debug0(message)
+  @inline override def info(message: => String): Unit =
+    constructLog(logger.isInfoEnabled, logger.info)(message)
 
-  val info0: (=> String) => Unit =
-    constructLog(logger.isInfoEnabled, logger.info)
+  @inline override def warn(message: => String): Unit =
+    constructLog(logger.isWarnEnabled, logger.warn)(message)
 
-  override def info(message: => String): Unit = info0(message)
-
-  val warn0: (=> String) => Unit =
-    constructLog(logger.isWarnEnabled, logger.warn)
-
-  override def warn(message: => String): Unit = warn0(message)
-
-  val error0: (=> String) => Unit =
-    constructLog(logger.isErrorEnabled, logger.error)
-
-  override def error(message: => String): Unit = error0(message)
+  @inline override def error(message: => String): Unit =
+    constructLog(logger.isErrorEnabled, logger.error)(message)
 
 }
 
