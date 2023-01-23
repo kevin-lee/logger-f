@@ -8,7 +8,7 @@ object ProjectInfo {
     case "2.10" =>
       Seq.empty
     case _ =>
-      Warts.allBut(Wart.DefaultArguments, Wart.Overloading, Wart.Any, Wart.Nothing, Wart.NonUnitStatements)
+      Warts.allBut(Wart.DefaultArguments, Wart.Overloading, Wart.Any, Wart.Nothing, Wart.NonUnitStatements, Wart.ImplicitParameter)
   }
 
 }

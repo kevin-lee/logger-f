@@ -22,12 +22,16 @@ trait LogSyntax {
   ): F[Unit] =
     L.log_(fa)(toLeveledMessage)
 
-  @inline def logS[F[*]](message: String)(toLeveledMessage: String => LogMessage with NotIgnorable)(
+  @inline def logS[F[*]](message: => String)(
+    toLeveledMessage: (String => LogMessage with NotIgnorable) with LogMessage.LeveledMessage.Leveled
+  )(
     implicit L: Log[F]
   ): F[String] =
     L.logS(message)(toLeveledMessage)
 
-  @inline def logS_[F[*]](message: String)(toLeveledMessage: String => LogMessage with NotIgnorable)(
+  @inline def logS_[F[*]](message: => String)(
+    toLeveledMessage: (String => LogMessage with NotIgnorable) with LogMessage.LeveledMessage.Leveled
+  )(
     implicit L: Log[F]
   ): F[Unit] =
     L.logS_(message)(toLeveledMessage)
@@ -76,7 +80,7 @@ trait LogSyntax {
   implicit def logFOfASyntax[F[*], A](fa: F[A]): LogFOfASyntax[F, A] = new LogFOfASyntax[F, A](fa)
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitConversion"))
-  implicit def logFStringSyntax(message: String): LogFForStringSyntax = new LogFForStringSyntax(message)
+  implicit def logFStringSyntax(message: => String): LogFForStringSyntax = new LogFForStringSyntax(() => message)
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitConversion"))
   implicit def logFOfOptionSyntax[F[*], A](foa: F[Option[A]]): LogFOfOptionSyntax[F, A] =
@@ -96,12 +100,20 @@ object LogSyntax extends LogSyntax {
       LogSyntax.log_(fa)(toLeveledMessage)
   }
 
-  final class LogFForStringSyntax(private val message: String) extends AnyVal {
-    @inline def logS[F[*]](toLeveledMessage: String => LogMessage with NotIgnorable)(implicit L: Log[F]): F[String] =
-      LogSyntax.logS(message)(toLeveledMessage)
+  final class LogFForStringSyntax(private val message: () => String) extends AnyVal {
+    @inline def logS[F[*]](
+      toLeveledMessage: (String => LogMessage with NotIgnorable) with LogMessage.LeveledMessage.Leveled
+    )(
+      implicit L: Log[F]
+    ): F[String] =
+      LogSyntax.logS(message())(toLeveledMessage)
 
-    @inline def logS_[F[*]](toLeveledMessage: String => LogMessage with NotIgnorable)(implicit L: Log[F]): F[Unit] =
-      LogSyntax.logS_(message)(toLeveledMessage)
+    @inline def logS_[F[*]](
+      toLeveledMessage: (String => LogMessage with NotIgnorable) with LogMessage.LeveledMessage.Leveled
+    )(
+      implicit L: Log[F]
+    ): F[Unit] =
+      LogSyntax.logS_(message())(toLeveledMessage)
   }
 
   final class LogFOfOptionSyntax[F[*], A](private val foa: F[Option[A]]) extends AnyVal {

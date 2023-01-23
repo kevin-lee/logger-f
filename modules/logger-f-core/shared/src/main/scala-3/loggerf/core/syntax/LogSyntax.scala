@@ -20,11 +20,15 @@ trait LogSyntax {
       L.log_(fa)(toLeveledMessage)
   }
 
-  extension (message: String) {
-    def logS[F[*]](toLeveledMessage: String => LeveledMessage)(using L: Log[F]): F[String] =
+  extension (message: => String) {
+    def logS[F[*]](toLeveledMessage: (String => LeveledMessage) with LeveledMessage.Leveled)(
+      using L: Log[F]
+    ): F[String] =
       L.logS(message)(toLeveledMessage)
 
-    def logS_[F[*]](toLeveledMessage: String => LeveledMessage)(using L: Log[F]): F[Unit] =
+    def logS_[F[*]](toLeveledMessage: (String => LeveledMessage) with LeveledMessage.Leveled)(
+      using L: Log[F]
+    ): F[Unit] =
       L.logS_(message)(toLeveledMessage)
   }
 

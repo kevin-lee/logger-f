@@ -12,6 +12,7 @@ object ToLog {
 
   def by[A](f: A => String): ToLog[A] = f(_)
 
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   def fromToString[A]: ToLog[A] = _.toString
 
   inline given stringToLog: ToLog[String] = identity(_)

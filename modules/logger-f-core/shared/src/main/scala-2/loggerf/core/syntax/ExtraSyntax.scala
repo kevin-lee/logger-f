@@ -9,20 +9,20 @@ trait ExtraSyntax {
   import loggerf.core.syntax.ExtraSyntax._
   import loggerf.{Level, LogMessage}
 
-  def prefix(pre: String): Prefix =
+  def prefix(pre: => String): Prefix =
     new Prefix(message => pre + message)
 
   @inline private[ExtraSyntax] def debug0(f: String => String): String => LogMessage with NotIgnorable =
-    message => LeveledMessage(f(message), Level.debug)
+    message => LeveledMessage(() => f(message), Level.debug)
 
   @inline private[ExtraSyntax] def info0(f: String => String): String => LogMessage with NotIgnorable =
-    message => LeveledMessage(f(message), Level.info)
+    message => LeveledMessage(() => f(message), Level.info)
 
   @inline private[ExtraSyntax] def warn0(f: String => String): String => LogMessage with NotIgnorable =
-    message => LeveledMessage(f(message), Level.warn)
+    message => LeveledMessage(() => f(message), Level.warn)
 
   @inline private[ExtraSyntax] def error0(f: String => String): String => LogMessage with NotIgnorable =
-    message => LeveledMessage(f(message), Level.error)
+    message => LeveledMessage(() => f(message), Level.error)
 
   def debug(prefix: Prefix): String => LogMessage with NotIgnorable =
     debug0(prefix.value)

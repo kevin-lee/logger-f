@@ -7,29 +7,29 @@ trait LogMessageSyntax {
   import loggerf.LogMessage._
   import loggerf.{Level, LogMessage}
 
-  def debug(message: String): LogMessage with NotIgnorable =
-    LeveledMessage(message, Level.debug)
+  val debug: (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
+    LeveledMessage.StringToLeveledMessage(Level.debug)
 
-  def info(message: String): LogMessage with NotIgnorable =
-    LeveledMessage(message, Level.info)
+  val info: (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
+    LeveledMessage.StringToLeveledMessage(Level.info)
 
-  def warn(message: String): LogMessage with NotIgnorable =
-    LeveledMessage(message, Level.warn)
+  val warn: (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
+    LeveledMessage.StringToLeveledMessage(Level.warn)
 
-  def error(message: String): LogMessage with NotIgnorable =
-    LeveledMessage(message, Level.error)
+  val error: (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
+    LeveledMessage.StringToLeveledMessage(Level.error)
 
   def debugA[A: ToLog](a: A): LogMessage with NotIgnorable =
-    LeveledMessage(ToLog[A].toLogMessage(a), Level.debug)
+    LeveledMessage(() => ToLog[A].toLogMessage(a), Level.debug)
 
   def infoA[A: ToLog](a: A): LogMessage with NotIgnorable =
-    LeveledMessage(ToLog[A].toLogMessage(a), Level.info)
+    LeveledMessage(() => ToLog[A].toLogMessage(a), Level.info)
 
   def warnA[A: ToLog](a: A): LogMessage with NotIgnorable =
-    LeveledMessage(ToLog[A].toLogMessage(a), Level.warn)
+    LeveledMessage(() => ToLog[A].toLogMessage(a), Level.warn)
 
   def errorA[A: ToLog](a: A): LogMessage with NotIgnorable =
-    LeveledMessage(ToLog[A].toLogMessage(a), Level.error)
+    LeveledMessage(() => ToLog[A].toLogMessage(a), Level.error)
 
   def ignore: LogMessage with Ignorable = Ignore
 

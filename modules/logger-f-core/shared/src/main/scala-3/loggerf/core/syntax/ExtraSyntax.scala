@@ -7,23 +7,22 @@ import loggerf.core.syntax.ExtraSyntax.Prefix
   */
 trait ExtraSyntax {
 
-  import loggerf.LeveledMessage._
   import loggerf.{Level, LeveledMessage}
 
-  def prefix(pre: String): Prefix =
+  def prefix(pre: => String): Prefix =
     Prefix(message => pre + message)
 
   inline private def debug0(f: String => String): String => LeveledMessage =
-    message => LeveledMessage(f(message), Level.debug)
+    message => LeveledMessage(() => f(message), Level.debug)
 
   inline private def info0(f: String => String): String => LeveledMessage =
-    message => LeveledMessage(f(message), Level.info)
+    message => LeveledMessage(() => f(message), Level.info)
 
   inline private def warn0(f: String => String): String => LeveledMessage =
-    message => LeveledMessage(f(message), Level.warn)
+    message => LeveledMessage(() => f(message), Level.warn)
 
   inline private def error0(f: String => String): String => LeveledMessage =
-    message => LeveledMessage(f(message), Level.error)
+    message => LeveledMessage(() => f(message), Level.error)
 
   def debug(prefix: Prefix): String => LeveledMessage =
     debug0(prefix.value)
