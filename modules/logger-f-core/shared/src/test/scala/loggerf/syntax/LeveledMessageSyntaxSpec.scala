@@ -8,6 +8,7 @@ import hedgehog.runner._
 import loggerf.core._
 import loggerf.core.syntax.all._
 import loggerf.logger.LoggerForTesting
+import loggerf.test_data.Something
 
 /** @author Kevin Lee
   * @since 2022-02-19
@@ -46,11 +47,6 @@ object LeveledMessageSyntaxSpec extends Properties {
 
     runLog[Identity]
     logger ==== expected
-  }
-
-  final case class Something(message: String)
-  object Something {
-    implicit val somethingToLog: ToLog[Something] = something => s"Something(message=${something.message})"
   }
 
   def testLeveledLogMessageWithToLog: Property = for {

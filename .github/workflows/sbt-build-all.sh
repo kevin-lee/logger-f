@@ -28,9 +28,9 @@ else
 #    echo "report build but it does nothing for now."
   fi
 
-#  echo "sbt -J-Xmx2048m ++${scala_version}! -v clean ${test_task}"
+#  echo "sbt -J-Xmx4G ++${scala_version}! -v clean ${test_task}"
 #  sbt \
-#    -J-Xmx2048m \
+#    -J-Xmx4G \
 #    ++${scala_version}! \
 #    -v \
 #    clean \
@@ -42,7 +42,7 @@ else
   if [[ "$CURRENT_BRANCH_NAME" == "main" || "$CURRENT_BRANCH_NAME" == "logger-f-1" || "$CURRENT_BRANCH_NAME" == "release" ]]
   then
     sbt \
-      -J-Xmx2048m \
+      -J-Xmx4G \
       ++${scala_version}! \
       -v \
       clean \
@@ -50,7 +50,7 @@ else
       packagedArtifacts
   else
     sbt \
-      -J-Xmx2048m \
+      -J-Xmx4G \
       ++${scala_version}! \
       -v \
       clean \

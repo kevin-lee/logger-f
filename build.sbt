@@ -213,7 +213,7 @@ lazy val sbtLogging    =
             libs.sbtLoggingLib % "1.3.3"
           ).map(_ % Provided)
 
-        case (SemVer.Major(2), SemVer.Minor(13), _) | (SemVer.Major(3), SemVer.Minor(0), _) =>
+        case (SemVer.Major(2), SemVer.Minor(13), _) | (SemVer.Major(3), SemVer.Minor(_), _) =>
           List(
             libs.sbtLoggingLib % "1.5.8"
           ).map(_ % Provided).map(_.cross(CrossVersion.for3Use2_13))

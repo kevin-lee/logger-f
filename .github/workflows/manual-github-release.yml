@@ -51,7 +51,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.RELEASE_AUTH_TOKEN_GITHUB }}
         run: |
           echo "Run] sbt GitHub release"
-          echo 'sbt -J-Xmx2048m devOopsGitHubRelease'
+          echo 'sbt -J-Xmx4G devOopsGitHubRelease'
           sbt \
-            -J-Xmx2048m \
+            -J-Xmx4G \
             devOopsGitHubRelease

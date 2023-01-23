@@ -21,23 +21,27 @@ trait Log[F[*]] {
     flatMap0(fa) { a =>
       toLeveledMessage(a) match {
         case LogMessage.LeveledMessage(message, level) =>
-          flatMap0(EF.effectOf(canLog.getLogger(level)(message)))(_ => EF.pureOf(a))
+          flatMap0(EF.effectOf(canLog.getLogger(level)(message())))(_ => EF.pureOf(a))
       }
     }
 
   def log_[A](fa: F[A])(toLeveledMessage: A => LogMessage with NotIgnorable): F[Unit] =
     map0(log(fa)(toLeveledMessage))(_ => ())
 
-  def logS(message: String)(toLeveledMessage: String => LogMessage with NotIgnorable): F[String] =
-    toLeveledMessage(message) match {
+  def logS(
+    message: => String
+  )(toLeveledMessage: (String => LogMessage with NotIgnorable) with LogMessage.LeveledMessage.Leveled): F[String] =
+    toLeveledMessage.toLazyInput(message) match {
       case LogMessage.LeveledMessage(msg, level) =>
-        map0(EF.effectOf(canLog.getLogger(level)(msg)))(_ => message)
+        map0(EF.effectOf(canLog.getLogger(level)(msg())))(_ => message)
     }
 
-  def logS_(message: String)(toLeveledMessage: String => LogMessage with NotIgnorable): F[Unit] =
+  def logS_(
+    message: => String
+  )(toLeveledMessage: (String => LogMessage with NotIgnorable) with LogMessage.LeveledMessage.Leveled): F[Unit] =
     toLeveledMessage(message) match {
       case LogMessage.LeveledMessage(msg, level) =>
-        EF.effectOf(canLog.getLogger(level)(msg))
+        EF.effectOf(canLog.getLogger(level)(msg()))
     }
 
   def log[A](
@@ -53,12 +57,12 @@ trait Log[F[*]] {
             EF.pureOf(None)
 
           case LogMessage.LeveledMessage(message, level) =>
-            flatMap0(EF.effectOf(canLog.getLogger(level)(message)))(_ => EF.pureOf(None))
+            flatMap0(EF.effectOf(canLog.getLogger(level)(message())))(_ => EF.pureOf(None))
         }
       case Some(a) =>
         toLeveledMessage(a) match {
           case LogMessage.LeveledMessage(message, level) =>
-            flatMap0(EF.effectOf(canLog.getLogger(level)(message)))(_ => EF.pureOf(Some(a)))
+            flatMap0(EF.effectOf(canLog.getLogger(level)(message())))(_ => EF.pureOf(Some(a)))
 
           case LogMessage.Ignore =>
             EF.pureOf(Some(a))
@@ -83,7 +87,7 @@ trait Log[F[*]] {
       case Left(l) =>
         leftToMessage(l) match {
           case LogMessage.LeveledMessage(message, level) =>
-            flatMap0(EF.effectOf(canLog.getLogger(level)(message)))(_ => EF.pureOf(Left(l)))
+            flatMap0(EF.effectOf(canLog.getLogger(level)(message())))(_ => EF.pureOf(Left(l)))
 
           case LogMessage.Ignore =>
             EF.pureOf(Left(l))
@@ -91,7 +95,7 @@ trait Log[F[*]] {
       case Right(r) =>
         rightToMessage(r) match {
           case LogMessage.LeveledMessage(message, level) =>
-            flatMap0(EF.effectOf(canLog.getLogger(level)(message)))(_ => EF.pureOf(Right(r)))
+            flatMap0(EF.effectOf(canLog.getLogger(level)(message())))(_ => EF.pureOf(Right(r)))
 
           case LogMessage.Ignore =>
             EF.pureOf(Right(r))
