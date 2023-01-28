@@ -379,6 +379,8 @@ lazy val docs = (project in file("generated-docs"))
         "io.kevinlee" %% "logger-f-log4j"         % props.LoggerF1Version,
         "io.kevinlee" %% "logger-f-log4s"         % props.LoggerF1Version,
         "io.kevinlee" %% "logger-f-sbt-logging"   % props.LoggerF1Version,
+        libs.slf4jApi,
+        libs.logbackClassic,
       ),
     libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
       scalaVersion.value,
