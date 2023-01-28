@@ -132,7 +132,7 @@ A given `F[Option[A]]`, you can simply log `Some(A)` or `None` with `log`.
 
 ### Example
 
-```scala
+```scala mdoc:reset-object
 import cats._
 import cats.syntax.all._
 import cats.effect._
@@ -144,29 +144,100 @@ import loggerf.cats._
 import loggerf.logger._
 import loggerf.syntax._
 
-def hello[F[_]: Functor: Fx: Log](name: Option[String]): F[Option[Unit]] = {
-  log(pureOf(name))(warn("No name given"), a => info(s"Name: $a"))
-    .map(maybeName => maybeName.map(name => println(s"Hello $name")))
-}
+def greeting[F[_]: Fx](name: String): F[String] =
+  pureOf(s"Hello $name")
 
-object MyApp extends IOApp {
+def hello[F[_]: Monad: Fx: Log](maybeName: Option[String]): F[Unit] =
+  for {
+    name    <- log(pureOf(maybeName))(
+                 warn("No name given"),
+                 name => info(s"Name: $name")
+               )
+    message <- log(name.traverse(greeting[F]))(ignore, msg => info(s"Message: $msg"))
+    _       <- effectOf(message.foreach(msg => println(msg)))
+  } yield ()
 
-  implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp")
 
-  def run(args: List[String]): IO[ExitCode] = for {
-    _ <- hello[IO](none)
-    _ <- hello[IO]("Kevin".some)
-  } yield ExitCode.Success
-}
+implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp- F[Option[A]]")
 
+def run(): IO[Unit] = for {
+  _ <- hello[IO](none)
+  _ <- hello[IO]("Kevin".some)
+} yield ()
+
+run().unsafeRunSync()
 ```
 ```
-23:42:22.584 [ioapp-compute-1] WARN MyApp - No name given
-23:42:22.585 [ioapp-compute-1] INFO MyApp - Name: Kevin
-Hello Kevin
+20:09:43.117 [Thread-31] WARN MyApp- F[Option[A]] - No name given
+20:09:43.133 [Thread-31] INFO MyApp- F[Option[A]] - Name: Kevin
+20:09:43.133 [Thread-31] INFO MyApp- F[Option[A]] - Message: Hello Kevin
 ```
 
 ## Log `F[Either[A, B]]`
+
+```scala
+Log[Either[F]].log(
+  F[Either[A, B]]
+)(
+  leftToMessage: A => LeveledMessage with MaybeIgnorable,
+  rightToMessage: B => LeveledMessage with MaybeIgnorable
+)
+```
+
+A given `F[Either[A, B]]`, you can simply log `Left(A)` or `Right(B)` with `log`.
+
+
+### Example
+
+```scala mdoc:reset-object
+import cats._
+import cats.syntax.all._
+import cats.effect._
+
+import effectie.cats._
+import effectie.cats.Effectful._
+
+import loggerf.cats._
+import loggerf.logger._
+import loggerf.syntax._
+
+def foo[F[_]: Fx](a: Int): F[Int] =
+  pureOf(a * 2)
+
+def divide[F[_]: Fx: CanHandleError](a: Int, b: Int): F[Either[String, Int]] =
+  CanHandleError[F].handleNonFatal(effectOf((a / b).asRight[String])){ err =>
+    err.getMessage.asLeft[Int]
+  }
+
+def calculate[F[_]: Monad: Fx: CanHandleError: Log](n: Int): F[Unit] =
+  for {
+    a      <- log(foo(n))(
+                n => info(s"n: ${n.toString}")
+              )
+    result <- log(divide(1000, a))(
+                err => error(s"Error: $err"),
+                r => info(s"Result: ${r.toString}")
+              )
+    _      <- effectOf(println(result.fold(err => s"Error: $err", r => s"1000 / ${a.toString} = ${r.toString}")))
+  } yield ()
+
+
+implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp - F[Either[A, B]]")
+
+def run(): IO[Unit] = for {
+  _ <- calculate[IO](5)
+  _ <- calculate[IO](0)
+} yield ()
+
+run().unsafeRunSync()
+```
+```
+20:20:05.588 [Thread-47] INFO MyApp - F[Either[A, B]] - n: 10
+20:20:05.593 [Thread-47] INFO MyApp - F[Either[A, B]] - Result: 100
+20:20:05.595 [Thread-47] INFO MyApp - F[Either[A, B]] - n: 0
+20:20:05.605 [Thread-47] ERROR MyApp - F[Either[A, B]] - Error: / by zero
+```
+
 
 ## Log `OptionT[F, A]`
 
