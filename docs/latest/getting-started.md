@@ -1,0 +1,238 @@
+---
+sidebar_position: 1
+id: getting-started
+title: Getting Started
+slug: /
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+[![Build Status](https://github.com/Kevin-Lee/logger-f/workflows/Build-All/badge.svg)](https://github.com/Kevin-Lee/logger-f/actions?workflow=Build-All)
+[![Release Status](https://github.com/Kevin-Lee/logger-f/workflows/Release/badge.svg)](https://github.com/Kevin-Lee/logger-f/actions?workflow=Release)
+[![Latest version](https://index.scala-lang.org/kevin-lee/logger-f/latest.svg)](https://index.scala-lang.org/kevin-lee/logger-f)
+
+| Project | Maven Central |
+| ------: | ------------- |
+| logger-f-cats | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-cats_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-cats_2.13) |
+| logger-f-slf4j | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-slf4j_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-slf4j_2.13) |
+| logger-f-log4j | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-log4j_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-log4j_2.13) |
+| logger-f-log4s | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-log4s_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-log4s_2.13) |
+| logger-f-sbt-logging | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-sbt-logging_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-sbt-logging_2.13) |
+
+* Supported Scala Versions: @SUPPORTED_SCALA_VERSIONS@
+
+## ![](/img/logger-f-logo-96x96.png) LoggerF - Logger for `F[_]`
+
+LoggerF is a tool for logging tagless final with an effect library. LoggerF requires [Effectie](https://kevin-lee.github.io/effectie) to construct `F[_]`. All the example code in this doc site uses Effectie so if you're not familiar with it, please check out [Effectie](https://kevin-lee.github.io/effectie) website.
+
+Why LoggerF? Why not just log with `map` or `flatMap`? Please read ["Why?"](#why) section.
+
+## Getting Started
+### Get LoggerF For Cats Effect
+
+
+### Get LoggerF For Cats
+logger-f can be used wit any effect library or `Future` as long as there is an instance of `Fx` from effectie.
+
+#### With SLF4J
+
+In `build.sbt`,
+
+```scala
+libraryDependencies ++=
+  Seq(
+    "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+    "io.kevinlee" %% "logger-f-slf4j" % "@VERSION@"
+  )
+```
+
+#### With Log4j
+
+```scala
+libraryDependencies ++=
+  Seq(
+    "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+    "io.kevinlee" %% "logger-f-log4j" % "@VERSION@"
+  )
+```
+
+#### With Log4s
+
+```scala
+libraryDependencies ++=
+  Seq(
+    "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+    "io.kevinlee" %% "logger-f-log4s" % "@VERSION@"
+  )
+```
+
+#### With sbt Logging Util
+You probably need `logger-f` for sbt plugin development.
+
+```scala
+libraryDependencies ++=
+  Seq(
+    "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+    "io.kevinlee" %% "logger-f-sbt-logging" % "@VERSION@"
+  )
+```
+
+
+## Why
+If you code tagless final and use some effect library like [Cats Effect](https://typelevel.org/cats-effect) and [Monix](https://monix.io) or use `Future`, you may have inconvenience in logging.
+
+What inconvenience? I can just log with `flatMap` like.
+```scala
+for {
+  a <- foo(n) // F[A]
+  _ <- Sync[F].delay(logger.debug(s"blah blah $a")) // F[Unit]
+  b <- bar(a) // F[A]
+} yield b
+```
+That's true but what happens if you want to use `Option` or `Either`? If you use them with tagless final, you may not get the result you want.
+e.g.)
+```scala mdoc:reset-object
+import cats._
+import cats.syntax.all._
+import cats.effect._
+
+import effectie.core._
+import effectie.syntax.all._
+
+def foo[F[_] : Fx : Monad](n: Int): F[Option[Int]] = for {
+  a <- effectOf(n.some)
+  b <- effectOf(none[Int])
+  c <- effectOf(123.some)
+} yield c
+
+import effectie.instances.ce2.fx._
+
+foo[IO](1).unsafeRunSync() // You expect None here!!!
+
+```
+
+You expect `None` for the result due to `effectOf(none[Int])` yet you get `Some(123)` instead. That's because `b` is from `F[Option[Int]]` not from `Option[Int]`.
+
+The same issue exists for `F[Either[A, B]]` as well.
+
+So you need to use `OptionT` for `F[Option[A]]` and `EitherT` for `F[Either[A, B]]`.
+
+Let's write it again with `OptionT`.
+
+```scala mdoc:reset-object
+import cats._
+import cats.data._
+import cats.syntax.all._
+import cats.effect._
+
+import effectie.core._
+import effectie.syntax.all._
+
+def foo[F[_]: Fx: Monad](n: Int): F[Option[Int]] = (for {
+  a <- OptionT(effectOf(n.some))
+  b <- OptionT(effectOf(none[Int]))
+  c <- OptionT(effectOf(123.some))
+} yield c).value
+
+import effectie.instances.ce2.fx._
+
+foo[IO](1).unsafeRunSync() // You expect None here.
+
+```
+The problem's gone! Now each `flatMap` handles only `Some` case and that's what you want. However, because of that, it's hard to log `None` case.
+
+LoggerF can solve this issue for you.
+
+```scala mdoc:reset-object
+import cats._
+import cats.data._
+import cats.syntax.all._
+import cats.effect._
+
+import effectie.core._
+import effectie.syntax.all._
+
+import loggerf.core._
+import loggerf.syntax.all._
+import loggerf.logger._
+
+// or Slf4JLogger.slf4JLogger[MyClass]
+implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyLogger")
+
+def foo[F[_] : Fx : Monad : Log](n: Int): F[Option[Int]] =
+  (for {
+    a <- OptionT(effectOf(n.some)).log(
+        ifEmpty = error("a is empty"),
+        a => debug(s"a is $a")
+      )
+    b <- OptionT(effectOf(none[Int])).log(
+        error("b is empty"),
+        b => debug(s"b is $b")
+      )
+    c <- OptionT(effectOf(123.some)).log(
+        warn("c is empty"),
+        c => debug(s"c is $c")
+      )
+  } yield c).value
+
+import effectie.instances.ce2.fx._
+import loggerf.instances.cats._
+
+foo[IO](1).unsafeRunSync() // You expect None here.
+```
+With logs like
+```
+00:17:33.983 [main] DEBUG MyLogger - a is 1
+00:17:33.995 [main] ERROR MyLogger - b is empty
+```
+
+***
+
+Another example with `EitherT`,
+```scala mdoc:reset-object
+import cats._
+import cats.data._
+import cats.syntax.all._
+import cats.effect._
+
+import effectie.core._
+import effectie.syntax.all._
+
+import loggerf.core._
+import loggerf.syntax.all._
+import loggerf.logger._
+
+// or Slf4JLogger.slf4JLogger[MyClass]
+implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyLogger")
+
+def foo[F[_] : Fx : Monad : Log](n: Int): F[Either[String, Int]] =
+  (for {
+    a <- EitherT(effectOf(n.asRight[String])).log(
+           err => error(s"Error: $err"),
+           a => debug(s"a is $a")
+         )
+    b <- EitherT(effectOf("Some Error".asLeft[Int])).log(
+           err => error(s"Error: $err"),
+            b => debug(s"b is $b")
+         )
+    c <- EitherT(effectOf(123.asRight[String])).log(
+           err => warn(s"Error: $err"),
+           c => debug(s"c is $c")
+         )
+  } yield c).value
+
+import effectie.instances.ce2.fx._
+import loggerf.instances.cats._
+
+foo[IO](1).unsafeRunSync() // You expect Left("Some Error") here.
+```
+With logs like
+```
+00:40:48.663 [main] DEBUG MyLogger - a is 1
+00:40:48.667 [main] ERROR MyLogger - Error: Some Error
+```
+
+### Usage
+
+Pleae check out
+* [LoggerF for Cats](cats/getting-started.md)

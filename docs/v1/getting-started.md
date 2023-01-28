@@ -280,7 +280,7 @@ for {
   b <- bar(a) // F[A]
 } yield b
 ```
-That's true but what happens if you want to use `Option` or `Either`? If you use them with tagless final, you may get the result you want.
+That's true but what happens if you want to use `Option` or `Either`? If you use them with tagless final, you may not get the result you want.
 e.g.)
 ```scala mdoc:reset-object
 import cats._
@@ -300,7 +300,7 @@ foo[IO](1).unsafeRunSync() // You expect None here!!!
 
 ```
 
-You expect `None` for the result due to `effectOf(none[Int])` yet you get `Some(123)` instead. That's because `b` is `Option[Int]` not `Int`.
+You expect `None` for the result due to `effectOf(none[Int])` yet you get `Some(123)` instead. That's because `b` is from `F[Option[Int]]` not from `Option[Int]`.
 
 The same issue exists for `F[Either[A, B]]` as well.
 

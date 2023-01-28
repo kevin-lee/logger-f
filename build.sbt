@@ -13,14 +13,14 @@ ThisBuild / developers := List(
     props.GitHubUsername,
     "Kevin Lee",
     "kevin.code@kevinlee.io",
-    url(s"https://github.com/${props.GitHubUsername}")
+    url(s"https://github.com/${props.GitHubUsername}"),
   )
 )
 ThisBuild / homepage   := url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}").some
 ThisBuild / scmInfo    :=
   ScmInfo(
     browseUrl = url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}"),
-    connection = s"scm:git:git@github.com:${props.GitHubUsername}/${props.RepoName}.git"
+    connection = s"scm:git:git@github.com:${props.GitHubUsername}/${props.RepoName}.git",
   ).some
 
 ThisBuild / licenses   := props.licenses
@@ -30,25 +30,26 @@ ThisBuild / resolvers += "sonatype-snapshots" at s"https://${props.SonatypeCrede
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
-ThisBuild / scalafixConfig := (
+ThisBuild / scalafixConfig                               := (
   if (scalaVersion.value.startsWith("3")) file(".scalafix-scala3.conf").some
   else file(".scalafix-scala2.conf").some
-  )
+)
 
-ThisBuild / scalafixScalaBinaryVersion := {
-  val log = sLog.value
+ThisBuild / scalafixScalaBinaryVersion                   := {
+  val log        = sLog.value
   val newVersion = if (scalaVersion.value.startsWith("3")) {
     (ThisBuild / scalafixScalaBinaryVersion).value
   } else {
     CrossVersion.binaryScalaVersion(scalaVersion.value)
   }
 
-  log.info(s">> Change ThisBuild / scalafixScalaBinaryVersion from ${(ThisBuild / scalafixScalaBinaryVersion).value} to $newVersion")
+  log.info(
+    s">> Change ThisBuild / scalafixScalaBinaryVersion from ${(ThisBuild / scalafixScalaBinaryVersion).value} to $newVersion"
+  )
   newVersion
 }
 
 ThisBuild / scalafixDependencies += "com.github.xuwei-k" %% "scalafix-rules" % "0.2.12"
-
 
 lazy val loggerF = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin)
@@ -98,8 +99,8 @@ lazy val core    =
       ) ++ libs.hedgehogLibs,
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
-        libraryDependencies.value
-      )
+        libraryDependencies.value,
+      ),
     )
 lazy val coreJvm = core.jvm
 lazy val coreJs  = core.js
@@ -112,8 +113,8 @@ lazy val slf4jLogger    = module(ProjectName("slf4j"), crossProject(JVMPlatform,
     ),
     libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
       scalaVersion.value,
-      libraryDependencies.value
-    )
+      libraryDependencies.value,
+    ),
   )
   .dependsOn(core)
 lazy val slf4jLoggerJvm = slf4jLogger.jvm
@@ -125,11 +126,11 @@ lazy val log4sLogger    =
       description         := "Logger for F[_] - Logger with Log4s",
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
-        libraryDependencies.value
+        libraryDependencies.value,
       ),
       libraryDependencies ++= List(
         libs.log4sLib % Provided
-      )
+      ),
     )
     .dependsOn(core)
 lazy val log4sLoggerJvm = log4sLogger.jvm
@@ -184,12 +185,12 @@ lazy val log4jLogger    =
       },
       libraryDependencies ++= Seq(
         libs.log4jApi,
-        libs.log4jCore
+        libs.log4jCore,
       ).map(_ % Provided),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
-        libraryDependencies.value
-      )
+        libraryDependencies.value,
+      ),
     )
     .dependsOn(core)
 lazy val log4jLoggerJvm = log4jLogger.jvm
@@ -201,7 +202,7 @@ lazy val sbtLogging    =
       description         := "Logger for F[_] - Logger with sbt logging",
       libraryDependencies ++= crossVersionProps(
         List.empty,
-        SemVer.parseUnsafe(scalaVersion.value)
+        SemVer.parseUnsafe(scalaVersion.value),
       ) {
         case (SemVer.Major(2), SemVer.Minor(11), _) =>
           List(
@@ -220,8 +221,8 @@ lazy val sbtLogging    =
       },
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
-        libraryDependencies.value
-      )
+        libraryDependencies.value,
+      ),
     )
     .dependsOn(core)
 lazy val sbtLoggingJvm = sbtLogging.jvm
@@ -239,7 +240,7 @@ lazy val cats    =
       ),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
-        libraryDependencies.value
+        libraryDependencies.value,
       ),
     )
     .dependsOn(core % props.IncludeTest)
@@ -250,10 +251,10 @@ lazy val catsEffect    =
   module(ProjectName("cats-effect"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Cats Effect",
-      libraryDependencies ++= libs.hedgehogLibs ++ List(libs.effectieCatsEffect % Test),
+      libraryDependencies ++= libs.hedgehogLibs ++ List(libs.effectieCatsEffect2 % Test),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
-        libraryDependencies.value
+        libraryDependencies.value,
       ),
     )
     .settings(noPublish)
@@ -267,11 +268,11 @@ lazy val catsEffect3    =
       description         := "Logger for F[_] - Cats Effect 3",
       libraryDependencies ++= libs.hedgehogLibs ++ List(
         libs.effectieCatsEffect3 % Test,
-        libs.extrasHedgehogCatsEffect3
+        libs.extrasHedgehogCatsEffect3,
       ),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
-        libraryDependencies.value
+        libraryDependencies.value,
       ),
     )
     .settings(noPublish)
@@ -286,7 +287,7 @@ lazy val monix    =
       libraryDependencies ++= libs.hedgehogLibs ++ List(libs.effectieMonix % Test),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
-        libraryDependencies.value
+        libraryDependencies.value,
       ),
     )
     .settings(noPublish)
@@ -304,8 +305,8 @@ lazy val testCatsEffectWithSlf4jLogger    =
       libraryDependencies ++= Seq(libs.slf4jApi, libs.logbackClassic),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
-        libraryDependencies.value
-      )
+        libraryDependencies.value,
+      ),
     )
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, slf4jLogger, catsEffect % props.IncludeTest)
@@ -322,8 +323,8 @@ lazy val testMonixWithSlf4jLogger    =
       libraryDependencies ++= Seq(libs.slf4jApi, libs.logbackClassic),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
-        libraryDependencies.value
-      )
+        libraryDependencies.value,
+      ),
     )
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, slf4jLogger, monix % props.IncludeTest)
@@ -340,8 +341,8 @@ lazy val testCatsEffectWithLog4sLogger    =
       libraryDependencies ++= Seq(libs.log4sLib, libs.logbackClassic),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
-        libraryDependencies.value
-      )
+        libraryDependencies.value,
+      ),
     )
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, log4sLogger, catsEffect % props.IncludeTest)
@@ -358,18 +359,54 @@ lazy val testCatsEffectWithLog4jLogger    =
       libraryDependencies ++= Seq(libs.log4jApi, libs.log4jCore),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
-        libraryDependencies.value
-      )
+        libraryDependencies.value,
+      ),
     )
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, log4jLogger, catsEffect % props.IncludeTest)
 lazy val testCatsEffectWithLog4jLoggerJvm = testCatsEffectWithLog4jLogger.jvm
 lazy val testCatsEffectWithLog4jLoggerJs  = testCatsEffectWithLog4jLogger.js
 
-lazy val docs = (project in file("generated-docs"))
+lazy val docs = (project in file("docs-gen-tmp/docs"))
   .enablePlugins(MdocPlugin, DocusaurPlugin)
   .settings(
-    name                := prefixedProjectName("docs"),
+    name                := "docs",
+    mdocIn              := file("docs/latest"),
+    mdocOut             := file("generated-docs/docs"),
+    cleanFiles += ((ThisBuild / baseDirectory).value / "generated-docs" / "docs"),
+    libraryDependencies ++= {
+      val latestTag = getTheLatestTaggedVersion()
+      Seq(
+        libs.effectieCore,
+        libs.effectieSyntax,
+        libs.effectieCatsEffect2,
+        "io.kevinlee" %% "logger-f-core"        % latestTag,
+        "io.kevinlee" %% "logger-f-cats"        % latestTag,
+        "io.kevinlee" %% "logger-f-slf4j"       % latestTag,
+        "io.kevinlee" %% "logger-f-log4j"       % latestTag,
+        "io.kevinlee" %% "logger-f-log4s"       % latestTag,
+        "io.kevinlee" %% "logger-f-sbt-logging" % latestTag,
+        libs.slf4jApi,
+        libs.logbackClassic,
+      )
+    },
+    libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+      scalaVersion.value,
+      libraryDependencies.value,
+    ),
+    mdocVariables       := createMdocVariables(none),
+    docusaurDir         := (ThisBuild / baseDirectory).value / "website",
+    docusaurBuildDir    := docusaurDir.value / "build",
+  )
+  .settings(noPublish)
+
+lazy val docsV1 = (project in file("docs-gen-tmp/docs-v1"))
+  .enablePlugins(MdocPlugin)
+  .settings(
+    name                := "docsV1",
+    mdocIn              := file("docs/v1"),
+    mdocOut             := file("website/versioned_docs/version-v1/docs"),
+    cleanFiles += ((ThisBuild / baseDirectory).value / "website" / "versioned_docs" / "version-v1"),
     libraryDependencies ++=
       Seq(
         "io.kevinlee" %% "logger-f-cats-effect"   % props.LoggerF1Version,
@@ -384,31 +421,43 @@ lazy val docs = (project in file("generated-docs"))
       ),
     libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
       scalaVersion.value,
-      libraryDependencies.value
+      libraryDependencies.value,
     ),
-    mdocVariables       := Map(
-//      "VERSION"                  -> {
-//        import sys.process._
-//        "git fetch --tags".!
-//        val tag = "git rev-list --tags --max-count=1".!!.trim
-//        s"git describe --tags $tag".!!.trim.stripPrefix("v")
-//      },
-      "VERSION"                  -> props.LoggerF1Version,
-      "SUPPORTED_SCALA_VERSIONS" -> {
-        val versions = props
-          .CrossScalaVersions
-          .map(CrossVersion.binaryScalaVersion)
-          .map(binVer => s"`$binVer`")
-        if (versions.length > 1)
-          s"${versions.init.mkString(", ")} and ${versions.last}"
-        else
-          versions.mkString
-      },
-    ),
-    docusaurDir         := (ThisBuild / baseDirectory).value / "website",
-    docusaurBuildDir    := docusaurDir.value / "build",
+    mdocVariables       := createMdocVariables(props.LoggerF1Version.some),
   )
   .settings(noPublish)
+
+addCommandAlias(
+  "docsCleanAll",
+  "; docs/clean; docsV1/clean",
+)
+addCommandAlias(
+  "docsMdocAll",
+  "; docs/mdoc; docsV1/mdoc",
+)
+
+def getTheLatestTaggedVersion(): String                               = {
+  import sys.process._
+  "git fetch --tags".!
+  val tag = "git rev-list --tags --max-count=1".!!.trim
+  s"git describe --tags $tag".!!.trim.stripPrefix("v")
+}
+def createMdocVariables(version: Option[String]): Map[String, String] = Map(
+  "VERSION"                  -> (version match {
+    case Some(version) => version
+    case None => getTheLatestTaggedVersion()
+  }),
+  "SUPPORTED_SCALA_VERSIONS" -> {
+    val versions = props
+      .CrossScalaVersions
+      .map(CrossVersion.binaryScalaVersion)
+      .map(binVer => s"`$binVer`")
+    if (versions.length > 1)
+      s"${versions.init.mkString(", ")} and ${versions.last}"
+    else
+      versions.mkString
+  },
+)
 
 lazy val props =
   new {
@@ -464,7 +513,7 @@ lazy val libs =
     lazy val hedgehogLibs: List[ModuleID] = List(
       "qa.hedgehog" %% "hedgehog-core"   % props.HedgehogVersion % Test,
       "qa.hedgehog" %% "hedgehog-runner" % props.HedgehogVersion % Test,
-      "qa.hedgehog" %% "hedgehog-sbt"    % props.HedgehogVersion % Test
+      "qa.hedgehog" %% "hedgehog-sbt"    % props.HedgehogVersion % Test,
     )
 
     lazy val slf4jApi: ModuleID       = "org.slf4j"      % "slf4j-api"       % props.Slf4JVersion
@@ -481,7 +530,7 @@ lazy val libs =
 
     lazy val effectieCore: ModuleID        = "io.kevinlee" %% "effectie-core"         % props.EffectieVersion
     lazy val effectieSyntax: ModuleID      = "io.kevinlee" %% "effectie-syntax"       % props.EffectieVersion
-    lazy val effectieCatsEffect: ModuleID  = "io.kevinlee" %% "effectie-cats-effect2" % props.EffectieVersion
+    lazy val effectieCatsEffect2: ModuleID = "io.kevinlee" %% "effectie-cats-effect2" % props.EffectieVersion
     lazy val effectieCatsEffect3: ModuleID = "io.kevinlee" %% "effectie-cats-effect3" % props.EffectieVersion
 
     lazy val effectieMonix: ModuleID = "io.kevinlee" %% "effectie-monix3" % props.EffectieVersion
@@ -500,7 +549,7 @@ def prefixedProjectName(name: String) = s"${props.RepoName}${if (name.isEmpty) "
 
 def libraryDependenciesRemoveScala3Incompatible(
   scalaVersion: String,
-  libraries: Seq[ModuleID]
+  libraries: Seq[ModuleID],
 ): Seq[ModuleID] =
   (
     if (scalaVersion.startsWith("3."))
@@ -557,7 +606,7 @@ def projectCommonSettings(projectName: String, crossProject: CrossProject.Builde
           false
         case _ =>
           true
-      })
+      }),
       /* } Coveralls */
     )
     .settings(
