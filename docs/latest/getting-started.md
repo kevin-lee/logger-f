@@ -235,4 +235,4 @@ With logs like
 ### Usage
 
 Pleae check out
-* [LoggerF for Cats](cats/getting-started.md)
+* [LoggerF for Cats](cats/cats.md)

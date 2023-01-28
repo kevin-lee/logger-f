@@ -75,16 +75,8 @@ const websiteConfig = {
               to: 'docs/',
             },
             {
-              label: 'For Cats Effect',
-              to: 'docs/cats-effect/getting-started',
-            },
-            {
-              label: 'For Monix',
-              to: 'docs/monix/getting-started',
-            },
-            {
-              label: 'For Scalaz Effect',
-              to: 'docs/scalaz-effect/getting-started',
+              label: 'For Cats',
+              to: 'docs/cats',
             },
           ],
         },
