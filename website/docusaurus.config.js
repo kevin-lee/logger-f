@@ -46,6 +46,17 @@ const websiteConfig = {
           position: 'left',
         },
         {
+          type: 'docsVersionDropdown',
+          position: 'right',
+          dropdownActiveClassDisabled: true,
+          dropdownItemsAfter: [
+            {
+              to: '/versions',
+              label: 'All versions',
+            },
+          ],
+        },
+        {
           href: 'https://github.com/Kevin-Lee/logger-f',
           className: 'header-github-link',
           'aria-label': 'GitHub',
@@ -64,16 +75,8 @@ const websiteConfig = {
               to: 'docs/',
             },
             {
-              label: 'For Cats Effect',
-              to: 'docs/cats-effect/getting-started',
-            },
-            {
-              label: 'For Monix',
-              to: 'docs/monix/getting-started',
-            },
-            {
-              label: 'For Scalaz Effect',
-              to: 'docs/scalaz-effect/getting-started',
+              label: 'For Cats',
+              to: 'docs/cats',
             },
           ],
         },
@@ -103,9 +106,18 @@ const websiteConfig = {
       '@docusaurus/preset-classic',
       {
         docs: {
-          path: '../generated-docs/target/mdoc/',
-          // It is recommended to set document id as docs home page (`docs/` path).
+          path: '../generated-docs/docs/',
           sidebarPath: require.resolve('./sidebars.js'),
+          "lastVersion": "current",
+          "versions": {
+            "v1": {
+              "label": "v1",
+              "path": "v1",
+            },
+            "current": {
+              "label": "2.0.0-beta6",
+            },
+          }
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),

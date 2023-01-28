@@ -4,6 +4,8 @@ src_managed/
 project/boot/
 project/plugins/project/
 .bsp/
+generated-docs/
+docs-gen-tmp/
 
 .history
 .cache
