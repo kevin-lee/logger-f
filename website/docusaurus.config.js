@@ -19,7 +19,7 @@ const websiteConfig = {
   url: 'https://logger-f.kevinly.dev',
   baseUrl: '/',
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'error',
+  onBrokenMarkdownLinks: 'throw',
   favicon: 'img/favicon.png',
   organizationName: 'Kevin-Lee', // Usually your GitHub org/user name.
   projectName: 'logger-f', // Usually your repo name.
