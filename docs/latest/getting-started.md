@@ -85,33 +85,70 @@ What inconvenience? I can just log with `flatMap` like.
 ```scala
 for {
   a <- foo(n) // F[A]
-  _ <- Sync[F].delay(logger.debug(s"blah blah $a")) // F[Unit]
+  _ <- Sync[F].delay(logger.debug(s"a is $a")) // F[Unit]
   b <- bar(a) // F[A]
+  _ <- Sync[F].delay(logger.debug(s"b is $b")) // F[Unit]
 } yield b
 ```
-That's true but what happens if you want to use `Option` or `Either`? If you use them with tagless final, you may not get the result you want.
+That's true, but it's distracting to have log in each flatMap.
+So,
+```
+1 line for the actual code
+1 line for logging
+1 line for code
+1 line for the actual logging
+```
+
+Also, what about `F[_]` with `Option` and `Either`? What happens if you want to use `Option` or `Either`? 
+If you use `F[_]` with `Option` or `Either`, you may have more inconvenience or may not get the result you want.
+
 e.g.)
 ```scala mdoc:reset-object
-import cats._
 import cats.syntax.all._
 import cats.effect._
 
-import effectie.core._
-import effectie.syntax.all._
+import org.slf4j.LoggerFactory
+val logger = LoggerFactory.getLogger("test-logger")
 
-def foo[F[_] : Fx : Monad](n: Int): F[Option[Int]] = for {
-  a <- effectOf(n.some)
-  b <- effectOf(none[Int])
-  c <- effectOf(123.some)
+def foo[F[_]: Sync](n: Int): F[Option[Int]] = for {
+  a <- Sync[F].pure(n.some)
+  _ <- Sync[F].delay(
+         a match {
+           case Some(value) =>
+             logger.debug(s"a is $value")
+           case None =>
+             logger.debug("No 'a' value found")
+         }
+       ) // F[Unit]
+  b <- Sync[F].pure(none[Int])
+  _ <- Sync[F].delay(
+         b match {
+           case Some(value) =>
+             logger.debug(s"b is $value")
+           case None =>
+             () // don't log anything for None case
+         }
+       ) // F[Unit]
+  c <- Sync[F].pure(123.some)
+  _ <- Sync[F].delay(
+         c match {
+           case Some(value) =>
+             () // don't log anything for None case
+           case None =>
+             logger.debug("No 'c' value found")
+         }
+       ) // F[Unit]
 } yield c
+```
+So much noise for logging!
 
-import effectie.instances.ce2.fx._
-
-foo[IO](1).unsafeRunSync() // You expect None here!!!
+Now, let's think about the result.
+```scala mdoc:nest
+foo[IO](1).unsafeRunSync() // You probably want to have None here.
 
 ```
 
-You expect `None` for the result due to `effectOf(none[Int])` yet you get `Some(123)` instead. That's because `b` is from `F[Option[Int]]` not from `Option[Int]`.
+You expect `None` for the result due to `Sync[F].pure(none[Int])` yet you get `Some(123)` instead. That's because `b` is from `F[Option[Int]]` not from `Option[Int]`.
 
 The same issue exists for `F[Either[A, B]]` as well.
 
@@ -120,28 +157,31 @@ So you need to use `OptionT` for `F[Option[A]]` and `EitherT` for `F[Either[A, B
 Let's write it again with `OptionT`.
 
 ```scala mdoc:reset-object
-import cats._
 import cats.data._
 import cats.syntax.all._
 import cats.effect._
 
-import effectie.core._
-import effectie.syntax.all._
+import org.slf4j.LoggerFactory
+val logger = LoggerFactory.getLogger("test-logger")
 
-def foo[F[_]: Fx: Monad](n: Int): F[Option[Int]] = (for {
-  a <- OptionT(effectOf(n.some))
-  b <- OptionT(effectOf(none[Int]))
-  c <- OptionT(effectOf(123.some))
+def foo[F[_]: Sync](n: Int): F[Option[Int]] = (for {
+  a <- OptionT(Sync[F].pure(n.some))
+  _ <- OptionT.liftF(Sync[F].delay(logger.debug(s"a is $a"))) // Now, you can't log None case.
+  b <- OptionT(Sync[F].pure(none[Int]))
+  _ <- OptionT.liftF(Sync[F].delay(logger.debug(s"b is $b"))) // You can't log None case.
+  c <- OptionT(Sync[F].pure(123.some))
+  _ <- OptionT.liftF(Sync[F].delay(logger.debug(s"c is $c"))) // You can't log None case.
 } yield c).value
-
-import effectie.instances.ce2.fx._
+```
+```scala mdoc:nest
 
 foo[IO](1).unsafeRunSync() // You expect None here.
-
 ```
 The problem's gone! Now each `flatMap` handles only `Some` case and that's what you want. However, because of that, it's hard to log `None` case.
 
-LoggerF can solve this issue for you.
+***
+
+**LoggerF can solve this issue for you!**
 
 ```scala mdoc:reset-object
 import cats._
@@ -154,26 +194,28 @@ import effectie.syntax.all._
 
 import loggerf.core._
 import loggerf.syntax.all._
+
+def foo[F[_]: Fx: Monad: Log](n: Int): F[Option[Int]] =
+  (for {
+    a <- OptionT(effectOf(n.some)).log(
+           ifEmpty = error("a is empty"),
+           a => debug(s"a is $a")
+         )
+    b <- OptionT(effectOf(none[Int])).log(
+           error("b is empty"),
+           b => debug(s"b is $b")
+         )
+    c <- OptionT(effectOf(123.some)).log(
+           warn("c is empty"),
+           c => debug(s"c is $c")
+         )
+  } yield c).value
+```
+```scala mdoc:nest
 import loggerf.logger._
 
 // or Slf4JLogger.slf4JLogger[MyClass]
 implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyLogger")
-
-def foo[F[_] : Fx : Monad : Log](n: Int): F[Option[Int]] =
-  (for {
-    a <- OptionT(effectOf(n.some)).log(
-        ifEmpty = error("a is empty"),
-        a => debug(s"a is $a")
-      )
-    b <- OptionT(effectOf(none[Int])).log(
-        error("b is empty"),
-        b => debug(s"b is $b")
-      )
-    c <- OptionT(effectOf(123.some)).log(
-        warn("c is empty"),
-        c => debug(s"c is $c")
-      )
-  } yield c).value
 
 import effectie.instances.ce2.fx._
 import loggerf.instances.cats._
@@ -200,12 +242,8 @@ import effectie.syntax.all._
 
 import loggerf.core._
 import loggerf.syntax.all._
-import loggerf.logger._
 
-// or Slf4JLogger.slf4JLogger[MyClass]
-implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyLogger")
-
-def foo[F[_] : Fx : Monad : Log](n: Int): F[Either[String, Int]] =
+def foo[F[_]: Fx: Monad: Log](n: Int): F[Either[String, Int]] =
   (for {
     a <- EitherT(effectOf(n.asRight[String])).log(
            err => error(s"Error: $err"),
@@ -220,6 +258,12 @@ def foo[F[_] : Fx : Monad : Log](n: Int): F[Either[String, Int]] =
            c => debug(s"c is $c")
          )
   } yield c).value
+```
+```scala mdoc:nest
+import loggerf.logger._
+
+// or Slf4JLogger.slf4JLogger[MyClass]
+implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyLogger")
 
 import effectie.instances.ce2.fx._
 import loggerf.instances.cats._
