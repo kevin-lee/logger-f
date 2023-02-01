@@ -2,12 +2,217 @@
 id: log
 title: "Log - Cats"
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 ## Log - Cats (WIP)
 
-`Log` is a typeclass to log `F[A]`, `F[Option[A]]`, `F[Either[A, B]]`, `OptionT[F, A]` and `EitherT[F, A, B]`.
+`Log` is an algebra to log `F[A]`, `F[Option[A]]`, `F[Either[A, B]]`, `OptionT[F, A]` and `EitherT[F, A, B]`. So `Log` provides abstraction of logging operations, and there can multiple interpretations if required.  
 
-It requires `Fx` from [Effectie](https://kevin-lee.github.io/effectie) and `Monad` from [Cats](https://typelevel.org/cats).
+More precisely, it requires `Fx` from [Effectie](https://kevin-lee.github.io/effectie) and `Monad` from [Cats](https://typelevel.org/cats). So it can be used for whatever effect you want as long as there's an interpreter for `Fx` of the effect.
+
+## Log `String`
+LoggerF is mainly for `F[_]` but let's start with more simple logging case that is logging `String`.
+
+<Tabs
+  groupId="log"
+  defaultValue="syntax"
+  values={[
+    {label: 'With syntax', value: 'syntax'},
+    {label: 'Without syntax', value: 'no-syntax'},
+  ]}>
+  <TabItem value="syntax">
+
+```scala
+logS(String)(debug) // F[String]
+logS(String)(info)  // F[String]
+logS(String)(warn)  // F[String]
+logS(String)(error) // F[String]
+// or
+String.logS(debug) // F[String]
+String.logS(info)  // F[String]
+String.logS(warn)  // F[String]
+String.logS(error) // F[String]
+```
+
+If you don't need to re-use the `String` value,
+```scala
+import loggerf.syntax.all._
+
+logS_(String)(debug) // F[Unit]
+logS_(String)(info)  // F[Unit]
+logS_(String)(warn)  // F[Unit]
+logS_(String)(error) // F[Unit]
+// or
+String.logS_(debug) // F[Unit]
+String.logS_(info)  // F[Unit]
+String.logS_(warn)  // F[Unit]
+String.logS_(error) // F[Unit]
+```
+  </TabItem>
+  
+  <TabItem value="no-syntax">
+
+```scala
+import loggerf.core._
+
+Log[F].logS(String)(debug) // F[String]
+Log[F].logS(String)(info)  // F[String]
+Log[F].logS(String)(warn)  // F[String]
+Log[F].logS(String)(error) // F[String]
+```
+
+If you don't need to re-use the `String` value,
+```scala
+Log[F].logS_(String)(debug) // F[Unit]
+Log[F].logS_(String)(info)  // F[Unit]
+Log[F].logS_(String)(warn)  // F[Unit]
+Log[F].logS_(String)(error) // F[Unit]
+```
+
+  </TabItem>
+</Tabs>
+
+### Example
+
+<Tabs
+  groupId="log"
+  defaultValue="syntax"
+  values={[
+    {label: 'With syntax', value: 'syntax'},
+    {label: 'Without syntax', value: 'no-syntax'},
+  ]}>
+  <TabItem value="syntax">
+
+```scala mdoc:reset-object
+import cats._
+import cats.syntax.all._
+
+import effectie.core._
+import effectie.syntax.all._
+
+import loggerf.core._
+import loggerf.syntax.all._
+
+def hello[F[_]: Fx: Log: Monad](name: String): F[Unit] = for {
+  greeting <- logS(s"Hello $name")(info)  // F[String]
+  _        <- effectOf(println(greeting)) // F[Unit]
+} yield ()
+```
+```scala mdoc:nest
+import cats.effect._
+import effectie.instances.ce2.fx._
+import loggerf.instances.cats._
+import loggerf.logger._
+
+implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("test-logger")
+
+hello[IO]("Kevin").unsafeRunSync()
+```
+```
+02:07:09.298 [Thread-67] INFO test-logger - Hello Kevin
+```
+***
+If you don't need to re-use the `String` value,
+```scala mdoc:reset-object
+import cats._
+import cats.syntax.all._
+
+import effectie.core._
+import effectie.syntax.all._
+
+import loggerf.core._
+import loggerf.syntax.all._
+
+def hello[F[_]: Fx: Log: Monad](name: String): F[Unit] = for {
+  _ <- logS_(s"The name is $name")(info) // F[Unit]
+  _ <- effectOf(println(s"Hello $name")) // F[Unit]
+} yield ()
+```
+```scala mdoc:nest
+import cats.effect._
+import effectie.instances.ce2.fx._
+import loggerf.instances.cats._
+import loggerf.logger._
+
+implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("test-logger")
+
+hello[IO]("Kevin").unsafeRunSync()
+```
+```
+02:11:22.686 [Thread-71] INFO test-logger - The name is Kevin
+02:11:22.689 [Thread-71] INFO test-logger - Hello Kevin
+```
+  </TabItem>
+  
+  <TabItem value="no-syntax">
+
+```scala mdoc:reset-object
+import cats._
+import cats.syntax.all._
+
+import effectie.core._
+import effectie.syntax.all._
+
+import loggerf.core._
+import loggerf.syntax.all._
+
+def hello[F[_]: Fx: Log: Monad](name: String): F[Unit] = for {
+  greeting <- Log[F].logS(s"Hello $name")(info) // F[String]
+  _        <- effectOf(println(greeting))       // F[Unit]
+} yield ()
+```
+```scala mdoc:nest
+import cats.effect._
+import effectie.instances.ce2.fx._
+import loggerf.instances.cats._
+import loggerf.logger._
+
+implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("test-logger")
+
+hello[IO]("Kevin").unsafeRunSync()
+```
+```
+02:07:09.298 [Thread-67] INFO test-logger - Hello Kevin
+```
+
+***
+If you don't need to re-use the `String` value,
+```scala mdoc:reset-object
+import cats._
+import cats.syntax.all._
+
+import effectie.core._
+import effectie.syntax.all._
+
+import loggerf.core._
+import loggerf.syntax.all._
+
+def hello[F[_]: Fx: Log: Monad](name: String): F[Unit] = for {
+  _ <- logS_(s"The name is $name")(info) // F[Unit]
+  _ <- effectOf(println(s"Hello $name")) // F[Unit]
+} yield ()
+```
+```scala mdoc:nest
+import cats.effect._
+import effectie.instances.ce2.fx._
+import loggerf.instances.cats._
+import loggerf.logger._
+
+implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("test-logger")
+
+hello[IO]("Kevin").unsafeRunSync()
+```
+```
+02:15:41.364 [Thread-74] INFO test-logger - Hello Kevin
+02:15:41.367 [Thread-74] INFO test-logger - The name is Kevin
+```
+
+
+  </TabItem>
+</Tabs>
+
+
 
 ## Log `F[A]`
 ```scala
