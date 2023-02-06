@@ -1,10 +1,9 @@
-name: Build-All
+name: "Test Coverage"
 
 on:
   push:
-    branches-ignore:
-      - main
-      - 'logger-f-1'
+    branches:
+      - '**'
 
   pull_request:
     branches:
@@ -19,9 +18,7 @@ jobs:
     strategy:
       matrix:
         scala:
-          - { name: "Scala 2", version: "2.12.13", binary-version: "2.12", java-version: "adopt@1.11", report: "" }
           - { name: "Scala 2", version: "2.13.6",  binary-version: "2.13", java-version: "adopt@1.11", report: "report" }
-          - { name: "Scala 3", version: "3.0.2",   binary-version: "3",    java-version: "adopt@1.11", report: "" }
 
     steps:
       - uses: actions/checkout@v3
@@ -40,8 +37,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-sbt-${{ matrix.scala.binary-version }}-
 
-      - name: "[Push] Build All for ${{ matrix.scala.name }}: ${{ matrix.scala.version }} - ${{ github.run_number }}"
-        if: github.event_name == 'push'
+      - name: "[Codecov] Report ${{ matrix.scala.name }} ${{ matrix.scala.version }} - ${{ github.run_number }}"
+        if: ${{ matrix.scala.report == 'report' }}
         env:
           CURRENT_BRANCH_NAME: ${{ github.ref }}
           RUN_ID: ${{ github.run_id }}
@@ -52,21 +49,7 @@ jobs:
           echo " [AFTER]CURRENT_BRANCH_NAME=${CURRENT_BRANCH_NAME}"
           echo "RUN_ID=${RUN_ID}"
           echo "RUN_NUMBER=${RUN_NUMBER}"
-          echo "Push #${PUSH_NUMBER}"
-          java -version
-          .github/workflows/sbt-build-all.sh ${{ matrix.scala.version }}
-
-      - name: "[PR] Build All for ${{ matrix.scala.name }}: ${{ matrix.scala.version }} - PR-#${{ github.event.pull_request.number }} - ${{ github.run_number }}"
-        if: github.event_name == 'pull_request'
-        env:
-          CURRENT_BRANCH_NAME: ${{ github.base_ref }}
-          RUN_ID: ${{ github.run_id }}
-          RUN_NUMBER: ${{ github.run_number }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          echo "Rull request to the '${CURRENT_BRANCH_NAME}' branch"
-          echo "RUN_ID=${RUN_ID}"
-          echo "RUN_NUMBER=${RUN_NUMBER}"
-          echo "PR #${PR_NUMBER}"
-          java -version
           .github/workflows/sbt-build-all.sh ${{ matrix.scala.version }} ${{ matrix.scala.report }}
+
+      - if: ${{ matrix.scala.report == 'report' }}
+        uses: codecov/codecov-action@v3
