@@ -79,6 +79,8 @@ lazy val loggerF = (project in file("."))
     sbtLoggingJs,
     catsJvm,
     catsJs,
+    testKitJvm,
+    testKitJs,
     catsEffectJvm,
     catsEffectJs,
     catsEffect3Jvm,
@@ -246,6 +248,25 @@ lazy val cats    =
     .dependsOn(core % props.IncludeTest)
 lazy val catsJvm = cats.jvm
 lazy val catsJs  = cats.js
+
+lazy val testKit    =
+  module(ProjectName("test-kit"), crossProject(JVMPlatform, JSPlatform))
+    .settings(
+      description         := "Logger for F[_] - Test Kit",
+      libraryDependencies ++= libs.hedgehogLibs ++
+//        libs.hedgehogExtra ++
+        List(
+          libs.cats,
+          libs.extrasCats,
+        ),
+      libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+        scalaVersion.value,
+        libraryDependencies.value,
+      ),
+    )
+    .dependsOn(core % props.IncludeTest)
+lazy val testKitJvm = testKit.jvm
+lazy val testKitJs  = testKit.js
 
 lazy val catsEffect    =
   module(ProjectName("cats-effect"), crossProject(JVMPlatform, JSPlatform))
@@ -491,6 +512,8 @@ lazy val props =
 
     final val HedgehogVersion = "0.8.0"
 
+    final val HedgehogExtraVersion = "0.1.0"
+
     final val EffectieVersion = "2.0.0-beta5"
 
     final val CatsVersion = "2.7.0"
@@ -511,10 +534,14 @@ lazy val libs =
   new {
 
     lazy val hedgehogLibs: List[ModuleID] = List(
-      "qa.hedgehog" %% "hedgehog-core"   % props.HedgehogVersion % Test,
-      "qa.hedgehog" %% "hedgehog-runner" % props.HedgehogVersion % Test,
-      "qa.hedgehog" %% "hedgehog-sbt"    % props.HedgehogVersion % Test,
-    )
+      "qa.hedgehog" %% "hedgehog-core"   % props.HedgehogVersion,
+      "qa.hedgehog" %% "hedgehog-runner" % props.HedgehogVersion,
+      "qa.hedgehog" %% "hedgehog-sbt"    % props.HedgehogVersion,
+    ).map(_ % Test)
+
+    lazy val hedgehogExtra = List(
+      "io.kevinlee" %% "hedgehog-extra-core" % props.HedgehogExtraVersion
+    ).map(_ % Test)
 
     lazy val slf4jApi: ModuleID       = "org.slf4j"      % "slf4j-api"       % props.Slf4JVersion
     lazy val logbackClassic: ModuleID = "ch.qos.logback" % "logback-classic" % props.LogbackVersion
