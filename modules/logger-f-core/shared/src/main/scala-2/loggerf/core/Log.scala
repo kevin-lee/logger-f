@@ -39,7 +39,7 @@ trait Log[F[*]] {
   def logS_(
     message: => String
   )(toLeveledMessage: (String => LogMessage with NotIgnorable) with LogMessage.LeveledMessage.Leveled): F[Unit] =
-    toLeveledMessage(message) match {
+    toLeveledMessage.toLazyInput(message) match {
       case LogMessage.LeveledMessage(msg, level) =>
         EF.effectOf(canLog.getLogger(level)(msg()))
     }
