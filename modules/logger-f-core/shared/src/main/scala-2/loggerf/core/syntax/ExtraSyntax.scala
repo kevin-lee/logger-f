@@ -1,5 +1,7 @@
 package loggerf.core.syntax
 
+import loggerf.LogMessage.LeveledMessage.PreprocessedStringToLeveledMessage
+
 /** @author Kevin Lee
   * @since 2022-10-29
   */
@@ -12,28 +14,36 @@ trait ExtraSyntax {
   def prefix(pre: => String): Prefix =
     new Prefix(message => pre + message)
 
-  @inline private[ExtraSyntax] def debug0(f: String => String): String => LogMessage with NotIgnorable =
-    message => LeveledMessage(() => f(message), Level.debug)
+  @inline private[ExtraSyntax] def debug0(
+    f: String => String
+  ): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
+    PreprocessedStringToLeveledMessage(Level.debug, f)
 
-  @inline private[ExtraSyntax] def info0(f: String => String): String => LogMessage with NotIgnorable =
-    message => LeveledMessage(() => f(message), Level.info)
+  @inline private[ExtraSyntax] def info0(
+    f: String => String
+  ): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
+    PreprocessedStringToLeveledMessage(Level.info, f)
 
-  @inline private[ExtraSyntax] def warn0(f: String => String): String => LogMessage with NotIgnorable =
-    message => LeveledMessage(() => f(message), Level.warn)
+  @inline private[ExtraSyntax] def warn0(
+    f: String => String
+  ): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
+    PreprocessedStringToLeveledMessage(Level.warn, f)
 
-  @inline private[ExtraSyntax] def error0(f: String => String): String => LogMessage with NotIgnorable =
-    message => LeveledMessage(() => f(message), Level.error)
+  @inline private[ExtraSyntax] def error0(
+    f: String => String
+  ): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
+    PreprocessedStringToLeveledMessage(Level.error, f)
 
-  def debug(prefix: Prefix): String => LogMessage with NotIgnorable =
+  def debug(prefix: Prefix): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
     debug0(prefix.value)
 
-  def info(prefix: Prefix): String => LogMessage with NotIgnorable =
+  def info(prefix: Prefix): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
     info0(prefix.value)
 
-  def warn(prefix: Prefix): String => LogMessage with NotIgnorable =
+  def warn(prefix: Prefix): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
     warn0(prefix.value)
 
-  def error(prefix: Prefix): String => LogMessage with NotIgnorable =
+  def error(prefix: Prefix): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
     error0(prefix.value)
 
   import loggerf.core.ToLog

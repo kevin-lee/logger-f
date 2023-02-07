@@ -29,6 +29,19 @@ object LogMessage {
       def apply(level: Level): (String => LeveledMessage) with Leveled = new StringToLeveledMessage(level)
     }
 
+    final class PreprocessedStringToLeveledMessage(override val level: Level, preprocess: String => String)
+        extends (String => LeveledMessage)
+        with Leveled {
+      override def apply(message: String): LeveledMessage = LeveledMessage(() => preprocess(message), level)
+
+      override def toLazyInput(message: => String): LeveledMessage = LeveledMessage(() => preprocess(message), level)
+    }
+
+    object PreprocessedStringToLeveledMessage {
+      def apply(level: Level, preprocess: String => String): (String => LeveledMessage) with Leveled =
+        new PreprocessedStringToLeveledMessage(level, preprocess)
+    }
+
   }
   case object Ignore extends LogMessage with Ignorable
 }
