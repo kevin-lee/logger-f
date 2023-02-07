@@ -25,6 +25,8 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 object extraSyntaxSpec extends Properties {
   override def tests: List[Test] = List(
+    property("test logS(String)(level) with prefix", testLogSWithPrefix),
+    property("test logS_(String)(level) with prefix", testLogS_WithPrefix),
     property("test log(F[A]) with prefix", testLogFAWithPrefix),
     property("test log(F[Option[A]]) with prefix", testLogFOptionAWithPrefix),
     property("test log(F[Option[A]])(ignore, message) with prefix", testLogFOptionAIgnoreEmptyWithPrefix),
@@ -44,6 +46,8 @@ object extraSyntaxSpec extends Properties {
     property("test log(EitherT[F, A, B])(message, ignore) with prefix", testLogEitherTFABIgnoreRightWithPrefix),
     property("test log(EitherT[F, A, B])(message, ignoreA) with prefix", testLogEitherTFABIgnoreARightWithPrefix),
   ) ++ List(
+    property("test String.logS with prefix", LogExtensionSpec.testStringLogSWithPrefix),
+    property("test String.logS_ with prefix", LogExtensionSpec.testStringLogS_WithPrefix),
     property("test F[A].log with prefix", LogExtensionSpec.testFALogWithPrefix),
     property("test F[Option[A]].log with prefix", LogExtensionSpec.testFOptionALogWithPrefix),
     property(
@@ -102,6 +106,82 @@ object extraSyntaxSpec extends Properties {
   implicit val errorLogger: ErrorLogger[Throwable] = ErrorLogger.printlnDefaultErrorLogger
 
   private val waitFor300Millis = WaitFor(300.milliseconds)
+
+  def testLogSWithPrefix: Property = for {
+    prefixString <- Gen.string(Gen.unicode, Range.linear(5, 20)).log("prefixString")
+    debugMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+    infoMsg      <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+    warnMsg      <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+    errorMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: FxCtor: Log: Monad]: F[Unit] =
+      (for {
+        _ <- logS(debugMsg)(debug(prefix(prefixString)))
+        _ <- logS(infoMsg)(info(prefix(prefixString)))
+        _ <- logS(warnMsg)(warn(prefix(prefixString)))
+        _ <- logS(errorMsg)(error(prefix(prefixString)))
+      } yield ())
+
+    val expected = LoggerForTesting(
+      debugMessages = Vector(prefixString + debugMsg),
+      infoMessages = Vector(prefixString + infoMsg),
+      warnMessages = Vector(prefixString + warnMsg),
+      errorMessages = Vector(prefixString + errorMsg),
+    )
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      import effectie.instances.future.fxCtor._
+      import loggerf.instances.future.logFuture
+      runLog[Future]
+    }
+
+    logger ==== expected
+  }
+
+  def testLogS_WithPrefix: Property = for {
+    prefixString <- Gen.string(Gen.unicode, Range.linear(5, 20)).log("prefixString")
+    debugMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+    infoMsg      <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+    warnMsg      <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+    errorMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: FxCtor: Log: Monad]: F[Unit] =
+      (for {
+        _ <- logS_(debugMsg)(debug(prefix(prefixString)))
+        _ <- logS_(infoMsg)(info(prefix(prefixString)))
+        _ <- logS_(warnMsg)(warn(prefix(prefixString)))
+        _ <- logS_(errorMsg)(error(prefix(prefixString)))
+      } yield ())
+
+    val expected = LoggerForTesting(
+      debugMessages = Vector(prefixString + debugMsg),
+      infoMessages = Vector(prefixString + infoMsg),
+      warnMessages = Vector(prefixString + warnMsg),
+      errorMessages = Vector(prefixString + errorMsg),
+    )
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      import effectie.instances.future.fxCtor._
+      import loggerf.instances.future.logFuture
+      runLog[Future]
+    }
+
+    logger ==== expected
+  }
 
   def testLogFAWithPrefix: Property = for {
     prefixString <- Gen.string(Gen.unicode, Range.linear(5, 20)).log("prefixString")
@@ -959,6 +1039,82 @@ object extraSyntaxSpec extends Properties {
 
   object LogExtensionSpec {
 
+    def testStringLogSWithPrefix: Property = for {
+      prefixString <- Gen.string(Gen.unicode, Range.linear(5, 20)).log("prefixString")
+      debugMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+      infoMsg      <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+      warnMsg      <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+      errorMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[*]: FxCtor: Log: Monad]: F[Unit] =
+        for {
+          _ <- debugMsg.logS(debug(prefix(prefixString)))
+          _ <- infoMsg.logS(info(prefix(prefixString)))
+          _ <- warnMsg.logS(warn(prefix(prefixString)))
+          _ <- errorMsg.logS(error(prefix(prefixString)))
+        } yield ()
+
+      val expected = LoggerForTesting(
+        debugMessages = Vector(prefixString + debugMsg),
+        infoMessages = Vector(prefixString + infoMsg),
+        warnMessages = Vector(prefixString + warnMsg),
+        errorMessages = Vector(prefixString + errorMsg),
+      )
+
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+      implicit val ec: ExecutionContext =
+        ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+        import effectie.instances.future.fxCtor._
+        import loggerf.instances.future.logFuture
+        runLog[Future]
+      }
+
+      logger ==== expected
+    }
+
+    def testStringLogS_WithPrefix: Property = for {
+      prefixString <- Gen.string(Gen.unicode, Range.linear(5, 20)).log("prefixString")
+      debugMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+      infoMsg      <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+      warnMsg      <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+      errorMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+    } yield {
+
+      implicit val logger: LoggerForTesting = LoggerForTesting()
+
+      def runLog[F[*]: FxCtor: Log: Monad]: F[Unit] =
+        for {
+          _ <- debugMsg.logS_(debug(prefix(prefixString)))
+          _ <- infoMsg.logS_(info(prefix(prefixString)))
+          _ <- warnMsg.logS_(warn(prefix(prefixString)))
+          _ <- errorMsg.logS_(error(prefix(prefixString)))
+        } yield ()
+
+      val expected = LoggerForTesting(
+        debugMessages = Vector(prefixString + debugMsg),
+        infoMessages = Vector(prefixString + infoMsg),
+        warnMessages = Vector(prefixString + warnMsg),
+        errorMessages = Vector(prefixString + errorMsg),
+      )
+
+      implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+      implicit val ec: ExecutionContext =
+        ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+        import effectie.instances.future.fxCtor._
+        import loggerf.instances.future.logFuture
+        runLog[Future]
+      }
+
+      logger ==== expected
+    }
+
     def testFALogWithPrefix: Property = for {
       prefixString <- Gen.string(Gen.unicode, Range.linear(5, 20)).log("prefixString")
       debugMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
@@ -970,12 +1126,12 @@ object extraSyntaxSpec extends Properties {
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
       def runLog[F[*]: FxCtor: Log: Monad]: F[Unit] =
-        (for {
+        for {
           _ <- effectOf(debugMsg).log(debug(prefix(prefixString)))
           _ <- effectOf(infoMsg).log(info(prefix(prefixString)))
           _ <- effectOf(warnMsg).log(warn(prefix(prefixString)))
           _ <- effectOf(errorMsg).log(error(prefix(prefixString)))
-        } yield ())
+        } yield ()
 
       val expected = LoggerForTesting(
         debugMessages = Vector(prefixString + debugMsg),

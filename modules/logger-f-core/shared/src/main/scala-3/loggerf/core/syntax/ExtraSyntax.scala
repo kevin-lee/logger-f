@@ -1,6 +1,7 @@
 package loggerf.core.syntax
 
 import loggerf.core.syntax.ExtraSyntax.Prefix
+import loggerf.LeveledMessage.PreprocessedStringToLeveledMessage
 
 /** @author Kevin Lee
   * @since 2022-10-29
@@ -12,28 +13,28 @@ trait ExtraSyntax {
   def prefix(pre: => String): Prefix =
     Prefix(message => pre + message)
 
-  inline private def debug0(f: String => String): String => LeveledMessage =
-    message => LeveledMessage(() => f(message), Level.debug)
+  inline private def debug0(f: String => String): (String => LeveledMessage) with LeveledMessage.Leveled =
+    PreprocessedStringToLeveledMessage(Level.debug, f)
 
-  inline private def info0(f: String => String): String => LeveledMessage =
-    message => LeveledMessage(() => f(message), Level.info)
+  inline private def info0(f: String => String): (String => LeveledMessage) with LeveledMessage.Leveled =
+    PreprocessedStringToLeveledMessage(Level.info, f)
 
-  inline private def warn0(f: String => String): String => LeveledMessage =
-    message => LeveledMessage(() => f(message), Level.warn)
+  inline private def warn0(f: String => String): (String => LeveledMessage) with LeveledMessage.Leveled =
+    PreprocessedStringToLeveledMessage(Level.warn, f)
 
-  inline private def error0(f: String => String): String => LeveledMessage =
-    message => LeveledMessage(() => f(message), Level.error)
+  inline private def error0(f: String => String): (String => LeveledMessage) with LeveledMessage.Leveled =
+    PreprocessedStringToLeveledMessage(Level.error, f)
 
-  def debug(prefix: Prefix): String => LeveledMessage =
+  def debug(prefix: Prefix): (String => LeveledMessage) with LeveledMessage.Leveled =
     debug0(prefix.value)
 
-  def info(prefix: Prefix): String => LeveledMessage =
+  def info(prefix: Prefix): (String => LeveledMessage) with LeveledMessage.Leveled =
     info0(prefix.value)
 
-  def warn(prefix: Prefix): String => LeveledMessage =
+  def warn(prefix: Prefix): (String => LeveledMessage) with LeveledMessage.Leveled =
     warn0(prefix.value)
 
-  def error(prefix: Prefix): String => LeveledMessage =
+  def error(prefix: Prefix): (String => LeveledMessage) with LeveledMessage.Leveled =
     error0(prefix.value)
 
   import loggerf.core.ToLog
