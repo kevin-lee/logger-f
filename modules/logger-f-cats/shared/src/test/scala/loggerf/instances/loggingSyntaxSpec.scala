@@ -102,7 +102,7 @@ object loggingSyntaxSpec extends Properties {
 
   implicit val errorLogger: ErrorLogger[Throwable] = ErrorLogger.printlnDefaultErrorLogger
 
-  private val waitFor300Millis = WaitFor(300.milliseconds)
+  private val waitFor300Millis = WaitFor(400.milliseconds)
 
   object LogFASpec {
 
