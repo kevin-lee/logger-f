@@ -24,6 +24,18 @@ function Version() {
     (version) => version !== latestVersion && version.name !== 'current',
   ).concat([
     {
+      "name": "2.0.0-beta8",
+      "label": "2.0.0-beta8",
+    },
+    {
+      "name": "2.0.0-beta7",
+      "label": "2.0.0-beta7",
+    },
+    {
+      "name": "2.0.0-beta6",
+      "label": "2.0.0-beta6",
+    },
+    {
       "name": "2.0.0-beta5",
       "label": "2.0.0-beta5",
     },
@@ -110,6 +122,8 @@ function Version() {
 
   const docLink = path => path ? <Link to={path}>Documentation</Link> : <span>&nbsp;</span>;
 
+  const releaseLink = version => version.label !== "v1" ? <a href={`${repoUrl}/releases/tag/v${version.name}`}>Release Notes</a> : <span>&nbsp;</span>;
+
   const spaces = howMany => <span dangerouslySetInnerHTML={{__html: "&nbsp;".repeat(howMany)}} />;
 
   return (
@@ -178,9 +192,7 @@ function Version() {
                     {docLink(version.path)}
                   </td>
                   <td>
-                    <a href={`${repoUrl}/releases/tag/v${version.name}`}>
-                      Release Notes
-                    </a>
+                    {releaseLink(version)}
                   </td>
                 </tr>
               ))}
