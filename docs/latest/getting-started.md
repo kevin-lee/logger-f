@@ -79,6 +79,7 @@ libraryDependencies ++=
 
 
 ## Why
+### Log without LoggerF
 If you code tagless final and use some effect library like [Cats Effect](https://typelevel.org/cats-effect) and [Monix](https://monix.io) or use `Future`, you may have inconvenience in logging.
 
 What inconvenience? I can just log with `flatMap` like.
@@ -86,7 +87,7 @@ What inconvenience? I can just log with `flatMap` like.
 for {
   a <- foo(n) // F[A]
   _ <- Sync[F].delay(logger.debug(s"a is $a")) // F[Unit]
-  b <- bar(a) // F[A]
+  b <- bar(a) // F[B]
   _ <- Sync[F].delay(logger.debug(s"b is $b")) // F[Unit]
 } yield b
 ```
@@ -95,11 +96,23 @@ So,
 ```
 1 line for the actual code
 1 line for logging
-1 line for code
-1 line for the actual logging
+1 line for the actual code
+1 line for logging
 ```
 
-Also, what about `F[_]` with `Option` and `Either`? What happens if you want to use `Option` or `Either`? 
+### Log wit LoggerF
+It can be simplified by logger-f.
+```scala
+for {
+  a <- foo(n).log(a => debug(s"a is $a")) // F[A]
+  b <- bar(a).log(b => debug(s"b is $b")) // F[B]
+} yield b
+```
+*** 
+
+### Log without LoggerF (Option and OptionT)
+
+What about `F[_]` with `Option` and `Either`? What happens if you want to use `Option` or `Either`? 
 If you use `F[_]` with `Option` or `Either`, you may have more inconvenience or may not get the result you want.
 
 e.g.)
@@ -181,6 +194,8 @@ The problem's gone! Now each `flatMap` handles only `Some` case and that's what 
 
 ***
 
+### Log with LoggerF (Option and OptionT)
+
 **LoggerF can solve this issue for you!**
 
 ```scala mdoc:reset-object
@@ -229,8 +244,9 @@ With logs like
 ```
 
 ***
+### Log with LoggerF (EitherT)
 
-Another example with `EitherT`,
+Another example with `EitherT` (`F[Either[A, B]]` case is similar),
 ```scala mdoc:reset-object
 import cats._
 import cats.data._
@@ -276,7 +292,7 @@ With logs like
 00:40:48.667 [main] ERROR MyLogger - Error: Some Error
 ```
 
-### Usage
+## Usage
 
-Pleae check out
+Please check out
 * [LoggerF for Cats](cats/cats.md)
