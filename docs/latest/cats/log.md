@@ -15,7 +15,7 @@ More precisely, it requires `Fx` from [Effectie](https://kevin-lee.github.io/eff
 LoggerF is mainly for `F[_]` but let's start with more simple logging case that is logging `String`.
 
 <Tabs
-  groupId="log"
+  groupId="logS"
   defaultValue="syntax"
   values={[
     {label: 'With syntax', value: 'syntax'},
@@ -76,7 +76,7 @@ Log[F].logS_(String)(error) // F[Unit]
 ### Example
 
 <Tabs
-  groupId="log"
+  groupId="logS-example"
   defaultValue="syntax"
   values={[
     {label: 'With syntax', value: 'syntax'},
@@ -225,6 +225,41 @@ F[A].log(A => LogMessage) // F[A]
 
 
 A given `F[A]`, you can simply log `A` with `log`.
+
+<Tabs
+  groupId="log-fa"
+  defaultValue="syntax"
+  values={[
+    {label: 'With Syntax', value: 'syntax'},
+    {label: 'Without Syntax', value: 'no-syntax'},
+  ]}>
+  <TabItem value="syntax">
+
+```scala
+import effectie.core._
+import loggerf.core._
+import loggerf.syntax.all._
+
+def count[F[_]: Fx: Log](): F[Count] =
+  counter.currentCount() // F[Count]
+    .log(count => info(s"Current count: $count")) // F[Count]
+```
+
+  </TabItem>
+  
+  <TabItem value="no-syntax">
+
+```scala
+import effectie.core._
+import loggerf.core._
+import loggerf.syntax.all._
+
+def count[F[_]: Fx: Log](): F[Count] =
+  Log[F].log(counter.currentCount())(count => info(s"Current count: $count"))
+```
+
+  </TabItem>
+</Tabs>
 
 
 ### Example
