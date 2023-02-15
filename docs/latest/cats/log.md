@@ -95,8 +95,11 @@ import loggerf.core._
 import loggerf.syntax.all._
 
 def hello[F[_]: Fx: Log: Monad](name: String): F[Unit] = for {
-  greeting <- logS(s"Hello $name")(info)  // F[String]
+  greeting <- logS(s"[1] Hello $name")(info)  // F[String]
   _        <- effectOf(println(greeting)) // F[Unit]
+  // Or
+  greeting2 <- s"[2] Hello $name".logS(info)  // F[String]
+  _         <- effectOf(println(greeting2)) // F[Unit]
 } yield ()
 ```
 ```scala mdoc:nest
@@ -110,7 +113,8 @@ implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("test-logger")
 hello[IO]("Kevin").unsafeRunSync()
 ```
 ```
-02:07:09.298 [Thread-67] INFO test-logger - Hello Kevin
+22:52:36.970 [Thread-64] INFO test-logger - [1] Hello Kevin
+22:52:36.977 [Thread-64] INFO test-logger - [2] Hello Kevin
 ```
 ***
 If you don't need to re-use the `String` value,
@@ -125,7 +129,10 @@ import loggerf.core._
 import loggerf.syntax.all._
 
 def hello[F[_]: Fx: Log: Monad](name: String): F[Unit] = for {
-  _ <- logS_(s"The name is $name")(info) // F[Unit]
+  _ <- logS_(s"[1] The name is $name")(info) // F[Unit]
+  // Or
+  _ <- s"[2] The name is $name".logS_(info)  // F[Unit]
+  
   _ <- effectOf(println(s"Hello $name")) // F[Unit]
 } yield ()
 ```
@@ -140,8 +147,8 @@ implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("test-logger")
 hello[IO]("Kevin").unsafeRunSync()
 ```
 ```
-02:11:22.686 [Thread-71] INFO test-logger - The name is Kevin
-02:11:22.689 [Thread-71] INFO test-logger - Hello Kevin
+22:53:09.165 [Thread-66] INFO test-logger - [1] The name is Kevin
+22:53:09.166 [Thread-66] INFO test-logger - [2] The name is Kevin
 ```
   </TabItem>
   
@@ -204,7 +211,6 @@ implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("test-logger")
 hello[IO]("Kevin").unsafeRunSync()
 ```
 ```
-02:15:41.364 [Thread-74] INFO test-logger - Hello Kevin
 02:15:41.367 [Thread-74] INFO test-logger - The name is Kevin
 ```
 
