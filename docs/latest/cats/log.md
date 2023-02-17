@@ -242,6 +242,46 @@ A given `F[A]`, you can simply log `A` with `log`.
   <TabItem value="syntax">
 
 ```scala
+import loggerf.syntax.all._
+
+val fa: F[A] = ...
+fa.log(a => debug(s"Some meesage: $a")) // F[A]
+fa.log(a => info(s"Some meesage: $a"))  // F[A]
+fa.log(a => warn(s"Some meesage: $a"))  // F[A]
+fa.log(a => error(s"Some meesage: $a")) // F[A]
+// OR
+log(fa)(a => debug(s"Some meesage: $a")) // F[A]
+log(fa)(a => info(s"Some meesage: $a"))  // F[A]
+log(fa)(a => warn(s"Some meesage: $a"))  // F[A]
+log(fa)(a => error(s"Some meesage: $a")) // F[A]
+```
+
+  </TabItem>
+  
+  <TabItem value="no-syntax">
+
+```scala
+val fa: F[A] = ...
+Log[F].log(fa)(a => debug(s"Some meesage: $a")) // F[A]
+Log[F].log(fa)(a => info(s"Some meesage: $a"))  // F[A]
+Log[F].log(fa)(a => warn(s"Some meesage: $a"))  // F[A]
+Log[F].log(fa)(a => error(s"Some meesage: $a")) // F[A]
+```
+
+  </TabItem>
+</Tabs>
+
+
+<Tabs
+  groupId="log-fa-example1"
+  defaultValue="syntax"
+  values={[
+    {label: 'With Syntax', value: 'syntax'},
+    {label: 'Without Syntax', value: 'no-syntax'},
+  ]}>
+  <TabItem value="syntax">
+
+```scala
 import effectie.core._
 import loggerf.core._
 import loggerf.syntax.all._
@@ -347,7 +387,7 @@ object Greeting {
     new Greeting[F] {
       def greet[A: Named](a: A): F[String] = for {
         name     <- effectOf(Named[A].name(a)).log(x => info(s"The name is $x"))
-        greeting <- pureOf(s"Hello $name")
+        greeting <- pureOf(s"Hello $name").log(greet => debug(s"Greeting: $greet"))
       } yield greeting
     }
 
@@ -369,7 +409,8 @@ object MyApp extends IOApp {
 
 ```
 ```
-21:02:15.323 [ioapp-compute-0] INFO MyApp - The name is Kevin Lee
+23:04:56.272 [ioapp-compute-0] INFO MyApp - The name is Kevin Lee
+23:04:56.273 [ioapp-compute-0] DEBUG MyApp - Greeting: Hello Kevin Lee
 Hello Kevin Lee
 ```
 
