@@ -32,49 +32,48 @@ Why LoggerF? Why not just log with `map` or `flatMap`? Please read ["Why?"](#why
 
 
 ### Get LoggerF For Cats
-logger-f can be used wit any effect library or `Future` as long as there is an instance of `Fx` from effectie.
+logger-f can be used wit any effect library or `Future` as long as there is an instance of `Fx` from effectie. Effectie provides instances of `Fx` for Cats Effect 2 and 3, and Monix 3.
 
 #### With SLF4J
+:::info
+If you use logback, please use this.
+:::
 
 In `build.sbt`,
 
 ```scala
-libraryDependencies ++=
-  Seq(
-    "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
-    "io.kevinlee" %% "logger-f-slf4j" % "@VERSION@"
-  )
+Seq(
+  "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+  "io.kevinlee" %% "logger-f-slf4j" % "@VERSION@"
+)
 ```
 
 #### With Log4j
 
 ```scala
-libraryDependencies ++=
-  Seq(
-    "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
-    "io.kevinlee" %% "logger-f-log4j" % "@VERSION@"
-  )
+Seq(
+  "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+  "io.kevinlee" %% "logger-f-log4j" % "@VERSION@"
+)
 ```
 
 #### With Log4s
 
 ```scala
-libraryDependencies ++=
-  Seq(
-    "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
-    "io.kevinlee" %% "logger-f-log4s" % "@VERSION@"
-  )
+Seq(
+  "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+  "io.kevinlee" %% "logger-f-log4s" % "@VERSION@"
+)
 ```
 
 #### With sbt Logging Util
-You probably need `logger-f` for sbt plugin development.
+For sbt plugin development,
 
 ```scala
-libraryDependencies ++=
-  Seq(
-    "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
-    "io.kevinlee" %% "logger-f-sbt-logging" % "@VERSION@"
-  )
+Seq(
+  "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+  "io.kevinlee" %% "logger-f-sbt-logging" % "@VERSION@"
+)
 ```
 
 
@@ -100,7 +99,7 @@ So,
 1 line for logging
 ```
 
-### Log wit LoggerF
+### Log with LoggerF
 It can be simplified by logger-f.
 ```scala
 for {

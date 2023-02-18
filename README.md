@@ -7,9 +7,16 @@
 [![Latest version](https://index.scala-lang.org/kevin-lee/logger-f/latest.svg)](https://index.scala-lang.org/kevin-lee/logger-f)
 
 
-| Project | Maven Central |
-| ------: | ------------- |
-| logger-f-slf4j | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-slf4j_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-slf4j_2.13) |
-| logger-f-log4j | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-log4j_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-log4j_2.13) |
-| logger-f-log4s | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-log4s_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-log4s_2.13) |
+|              Project | Maven Central                                                                                                                                                                                 |
+|---------------------:|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        logger-f-cats | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-cats_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-cats_2.13)              |
+
+
+With different logging libraries
+
+|              Project | Maven Central                                                                                                                                                                                 |
+|---------------------:|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|       logger-f-slf4j | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-slf4j_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-slf4j_2.13)             |
+|       logger-f-log4j | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-log4j_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-log4j_2.13)             |
+|       logger-f-log4s | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-log4s_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-log4s_2.13)             |
 | logger-f-sbt-logging | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-sbt-logging_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-sbt-logging_2.13) |
