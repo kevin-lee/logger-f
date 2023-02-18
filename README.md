@@ -9,9 +9,6 @@
 
 | Project | Maven Central |
 | ------: | ------------- |
-| logger-f-cats-effect | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-cats-effect_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-cats-effect_2.13) |
-| logger-f-monix | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-monix_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-monix_2.13) |
-| logger-f-scalaz-effect | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-scalaz-effect_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-scalaz-effect_2.13) |
 | logger-f-slf4j | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-slf4j_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-slf4j_2.13) |
 | logger-f-log4j | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-log4j_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-log4j_2.13) |
 | logger-f-log4s | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-log4s_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-log4s_2.13) |

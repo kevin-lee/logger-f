@@ -256,31 +256,6 @@ log(fa)(a => warn(s"Some meesage: $a"))  // F[A]
 log(fa)(a => error(s"Some meesage: $a")) // F[A]
 ```
 
-  </TabItem>
-  
-  <TabItem value="no-syntax">
-
-```scala
-val fa: F[A] = ...
-Log[F].log(fa)(a => debug(s"Some meesage: $a")) // F[A]
-Log[F].log(fa)(a => info(s"Some meesage: $a"))  // F[A]
-Log[F].log(fa)(a => warn(s"Some meesage: $a"))  // F[A]
-Log[F].log(fa)(a => error(s"Some meesage: $a")) // F[A]
-```
-
-  </TabItem>
-</Tabs>
-
-
-<Tabs
-  groupId="log-fa-example1"
-  defaultValue="syntax"
-  values={[
-    {label: 'With Syntax', value: 'syntax'},
-    {label: 'Without Syntax', value: 'no-syntax'},
-  ]}>
-  <TabItem value="syntax">
-
 ```scala
 import effectie.core._
 import loggerf.core._
@@ -294,6 +269,14 @@ def count[F[_]: Fx: Log](): F[Count] =
   </TabItem>
   
   <TabItem value="no-syntax">
+
+```scala
+val fa: F[A] = ...
+Log[F].log(fa)(a => debug(s"Some meesage: $a")) // F[A]
+Log[F].log(fa)(a => info(s"Some meesage: $a"))  // F[A]
+Log[F].log(fa)(a => warn(s"Some meesage: $a"))  // F[A]
+Log[F].log(fa)(a => error(s"Some meesage: $a")) // F[A]
+```
 
 ```scala
 import effectie.core._
