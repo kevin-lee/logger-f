@@ -1,0 +1,485 @@
+package loggerf.logger.logback
+
+import cats.syntax.all._
+import hedgehog._
+import hedgehog.runner._
+import monix.eval.{Task, TaskLocal}
+import org.slf4j.MDC
+
+import java.time.Instant
+import scala.jdk.CollectionConverters._
+
+/** @author Kevin Lee
+  * @since 2023-07-03
+  */
+object MonixMdcAdapterSpec extends Properties {
+
+  /*
+   * Task.defaultOptions.enableLocalContextPropagation is the same as
+   *   sys.props.put("monix.environment.localContextPropagation", "1")
+   */
+  implicit val opts: Task.Options              = Task.defaultOptions.enableLocalContextPropagation
+  private val monixMdcAdapter: MonixMdcAdapter = MonixMdcAdapter.initialize()
+
+  override def tests: List[Test] = List(
+    property("Task - MDC should be able to put and get a value", testPutAndGet),
+    property("Task - MDC should be able to put and get multiple values concurrently", testPutAndGetMultiple),
+    property(
+      "Task - MDC should be able to put and get with isolated nested modifications",
+      testPutAndGetMultipleIsolatedNestedModifications,
+    ),
+    property("Task - MDC: It should be able to set a context map", testSetContextMap),
+    property("Task - MDC should be able to remove the value for the existing key", testRemove),
+    property("Task - MDC should be able to remove the multiple values for the existing keys", testRemoveMultiple),
+    property(
+      "Task - MDC should be able to remove with isolated nested modifications",
+      testRemoveMultipleIsolatedNestedModifications,
+    ),
+    property("Task - MDC: It should return context map for getCopyOfContextMap", testGetCopyOfContextMap),
+    property("Task - MDC: It should return context map for getPropertyMap", testGetPropertyMap),
+    property("Task - MDC: It should return context map for getKeys", testGetKeys),
+  )
+
+  def before(): Unit =
+    MDC.clear()
+
+  def putAndGet(key: String, value: String): Task[String] =
+    for {
+      _   <- Task(MDC.put(key, value))
+      got <- Task(MDC.get(key))
+    } yield got
+
+  def testPutAndGet: Property =
+    for {
+      keyValuePair <- Gens.genKeyValuePair.log("keyValuePair")
+    } yield {
+      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+      before()
+
+      val task = putAndGet(keyValuePair.key, keyValuePair.value)
+      task
+        .map(_ ==== keyValuePair.value)
+        .runSyncUnsafe()
+    }
+
+  def testPutAndGetMultiple: Property = for {
+    keyValuePairs <- Gens.genKeyValuePairs.log("keyValuePairs")
+
+  } yield {
+    implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+    before()
+
+    val tasks = keyValuePairs.keyValuePairs.map { keyValue =>
+      TaskLocal.isolate(putAndGet(keyValue.key, keyValue.value).executeAsync)
+    }
+
+    val task = Task.parSequence(tasks)
+    task
+      .map { retrievedKeyValues =>
+        Result.all(
+          List(
+            retrievedKeyValues.length ==== keyValuePairs.keyValuePairs.length,
+            retrievedKeyValues ==== keyValuePairs.keyValuePairs.map(_.value),
+          )
+        )
+      }
+      .runSyncUnsafe()
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  def testPutAndGetMultipleIsolatedNestedModifications: Property =
+    for {
+      a <- Gen.string(Gen.alpha, Range.linear(1, 10)).map("1:" + _).log("a")
+      b <- Gen.string(Gen.alpha, Range.linear(1, 10)).map("2:" + _).log("b")
+      c <- Gen.string(Gen.alpha, Range.linear(1, 10)).map("3:" + _).log("c")
+    } yield {
+      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+      before()
+
+      val test = for {
+        _              <- Task(MDC.put("key-1", a))
+        before         <- Task(MDC.get("key-1") ==== a)
+        beforeIsolated <- TaskLocal.isolate(Task(MDC.get("key-1") ==== a))
+
+        isolated1 <- TaskLocal.isolate {
+                       Task(MDC.get("key-1") ==== a)
+                         .flatMap { isolated1Before =>
+                           Task(MDC.put("key-1", b)) *> Task(
+                             (isolated1Before, MDC.get("key-1") ==== b)
+                           )
+                         }
+                     }
+        (isolated1Before, isolated1After) = isolated1
+        isolated2 <- TaskLocal.isolate {
+                       Task(MDC.get("key-1") ==== a)
+                         .flatMap { isolated2Before =>
+                           Task(MDC.put("key-2", c)) *> Task(
+                             (isolated2Before, MDC.get("key-2") ==== c)
+                           )
+                         }
+                     }
+        (isolated2Before, isolated2After) = isolated2
+      } yield Result.all(
+        List(
+          before.log("before"),
+          beforeIsolated.log("beforeIsolated"),
+          isolated1Before.log("isolated1Before"),
+          isolated1After.log("isolated1After"),
+          isolated2Before.log("isolated2Before"),
+          isolated2After.log("isolated2After"),
+          (MDC.get("key-1") ==== a).log(s"""After: MDC.get("key-1") is not $a"""),
+          (MDC.get("key-2") ==== null).log("""After: MDC.get("key-2") is not null"""), // scalafix:ok DisableSyntax.null
+        )
+      )
+
+      test.runSyncUnsafe()
+    }
+
+  def testSetContextMap: Property =
+    for {
+      someContext <- Gens.genSomeContext.log("someContext")
+    } yield {
+      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+      before()
+
+      val staticFieldName = "staticFieldName"
+      val staticValueName = "staticValueName"
+
+      @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+      val result = {
+        for {
+          _      <- Task(MDC.put(staticFieldName, staticValueName))
+          before <- Task {
+                      Result.all(
+                        List(
+                          (Option(MDC.get("uuid")) ==== none).log("uuid should not be found"),
+                          (Option(MDC.get("idNum")) ==== none).log("idNum should not be found"),
+                          (Option(MDC.get("timestamp")) ==== none).log("timestamp should not be found"),
+                          (Option(MDC.get("someValue")) ==== none).log("someValue should not be found"),
+                          (MDC.get(staticFieldName) ==== staticValueName)
+                            .log(s"staticFieldName is not $staticValueName"),
+                          (Option(MDC.get("random")) ==== none).log("random should not be found"),
+                        )
+                      )
+                    }
+          _      <- Task(MDC.setContextMap(productToMap(someContext).asJava))
+          now = Instant.now().toString
+          _      <- Task(MDC.put("timestamp", now))
+          _      <- TaskLocal.isolate(Task(MDC.put("idNum", "ABC")))
+          result <- Task {
+                      Result.all(
+                        List(
+                          before,
+                          (MDC.get("uuid") ==== someContext.uuid.toString).log("uuid doesn't match"),
+                          (MDC.get("idNum") ==== someContext.idNum.toString).log("idNum doesn't match"),
+                          (MDC.get("timestamp") ==== now).log("timestamp doesn't match"),
+                          (MDC.get("someValue") ==== someContext.someValue.toString).log("someValue doesn't match"),
+                          (Option(MDC.get(staticFieldName)) ==== none).log("staticFieldName should not be found"),
+                          (Option(MDC.get("random")) ==== none).log("random should not be found"),
+                        )
+                      )
+                    }
+        } yield result
+      }
+      result.runSyncUnsafe()
+    }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  def testRemove: Property =
+    for {
+      keyValuePair <- Gens.genKeyValuePair.log("keyValuePair")
+    } yield {
+      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+      before()
+
+      (for {
+        valueBefore <- putAndGet(keyValuePair.key, keyValuePair.value)
+
+        _          <- Task(MDC.remove(keyValuePair.key))
+        valueAfter <- Task(MDC.get(keyValuePair.key))
+      } yield Result
+        .all(
+          List(
+            valueBefore ==== keyValuePair.value,
+            valueAfter ==== null, // scalafix:ok DisableSyntax.null
+          )
+        ))
+        .runSyncUnsafe()
+    }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  def testRemoveMultiple: Property = for {
+    keyValuePairs <- Gens.genKeyValuePairs.log("keyValuePairs")
+  } yield {
+    implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+    before()
+
+    val tasks = keyValuePairs.keyValuePairs.map { keyValue =>
+      TaskLocal.isolate(putAndGet(keyValue.key, keyValue.value).executeAsync)
+    }
+
+    (for {
+      retrievedKeyValues             <- Task.parSequence(tasks)
+      retrievedKeyValuesBeforeRemove <- keyValuePairs.keyValuePairs.traverse { keyValue =>
+                                          Task(MDC.get(keyValue.key))
+                                        }
+      _                              <- Task.parSequence(keyValuePairs.keyValuePairs.map { keyValue =>
+                                          TaskLocal.isolate(Task(MDC.remove(keyValue.key)))
+                                        })
+      retrievedKeyValuesAfterRemove  <- keyValuePairs.keyValuePairs.traverse { keyValue =>
+                                          Task(MDC.get(keyValue.key))
+                                        }
+    } yield {
+      Result.all(
+        List(
+          (retrievedKeyValues.length ==== keyValuePairs.keyValuePairs.length).log("retrievedKeyValues.length check"),
+          (retrievedKeyValues ==== keyValuePairs.keyValuePairs.map(_.value)).log("retrievedKeyValues value check"),
+          (retrievedKeyValuesBeforeRemove.length ==== keyValuePairs.keyValuePairs.length)
+            .log("retrievedKeyValuesBeforeRemove.length check"),
+          (retrievedKeyValuesBeforeRemove ==== keyValuePairs.keyValuePairs.as(null)) // scalafix:ok DisableSyntax.null
+            .log("retrievedKeyValuesBeforeRemove value check"),
+          (retrievedKeyValuesAfterRemove.length ==== keyValuePairs.keyValuePairs.length)
+            .log("retrievedKeyValuesAfterRemove.length check"),
+          (retrievedKeyValuesAfterRemove ==== keyValuePairs.keyValuePairs.as(null)) // scalafix:ok DisableSyntax.null
+            .log("retrievedKeyValuesAfterRemove value check"),
+        )
+      )
+    })
+      .runSyncUnsafe()
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  def testRemoveMultipleIsolatedNestedModifications: Property =
+    for {
+      a <- Gen.string(Gen.alpha, Range.linear(1, 10)).map("1:" + _).log("a")
+      b <- Gen.string(Gen.alpha, Range.linear(1, 10)).map("2:" + _).log("b")
+      c <- Gen.string(Gen.alpha, Range.linear(1, 10)).map("3:" + _).log("c")
+    } yield {
+      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+      before()
+
+      val test = for {
+        _              <- Task(MDC.put("key-1", a))
+        before         <- Task(MDC.get("key-1") ==== a)
+        beforeIsolated <- TaskLocal.isolate(Task(MDC.get("key-1") ==== a))
+
+        isolated1 <- TaskLocal.isolate {
+                       Task(MDC.get("key-1") ==== a)
+                         .flatMap { isolated1Before =>
+                           Task(MDC.put("key-1", b)) *> Task(
+                             (isolated1Before, MDC.get("key-1") ==== b)
+                           )
+                         }
+                     }
+        (isolated1Before, isolated1After) = isolated1
+        isolated2 <- TaskLocal.isolate {
+                       Task(MDC.get("key-1") ==== a)
+                         .flatMap { isolated2Before =>
+                           Task(MDC.put("key-2", c)) *> Task(
+                             (isolated2Before, MDC.get("key-2") ==== c)
+                           )
+                         }
+                     }
+        (isolated2Before, isolated2After) = isolated2
+        isolated3 <- TaskLocal.isolate {
+                       for {
+                         isolated2Key1Before      <- Task(MDC.get("key-1")).map(_ ==== a)
+                         isolated2Key2Before      <-
+                           Task(MDC.get("key-2")).map(_ ==== null) // scalafix:ok DisableSyntax.null
+                         _                        <- Task(MDC.put("key-2", c))
+                         isolated2Key2After       <- Task(MDC.get("key-2")).map(_ ==== c)
+                         _                        <- Task(MDC.remove("key-2"))
+                         isolated2Key2AfterRemove <-
+                           Task(MDC.get("key-2")).map(_ ==== null) // scalafix:ok DisableSyntax.null
+                       } yield (
+                         isolated2Key1Before,
+                         isolated2Key2Before,
+                         isolated2Key2After,
+                         isolated2Key2AfterRemove,
+                       )
+
+                     }
+        (isolated2Key1Before, isolated2Key2Before, isolated2Key2After, isolated2Key2AfterRemove) = isolated3
+        key1After = (MDC.get("key-1") ==== a).log(s"""After: MDC.get("key-1") is not $a""")
+        key2After =
+          (MDC.get("key-2") ==== null).log("""After: MDC.get("key-2") is not null""") // scalafix:ok DisableSyntax.null
+
+        _ <- Task(MDC.remove("key-1"))
+        key1AfterRemove = (MDC.get("key-1") ==== null)
+                            .log("""After Remove: MDC.get("key-1") is not null""") // scalafix:ok DisableSyntax.null
+      } yield Result.all(
+        List(
+          before.log("before"),
+          beforeIsolated.log("beforeIsolated"),
+          isolated1Before.log("isolated1Before"),
+          isolated1After.log("isolated1After"),
+          isolated2Before.log("isolated2Before"),
+          isolated2After.log("isolated2After"),
+          isolated2Key1Before,
+          isolated2Key2Before,
+          isolated2Key2After,
+          isolated2Key2AfterRemove,
+          key1After,
+          key2After,
+          key1AfterRemove,
+        )
+      )
+
+      test.runSyncUnsafe()
+    }
+
+  def testGetCopyOfContextMap: Property =
+    for {
+      someContext <- Gens.genSomeContext.log("someContext")
+    } yield {
+      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+      before()
+
+      val staticFieldName = "staticFieldName"
+      val staticValueName = "staticValueName"
+
+      @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+      val result = {
+        for {
+          _         <- Task(MDC.put(staticFieldName, staticValueName))
+          mapBefore <- Task(MDC.getCopyOfContextMap)
+                         .map { propertyMap =>
+                           (propertyMap.asScala.toMap ==== Map(staticFieldName -> staticValueName))
+                             .log("propertyMap Before")
+                         }
+          expectedPropertyMap = productToMap(someContext)
+          _         <- Task(MDC.setContextMap(expectedPropertyMap.asJava))
+          mapAfter  <- Task(MDC.getCopyOfContextMap)
+                         .map { propertyMap =>
+                           (propertyMap.asScala.toMap ==== expectedPropertyMap).log("propertyMap After")
+                         }
+          now = Instant.now().toString
+          _         <- Task(MDC.put("timestamp", now))
+          _         <- TaskLocal.isolate(Task(MDC.put("idNum", "ABC")))
+          mapAfter2 <- Task(MDC.getCopyOfContextMap)
+                         .map(propertyMap =>
+                           (propertyMap.asScala.toMap ==== expectedPropertyMap.updated("timestamp", now))
+                             .log("propertyMap After 2")
+                         )
+        } yield Result.all(
+          List(
+            mapBefore,
+            mapAfter,
+            mapAfter2,
+          )
+        )
+      }
+      result.runSyncUnsafe()
+    }
+
+  def testGetPropertyMap: Property =
+    for {
+      someContext <- Gens.genSomeContext.log("someContext")
+    } yield {
+      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+      before()
+
+      val staticFieldName = "staticFieldName"
+      val staticValueName = "staticValueName"
+
+      @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+      val result = {
+        for {
+          _         <- Task(MDC.put(staticFieldName, staticValueName))
+          mapBefore <- Task(monixMdcAdapter.getPropertyMap)
+                         .map { propertyMap =>
+                           (propertyMap.asScala.toMap ==== Map(staticFieldName -> staticValueName))
+                             .log("propertyMap Before")
+                         }
+          expectedPropertyMap = productToMap(someContext)
+          _         <- Task(MDC.setContextMap(expectedPropertyMap.asJava))
+          mapAfter  <- Task(monixMdcAdapter.getPropertyMap)
+                         .map { propertyMap =>
+                           (propertyMap.asScala.toMap ==== expectedPropertyMap).log("propertyMap After")
+                         }
+          now = Instant.now().toString
+          _         <- Task(MDC.put("timestamp", now))
+          _         <- TaskLocal.isolate(Task(MDC.put("idNum", "ABC")))
+          mapAfter2 <- Task(monixMdcAdapter.getPropertyMap)
+                         .map(propertyMap =>
+                           (propertyMap.asScala.toMap ==== expectedPropertyMap.updated("timestamp", now))
+                             .log("propertyMap After 2")
+                         )
+        } yield Result.all(
+          List(
+            mapBefore,
+            mapAfter,
+            mapAfter2,
+          )
+        )
+      }
+      result.runSyncUnsafe()
+    }
+
+  def testGetKeys: Property =
+    for {
+      someContext <- Gens.genSomeContext.log("someContext")
+    } yield {
+      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+      before()
+
+      val staticFieldName = "staticFieldName"
+      val staticValueName = "staticValueName"
+
+      @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+      val result = {
+        for {
+          _      <- Task(MDC.put(staticFieldName, staticValueName))
+          keySet <- Task(monixMdcAdapter.getKeys)
+                      .map { keySet =>
+                        (keySet.asScala.toSet ==== Set(staticFieldName))
+                          .log("keySet Before")
+                      }
+          expectedPropertyMap = productToMap(someContext)
+          expectedKeySet      = expectedPropertyMap.keySet
+          _           <- Task(MDC.setContextMap(expectedPropertyMap.asJava))
+          keySetAfter <- Task(monixMdcAdapter.getKeys)
+                           .map { keySet =>
+                             (keySet.asScala.toSet ==== expectedKeySet).log("keySet After")
+                           }
+          now = Instant.now().toString
+          _            <- Task(MDC.put("timestamp", now))
+          _            <- TaskLocal.isolate(Task(MDC.put("idNum", "ABC")))
+          keySetAfter2 <- Task(monixMdcAdapter.getKeys)
+                            .map(keySet =>
+                              (keySet.asScala.toSet ==== expectedKeySet)
+                                .log("keySet After 2")
+                            )
+        } yield Result.all(
+          List(
+            keySetAfter,
+            keySetAfter,
+            keySetAfter2,
+          )
+        )
+      }
+      result.runSyncUnsafe()
+    }
+
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+  private def productToMap[A <: Product](product: A): Map[String, String] = {
+    // This doesn't work for Scala 2.12
+//    val fields = product.productElementNames.toVector
+
+    val fields = product.getClass.getDeclaredFields.map(_.getName)
+    val length = product.productArity
+
+    val fieldAndValueParis = for {
+      n <- 0 until length
+      maybeValue = product.productElement(n) match {
+                     case maybe @ (Some(_) | None) => maybe
+                     case value => Option(value)
+                   }
+    } yield (fields(n), maybeValue)
+    fieldAndValueParis.collect {
+      case (name, Some(value)) =>
+        name -> value.toString
+    }.toMap
+  }
+
+}
