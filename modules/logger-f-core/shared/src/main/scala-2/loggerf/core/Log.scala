@@ -5,9 +5,20 @@ import loggerf.LogMessage
 import loggerf.LogMessage.{MaybeIgnorable, NotIgnorable}
 import loggerf.logger.CanLog
 
+import scala.annotation.implicitNotFound
+
 /** @author Kevin Lee
   * @since 2020-04-10
   */
+@implicitNotFound(
+  """
+  Could not find an implicit Log[${F}].
+  You can probably find it from the loggerf.instances package from logger-f-cats module.
+  ---
+    import loggerf.instances.cats._
+  ---
+  """
+)
 trait Log[F[*]] {
 
   implicit def EF: FxCtor[F]
