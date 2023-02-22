@@ -25,7 +25,16 @@
   --ifm-code-font-size: 95%;
   --ifm-font-family-monospace: "FiraCode Retina Nerd Font";
 
-  --ifm-container-width: 1240px;
+  /*--ifm-container-width: 1240px;*/
+}
+
+main > .container {
+  /*
+    We disable this on the "normal" container, i.e. DocPage/Layout/Main.
+    We want ONLY for this, hence we base our selector on the parent, which is a DOM element: <main>.
+    We want to reuse this class in DocItem/Layout.
+   */
+  max-width: 80% !important;
 }
 
 .docusaurus-highlight-code-line {
