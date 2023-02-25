@@ -96,9 +96,9 @@ lazy val core    =
       libraryDependencies ++= List(
         libs.effectieCore,
         libs.cats % Test,
-        libs.extrasConcurrent,
-        libs.extrasConcurrentTesting,
-      ) ++ libs.hedgehogLibs,
+        libs.tests.extrasConcurrent,
+        libs.tests.extrasConcurrentTesting,
+      ) ++ libs.tests.hedgehogLibs,
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value,
@@ -234,10 +234,9 @@ lazy val cats    =
   module(ProjectName("cats"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Cats",
-      libraryDependencies ++= libs.hedgehogLibs ++ List(
+      libraryDependencies ++= libs.tests.hedgehogLibs ++ List(
         libs.effectieCore,
         libs.cats,
-        libs.extrasCats,
         libs.effectieSyntax,
       ),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
@@ -253,11 +252,10 @@ lazy val testKit    =
   module(ProjectName("test-kit"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Test Kit",
-      libraryDependencies ++= libs.hedgehogLibs ++
-//        libs.hedgehogExtra ++
+      libraryDependencies ++= libs.tests.hedgehogLibs ++
+//        libs.tests.hedgehogExtra ++
         List(
           libs.cats,
-          libs.extrasCats,
         ),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
@@ -272,7 +270,7 @@ lazy val catsEffect    =
   module(ProjectName("cats-effect"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Cats Effect",
-      libraryDependencies ++= libs.hedgehogLibs ++ List(libs.effectieCatsEffect2 % Test),
+      libraryDependencies ++= libs.tests.hedgehogLibs ++ List(libs.effectieCatsEffect2 % Test),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value,
@@ -287,9 +285,9 @@ lazy val catsEffect3    =
   module(ProjectName("cats-effect3"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Cats Effect 3",
-      libraryDependencies ++= libs.hedgehogLibs ++ List(
+      libraryDependencies ++= libs.tests.hedgehogLibs ++ List(
         libs.effectieCatsEffect3 % Test,
-        libs.extrasHedgehogCatsEffect3,
+        libs.tests.extrasHedgehogCatsEffect3,
       ),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
@@ -305,7 +303,7 @@ lazy val monix    =
   module(ProjectName("monix"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description         := "Logger for F[_] - Monix",
-      libraryDependencies ++= libs.hedgehogLibs ++ List(libs.effectieMonix % Test),
+      libraryDependencies ++= libs.tests.hedgehogLibs ++ List(libs.effectieMonix % Test),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value,
@@ -512,7 +510,7 @@ lazy val props =
 
     final val HedgehogVersion = "0.8.0"
 
-    final val HedgehogExtraVersion = "0.1.0"
+    final val HedgehogExtraVersion = "0.3.0"
 
     final val EffectieVersion = "2.0.0-beta7"
 
@@ -533,16 +531,6 @@ lazy val props =
 lazy val libs =
   new {
 
-    lazy val hedgehogLibs: List[ModuleID] = List(
-      "qa.hedgehog" %% "hedgehog-core"   % props.HedgehogVersion,
-      "qa.hedgehog" %% "hedgehog-runner" % props.HedgehogVersion,
-      "qa.hedgehog" %% "hedgehog-sbt"    % props.HedgehogVersion,
-    ).map(_ % Test)
-
-    lazy val hedgehogExtra = List(
-      "io.kevinlee" %% "hedgehog-extra-core" % props.HedgehogExtraVersion
-    ).map(_ % Test)
-
     lazy val slf4jApi: ModuleID       = "org.slf4j"      % "slf4j-api"       % props.Slf4JVersion
     lazy val logbackClassic: ModuleID = "ch.qos.logback" % "logback-classic" % props.LogbackVersion
 
@@ -562,12 +550,25 @@ lazy val libs =
 
     lazy val effectieMonix: ModuleID = "io.kevinlee" %% "effectie-monix3" % props.EffectieVersion
 
-    lazy val extrasCats = "io.kevinlee" %% "extras-cats" % props.ExtrasVersion
+    object tests {
 
-    lazy val extrasConcurrent        = "io.kevinlee" %% "extras-concurrent"         % props.ExtrasVersion % Test
-    lazy val extrasConcurrentTesting = "io.kevinlee" %% "extras-concurrent-testing" % props.ExtrasVersion % Test
+      lazy val hedgehogLibs: List[ModuleID] = List(
+        "qa.hedgehog" %% "hedgehog-core" % props.HedgehogVersion,
+        "qa.hedgehog" %% "hedgehog-runner" % props.HedgehogVersion,
+        "qa.hedgehog" %% "hedgehog-sbt" % props.HedgehogVersion,
+      ).map(_ % Test)
 
-    lazy val extrasHedgehogCatsEffect3 = "io.kevinlee" %% "extras-hedgehog-ce3" % props.ExtrasVersion % Test
+      lazy val hedgehogExtra = List(
+        "io.kevinlee" %% "hedgehog-extra-core" % props.HedgehogExtraVersion
+      ).map(_ % Test)
+
+      lazy val extrasCats = "io.kevinlee" %% "extras-cats" % props.ExtrasVersion % Test
+
+      lazy val extrasConcurrent = "io.kevinlee" %% "extras-concurrent" % props.ExtrasVersion % Test
+      lazy val extrasConcurrentTesting = "io.kevinlee" %% "extras-concurrent-testing" % props.ExtrasVersion % Test
+
+      lazy val extrasHedgehogCatsEffect3 = "io.kevinlee" %% "extras-hedgehog-ce3" % props.ExtrasVersion % Test
+    }
   }
 
 // scalafmt: off
