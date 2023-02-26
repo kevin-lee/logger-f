@@ -105,7 +105,7 @@ object extraSyntaxSpec extends Properties {
 
   implicit val errorLogger: ErrorLogger[Throwable] = ErrorLogger.printlnDefaultErrorLogger
 
-  private val waitFor300Millis = WaitFor(300.milliseconds)
+  private val waitFor500Millis = WaitFor(500.milliseconds)
 
   def testLogSWithPrefix: Property = for {
     prefixString <- Gen.string(Gen.unicode, Range.linear(5, 20)).log("prefixString")
@@ -136,7 +136,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future]
@@ -174,7 +174,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future]
@@ -212,7 +212,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future]
@@ -259,7 +259,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](logMsg)
@@ -305,7 +305,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](logMsg)
@@ -352,7 +352,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](logMsg)
@@ -399,7 +399,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](logMsg)
@@ -448,7 +448,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](eab)
@@ -497,7 +497,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](eab)
@@ -546,7 +546,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](eab)
@@ -595,7 +595,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](eab)
@@ -644,7 +644,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](eab)
@@ -690,7 +690,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](logMsg)
@@ -735,7 +735,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](logMsg)
@@ -781,7 +781,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](logMsg)
@@ -830,7 +830,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](eab)
@@ -879,7 +879,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](eab)
@@ -928,7 +928,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](eab)
@@ -977,7 +977,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](eab)
@@ -1026,7 +1026,7 @@ object extraSyntaxSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
       import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future](eab)
@@ -1068,7 +1068,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future]
@@ -1106,7 +1106,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future]
@@ -1144,7 +1144,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future]
@@ -1191,7 +1191,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](logMsg)
@@ -1237,7 +1237,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](logMsg)
@@ -1284,7 +1284,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](logMsg)
@@ -1333,7 +1333,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](eab)
@@ -1382,7 +1382,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](eab)
@@ -1431,7 +1431,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](eab)
@@ -1480,7 +1480,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](eab)
@@ -1529,7 +1529,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](eab)
@@ -1575,7 +1575,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](logMsg)
@@ -1620,7 +1620,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](logMsg)
@@ -1666,7 +1666,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](logMsg)
@@ -1715,7 +1715,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](eab)
@@ -1764,7 +1764,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](eab)
@@ -1813,7 +1813,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](eab)
@@ -1862,7 +1862,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](eab)
@@ -1911,7 +1911,7 @@ object extraSyntaxSpec extends Properties {
       implicit val ec: ExecutionContext =
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-      ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+      ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
         import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future](eab)
