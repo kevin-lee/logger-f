@@ -24,6 +24,10 @@ function Version() {
     (version) => version !== latestVersion && version.name !== 'current',
   ).concat([
     {
+      "name": "2.0.0-beta9",
+      "label": "2.0.0-beta9",
+    },
+    {
       "name": "2.0.0-beta8",
       "label": "2.0.0-beta8",
     },
@@ -58,6 +62,110 @@ function Version() {
     {
       "name": "1.20.0",
       "label": "1.20.0",
+    },
+    {
+      "name": "1.19.0",
+      "label": "1.19.0",
+    },
+    {
+      "name": "1.18.0",
+      "label": "1.18.0",
+    },
+    {
+      "name": "1.17.0",
+      "label": "1.17.0",
+    },
+    {
+      "name": "1.16.0",
+      "label": "1.16.0",
+    },
+    {
+      "name": "1.15.0",
+      "label": "1.15.0",
+    },
+    {
+      "name": "1.14.0",
+      "label": "1.14.0",
+    },
+    {
+      "name": "1.13.0",
+      "label": "1.13.0",
+    },
+    {
+      "name": "1.12.0",
+      "label": "1.12.0",
+    },
+    {
+      "name": "1.11.0",
+      "label": "1.11.0",
+    },
+    {
+      "name": "1.10.0",
+      "label": "1.10.0",
+    },
+    {
+      "name": "1.9.0",
+      "label": "1.9.0",
+    },
+    {
+      "name": "1.8.0",
+      "label": "1.8.0",
+    },
+    {
+      "name": "1.7.0",
+      "label": "1.7.0",
+    },
+    {
+      "name": "1.6.0",
+      "label": "1.6.0",
+    },
+    {
+      "name": "1.5.0",
+      "label": "1.5.0",
+    },
+    {
+      "name": "1.4.0",
+      "label": "1.4.0",
+    },
+    {
+      "name": "1.3.1",
+      "label": "1.3.1",
+    },
+    {
+      "name": "1.3.0",
+      "label": "1.3.0",
+    },
+    {
+      "name": "1.2.0",
+      "label": "1.2.0",
+    },
+    {
+      "name": "1.1.0",
+      "label": "1.1.0",
+    },
+    {
+      "name": "1.0.0",
+      "label": "1.0.0",
+    },
+    {
+      "name": "0.4.0",
+      "label": "0.4.0",
+    },
+    {
+      "name": "0.3.1",
+      "label": "0.3.1",
+    },
+    {
+      "name": "0.3.0",
+      "label": "0.3.0",
+    },
+    {
+      "name": "0.2.0",
+      "label": "0.2.0",
+    },
+    {
+      "name": "0.1.0",
+      "label": "0.1.0",
     },
   ]).sort((a, b) => {
     // console.log(`a: ${JSON.stringify(a)}, b: ${JSON.stringify(b)}`);
@@ -200,28 +308,30 @@ function Version() {
             </table>
           </div>
         )}
-        {<div className="margin-bottom--lg">
-          <h3 id="archive">Past versions without documentation (Not maintained anymore)</h3>
-          <p>
-            Here you can find documentation for previous versions of
-            Effectie.
-          </p>
-          <table>
-            <tbody>
-              <tr key="1.15.0">
-                <th>1.15.0</th>
-                <td>
-                  {spaces(27)}
-                </td>
-                <td>
-                  <a href={`${repoUrl}/releases/tag/v1.15.0`}>
-                    Release Notes
-                  </a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>}
+        {
+        //   <div className="margin-bottom--lg">
+        //   <h3 id="archive">Past versions without documentation (Not maintained anymore)</h3>
+        //   <p>
+        //     Here you can find documentation for previous versions of
+        //     Effectie.
+        //   </p>
+        //   <table>
+        //     <tbody>
+        //       <tr key="1.15.0">
+        //         <th>1.15.0</th>
+        //         <td>
+        //           {spaces(27)}
+        //         </td>
+        //         <td>
+        //           <a href={`${repoUrl}/releases/tag/v1.15.0`}>
+        //             Release Notes
+        //           </a>
+        //         </td>
+        //       </tr>
+        //     </tbody>
+        //   </table>
+        // </div>
+        }
 
       </main>
     </Layout>
