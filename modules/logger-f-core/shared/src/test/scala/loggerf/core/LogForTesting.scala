@@ -44,6 +44,8 @@ object LogForTesting {
       option.fold(errorOf(orElse))(pureOf)
 
     override def fromTry[A](tryA: Try[A]): Identity[A] = tryA.fold(errorOf, pureOf)
+
+    override def flatMapFa[A, B](fa: Identity[A])(f: A => Identity[B]): Identity[B] = f(fa)
   }
 
 }
