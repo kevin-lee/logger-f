@@ -383,11 +383,10 @@ object MyApp extends IOApp {
 
   import effectie.instances.ce2.fx._
   import loggerf.instances.cats._
-  import effectie.instances.console._
   
   def run(args: List[String]): IO[ExitCode] = for {
     greetingMessage <- Greeting[IO].greet(Person(GivenName("Kevin"), Surname("Lee")))
-    _ <- ConsoleEffect[IO].putStrLn(greetingMessage)
+    _ <- ConsoleFx[IO].putStrLn(greetingMessage)
   } yield ExitCode.Success
 }
 
