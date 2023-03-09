@@ -591,3 +591,78 @@ run().unsafeRunSync()
 ```
 
 ## Log `EitherT[F, A, B]`
+
+```scala
+Log[F].log(
+  EitherT[F, A, B]
+)(
+  leftToMessage: A => LeveledMessage with MaybeIgnorable,
+  rightToMessage: B => LeveledMessage with MaybeIgnorable
+)
+```
+
+A given `Either[F, A, B]`, you can simply log it with `log`.
+
+
+### Example
+
+```scala mdoc:reset-object
+import cats._
+import cats.data._
+import cats.syntax.all._
+import cats.effect._
+
+import effectie.core._
+import effectie.syntax.all._
+
+import loggerf.core._
+import loggerf.syntax.all._
+import loggerf.logger._
+
+def foo[F[_]: Fx](a: Int): F[Int] =
+  pureOf(a * 2)
+
+def divide[F[_]: Fx: CanHandleError](a: Int, b: Int): F[Either[String, Int]] =
+  effectOf((a / b).asRight[String])
+    .handleNonFatal{ err =>
+      err.getMessage.asLeft[Int]
+    }
+
+def calculate[F[_]: Monad: Fx: CanHandleError: Log](n: Int): F[Unit] =
+  (for {
+    a      <- EitherT.liftF[F, String, Int](foo(n))
+                .log(
+                  ignoreA,
+                  n => info(s"n: ${n.toString}")
+                )
+    result <- EitherT(divide(1000, a))
+                .log(
+                  err => error(s"Error: $err"),
+                  r => info(s"Result: ${r.toString}")
+                )
+  } yield result)
+    .foldF(
+      err => effectOf(println(s"Error: $err")),
+      r => effectOf(println(s"1000 / ${n.toString} = ${r.toString}"))
+    )
+
+
+implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp - EitherT[F, A, B]")
+
+import effectie.instances.ce2.fx._
+import loggerf.instances.cats._
+
+def run(): IO[Unit] = for {
+  _ <- calculate[IO](5)
+  _ <- calculate[IO](0)
+} yield ()
+
+run().unsafeRunSync()
+```
+```
+22:14:24.272 [Thread-66] INFO MyApp - EitherT[F, A, B] - n: 10
+22:14:24.275 [Thread-66] INFO MyApp - EitherT[F, A, B] - Result: 100
+22:14:24.275 [Thread-66] INFO MyApp - EitherT[F, A, B] - n: 0
+22:14:24.279 [Thread-66] ERROR MyApp - EitherT[F, A, B] - Error: / by zero
+```
+
