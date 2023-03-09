@@ -400,7 +400,7 @@ Hello Kevin Lee
 ## Log `F[Option[A]]`
 
 ```scala
-Log[Option[F]].log(
+Log[F].log(
   F[Option[A]]
 )(
   ifEmpty: => LogMessage with MaybeIgnorable,
@@ -460,7 +460,7 @@ run().unsafeRunSync()
 ## Log `F[Either[A, B]]`
 
 ```scala
-Log[Either[F]].log(
+Log[F].log(
   F[Either[A, B]]
 )(
   leftToMessage: A => LeveledMessage with MaybeIgnorable,
@@ -528,5 +528,66 @@ run().unsafeRunSync()
 
 
 ## Log `OptionT[F, A]`
+
+```scala
+Log[F].log(
+  OptionT[F, A]
+)(
+  ifEmpty: => LogMessage with MaybeIgnorable,
+  toLeveledMessage: A => LogMessage with MaybeIgnorable
+)
+```
+
+A given `OptionT[F, A]`, you can simply log it with `log`.
+
+
+### Example
+
+```scala mdoc:reset-object
+import cats._
+import cats.data._
+import cats.syntax.all._
+import cats.effect._
+
+import effectie.core._
+import effectie.syntax.all._
+
+import loggerf.core._
+import loggerf.syntax.all._
+import loggerf.logger._
+
+def greeting[F[_]: Fx](name: String): F[String] =
+  pureOf(s"Hello $name")
+
+def hello[F[_]: Monad: Fx: Log](maybeName: Option[String]): F[Unit] =
+  (for {
+    name    <- OptionT(pureOf(maybeName))
+                 .log(
+                   warn("No name given"),
+                   name => info(s"Name: $name")
+                 )
+    message <- OptionT.liftF(greeting[F](name))
+                 .log(ignore, msg => info(s"Message: $msg"))
+  } yield message)
+    .foreachF(msg => effectOf(println(msg)))
+
+
+implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp- OptionT[F, A]")
+
+import effectie.instances.ce2.fx._
+import loggerf.instances.cats._
+
+def run(): IO[Unit] = for {
+  _ <- hello[IO](none)
+  _ <- hello[IO]("Kevin".some)
+} yield ()
+
+run().unsafeRunSync()
+```
+```
+21:49:30.118 [Thread-58] WARN MyApp- OptionT[F, A] - No name given
+21:49:30.119 [Thread-58] INFO MyApp- OptionT[F, A] - Name: Kevin
+21:49:30.121 [Thread-58] INFO MyApp- OptionT[F, A] - Message: Hello Kevin
+```
 
 ## Log `EitherT[F, A, B]`
