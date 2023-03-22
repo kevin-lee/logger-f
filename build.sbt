@@ -68,19 +68,26 @@ lazy val loggerF = (project in file("."))
   .aggregate(
     coreJvm,
     coreJs,
+    coreNative,
     slf4jLoggerJvm,
+    slf4jLoggerNative,
     log4sLoggerJvm,
     log4sLoggerJs,
     log4jLoggerJvm,
+    log4jLoggerNative,
     sbtLoggingJvm,
+    sbtLoggingNative,
     catsJvm,
     catsJs,
+    catsNative,
     slf4jMdcJvm,
+    slf4jMdcNative,
     logbackMdcMonix3Jvm,
     testLogbackMdcMonix3Jvm,
     doobie1Jvm,
     testKitJvm,
     testKitJs,
+    testKitNative,
     catsEffectJvm,
 //    catsEffectJs,
     catsEffect3Jvm,
@@ -89,8 +96,8 @@ lazy val loggerF = (project in file("."))
 //    monixJs,
   )
 
-lazy val core    =
-  module(ProjectName("core"), crossProject(JVMPlatform, JSPlatform))
+lazy val core       =
+  module(ProjectName("core"), crossProject(JVMPlatform, JSPlatform, NativePlatform))
     .settings(
       description := "Logger for F[_] - Core",
       libraryDependencies ++= List(
@@ -106,15 +113,16 @@ lazy val core    =
         libraryDependencies.value,
       ),
     )
-lazy val coreJvm = core.jvm
-lazy val coreJs  = core
+lazy val coreJvm    = core.jvm
+lazy val coreJs     = core
   .js
   .settings(
     jsSettings,
     jsSettingsForFuture,
   )
+lazy val coreNative = core.native.settings(nativeSettings)
 
-lazy val slf4jLogger    = module(ProjectName("slf4j"), crossProject(JVMPlatform))
+lazy val slf4jLogger       = module(ProjectName("slf4j"), crossProject(JVMPlatform, NativePlatform))
   .settings(
     description := "Logger for F[_] - Logger with Slf4j",
     libraryDependencies ++= Seq(
@@ -126,7 +134,8 @@ lazy val slf4jLogger    = module(ProjectName("slf4j"), crossProject(JVMPlatform)
     ),
   )
   .dependsOn(core)
-lazy val slf4jLoggerJvm = slf4jLogger.jvm
+lazy val slf4jLoggerJvm    = slf4jLogger.jvm
+lazy val slf4jLoggerNative = slf4jLogger.native.settings(nativeSettings)
 
 lazy val log4sLogger    =
   module(ProjectName("log4s"), crossProject(JVMPlatform, JSPlatform))
@@ -148,8 +157,8 @@ lazy val log4sLoggerJs  = log4sLogger
     jsSettings
   )
 
-lazy val log4jLogger    =
-  module(ProjectName("log4j"), crossProject(JVMPlatform))
+lazy val log4jLogger       =
+  module(ProjectName("log4j"), crossProject(JVMPlatform, NativePlatform))
     .settings(
       description := "Logger for F[_] - Logger with Log4j",
       Compile / unmanagedSourceDirectories ++= {
@@ -205,10 +214,11 @@ lazy val log4jLogger    =
       ),
     )
     .dependsOn(core)
-lazy val log4jLoggerJvm = log4jLogger.jvm
+lazy val log4jLoggerJvm    = log4jLogger.jvm
+lazy val log4jLoggerNative = log4jLogger.native.settings(nativeSettings)
 
-lazy val sbtLogging    =
-  module(ProjectName("sbt-logging"), crossProject(JVMPlatform))
+lazy val sbtLogging       =
+  module(ProjectName("sbt-logging"), crossProject(JVMPlatform, NativePlatform))
     .settings(
       description := "Logger for F[_] - Logger with sbt logging",
       libraryDependencies ++= crossVersionProps(
@@ -236,10 +246,11 @@ lazy val sbtLogging    =
       ),
     )
     .dependsOn(core)
-lazy val sbtLoggingJvm = sbtLogging.jvm
+lazy val sbtLoggingJvm    = sbtLogging.jvm
+lazy val sbtLoggingNative = sbtLogging.native.settings(nativeSettings)
 
-lazy val cats    =
-  module(ProjectName("cats"), crossProject(JVMPlatform, JSPlatform))
+lazy val cats       =
+  module(ProjectName("cats"), crossProject(JVMPlatform, JSPlatform, NativePlatform))
     .settings(
       description := "Logger for F[_] - Cats",
       libraryDependencies ++= libs.tests.hedgehogLibs.value ++ List(
@@ -254,15 +265,16 @@ lazy val cats    =
       ),
     )
     .dependsOn(core % props.IncludeTest)
-lazy val catsJvm = cats.jvm
-lazy val catsJs  = cats
+lazy val catsJvm    = cats.jvm
+lazy val catsJs     = cats
   .js
   .settings(
     jsSettings,
     jsSettingsForFuture,
   )
+lazy val catsNative = cats.native.settings(nativeSettings)
 
-lazy val slf4jMdc    = module(ProjectName("slf4j-mdc"), crossProject(JVMPlatform))
+lazy val slf4jMdc       = module(ProjectName("slf4j-mdc"), crossProject(JVMPlatform, NativePlatform))
   .settings(
     description := "Logger for F[_] - A tool to set MDC's MDCAdapter",
     libraryDependencies ++= Seq(
@@ -277,30 +289,32 @@ lazy val slf4jMdc    = module(ProjectName("slf4j-mdc"), crossProject(JVMPlatform
   .dependsOn(
     core
   )
-lazy val slf4jMdcJvm = slf4jMdc.jvm
+lazy val slf4jMdcJvm    = slf4jMdc.jvm
+lazy val slf4jMdcNative = slf4jMdc.native.settings(nativeSettings)
 
-lazy val logbackMdcMonix3    = module(ProjectName("logback-mdc-monix3"), crossProject(JVMPlatform))
-  .settings(
-    description := "Logger for F[_] - logback MDC context map support for Monix 3",
-    libraryDependencies ++= Seq(
-      libs.logbackClassic,
-      libs.logbackScalaInterop,
-      libs.monix3Execution.value,
-      libs.slf4jApi % Test,
-      libs.tests.monix.value,
-      libs.tests.effectieMonix3.value,
-    ) ++ libs.tests.hedgehogLibs.value,
-    libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
-      scalaVersion.value,
-      libraryDependencies.value,
-    ),
-  )
-  .dependsOn(
-    core,
-    slf4jMdc,
-    monix       % Test,
-    slf4jLogger % Test,
-  )
+lazy val logbackMdcMonix3    =
+  module(ProjectName("logback-mdc-monix3"), crossProject(JVMPlatform))
+    .settings(
+      description := "Logger for F[_] - logback MDC context map support for Monix 3",
+      libraryDependencies ++= Seq(
+        libs.logbackClassic,
+        libs.logbackScalaInterop,
+        libs.monix3Execution.value,
+        libs.slf4jApi % Test,
+        libs.tests.monix.value,
+        libs.tests.effectieMonix3.value,
+      ) ++ libs.tests.hedgehogLibs.value,
+      libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+        scalaVersion.value,
+        libraryDependencies.value,
+      ),
+    )
+    .dependsOn(
+      core,
+      slf4jMdc,
+      monix       % Test,
+      slf4jLogger % Test,
+    )
 lazy val logbackMdcMonix3Jvm = logbackMdcMonix3.jvm
 
 lazy val testLogbackMdcMonix3    = testProject(ProjectName("logback-mdc-monix3"), crossProject(JVMPlatform))
@@ -349,8 +363,8 @@ lazy val doobie1    = module(ProjectName("doobie1"), crossProject(JVMPlatform))
   )
 lazy val doobie1Jvm = doobie1.jvm
 
-lazy val testKit    =
-  module(ProjectName("test-kit"), crossProject(JVMPlatform, JSPlatform))
+lazy val testKit       =
+  module(ProjectName("test-kit"), crossProject(JVMPlatform, JSPlatform, NativePlatform))
     .settings(
       description := "Logger for F[_] - Test Kit",
       libraryDependencies ++= libs.tests.hedgehogLibs.value ++
@@ -364,13 +378,14 @@ lazy val testKit    =
       ),
     )
     .dependsOn(core % props.IncludeTest)
-lazy val testKitJvm = testKit.jvm
-lazy val testKitJs  = testKit
+lazy val testKitJvm    = testKit.jvm
+lazy val testKitJs     = testKit
   .js
   .settings(
     jsSettings,
     jsSettingsForFuture,
   )
+lazy val testKitNative = testKit.native.settings(nativeSettings)
 
 lazy val catsEffect    =
   module(ProjectName("cats-effect"), crossProject(JVMPlatform, JSPlatform))
@@ -392,7 +407,7 @@ lazy val catsEffectJs  = catsEffect
     jsSettingsForFuture,
   )
 
-lazy val catsEffect3    =
+lazy val catsEffect3       =
   module(ProjectName("cats-effect3"), crossProject(JVMPlatform, JSPlatform))
     .settings(
       description := "Logger for F[_] - Cats Effect 3",
@@ -407,8 +422,8 @@ lazy val catsEffect3    =
     )
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, cats)
-lazy val catsEffect3Jvm = catsEffect3.jvm
-lazy val catsEffect3Js  = catsEffect3
+lazy val catsEffect3Jvm    = catsEffect3.jvm
+lazy val catsEffect3Js     = catsEffect3
   .js
   .settings(
     jsSettings,
@@ -537,7 +552,7 @@ lazy val testCatsEffectWithLog4sLogger    =
       ),
     )
     .settings(noPublish)
-    .dependsOn(core % props.IncludeTest, log4sLogger, catsEffect % props.IncludeTest)
+    .dependsOn(core % props.IncludeTest, log4sLogger, catsEffect3 % props.IncludeTest)
 lazy val testCatsEffectWithLog4sLoggerJvm = testCatsEffectWithLog4sLogger.jvm
 lazy val testCatsEffectWithLog4sLoggerJs  = testCatsEffectWithLog4sLogger
   .js
@@ -690,19 +705,20 @@ lazy val props =
 
     val CrossScalaVersions = (Scala3Versions ++ Scala2Versions).distinct
 
-    val CrossScalaVersionsForScalaJs = CrossScalaVersions.filterNot(_.startsWith("2.12"))
+    val CrossScalaVersionsForScalaJsAndNative = CrossScalaVersions.filterNot(_.startsWith("2.12"))
 
     final val IncludeTest = "compile->compile;test->test"
 
-    final val HedgehogVersion = "0.13.0"
+    val HedgehogVersion = "0.13.0"
 
-    final val HedgehogExtraVersion = "0.15.0"
+    val HedgehogExtraVersion = "0.15.0"
 
-    val EffectieVersion = "2.1.1"
+    val EffectieVersion = "2.2.0"
 
-    final val CatsVersion = "2.7.0"
+    final val CatsVersion = "2.12.0"
 
-    val CatsEffect3Version = "3.3.14"
+    val catsEffect3Version          = "3.3.14"
+    val catsEffect3ForNativeVersion = "3.7.0-RC1"
 
     val Monix3Version = "3.4.0"
 
@@ -755,7 +771,7 @@ lazy val libs =
 
     lazy val cats = Def.setting("org.typelevel" %%% "cats-core" % props.CatsVersion)
 
-    lazy val catsEffect3 = Def.setting("org.typelevel" %%% "cats-effect" % props.CatsEffect3Version)
+    def libCatsEffect(catsEffectVersion: String) = Def.setting("org.typelevel" %%% "cats-effect" % catsEffectVersion)
 
     lazy val monix3Execution = Def.setting("io.monix" %%% "monix-execution" % props.Monix3Version)
 
@@ -912,7 +928,13 @@ lazy val jsSettingsForFuture: SettingsDefinition = List(
 //)
 
 lazy val jsSettings: SettingsDefinition = List(
-  crossScalaVersions := props.CrossScalaVersionsForScalaJs,
+  crossScalaVersions := props.CrossScalaVersionsForScalaJsAndNative,
+  Test / fork := false,
+  coverageEnabled := false,
+)
+
+lazy val nativeSettings: SettingsDefinition = List(
+  crossScalaVersions := props.CrossScalaVersionsForScalaJsAndNative,
   Test / fork := false,
   coverageEnabled := false,
 )
