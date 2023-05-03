@@ -4,3 +4,6 @@ ignore:
   - "modules/logger-f-sbt-logging"
   - "modules/logger-f-slf4j"
 
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
