@@ -20,3 +20,14 @@ With different logging libraries
 |       logger-f-log4j | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-log4j_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-log4j_2.13)             |
 |       logger-f-log4s | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-log4s_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-log4s_2.13)             |
 | logger-f-sbt-logging | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.kevinlee/logger-f-sbt-logging_2.13/badge.svg)](https://search.maven.org/artifact/io.kevinlee/logger-f-sbt-logging_2.13) |
+
+
+## Test Coverage
+
+[![codecov](https://codecov.io/gh/Kevin-Lee/logger-f/branch/main/graph/badge.svg?token=85VKQO5X3D)](https://codecov.io/gh/Kevin-Lee/logger-f)
+
+[![Grid](https://codecov.io/gh/Kevin-Lee/logger-f/branch/main/graphs/tree.svg?token=85VKQO5X3D)](https://app.codecov.io/gh/Kevin-Lee/logger-f)
+
+[![Sunburst](https://codecov.io/gh/Kevin-Lee/logger-f/branch/main/graphs/sunburst.svg?token=85VKQO5X3D)](https://app.codecov.io/gh/Kevin-Lee/logger-f)
+
+[![Icicle](https://codecov.io/gh/Kevin-Lee/logger-f/branch/main/graphs/icicle.svg?token=85VKQO5X3D)](https://app.codecov.io/gh/Kevin-Lee/logger-f)
