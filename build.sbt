@@ -79,6 +79,8 @@ lazy val loggerF = (project in file("."))
     sbtLoggingJs,
     catsJvm,
     catsJs,
+    logbackMdcMonix3Jvm,
+    logbackMdcMonix3Js,
     testKitJvm,
     testKitJs,
     catsEffectJvm,
@@ -111,7 +113,7 @@ lazy val slf4jLogger    = module(ProjectName("slf4j"), crossProject(JVMPlatform,
   .settings(
     description         := "Logger for F[_] - Logger with Slf4j",
     libraryDependencies ++= Seq(
-      libs.slf4jApi % Provided
+      libs.slf4jApi
     ),
     libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
       scalaVersion.value,
@@ -131,7 +133,7 @@ lazy val log4sLogger    =
         libraryDependencies.value,
       ),
       libraryDependencies ++= List(
-        libs.log4sLib % Provided
+        libs.log4sLib
       ),
     )
     .dependsOn(core)
@@ -209,17 +211,17 @@ lazy val sbtLogging    =
         case (SemVer.Major(2), SemVer.Minor(11), _) =>
           List(
             libs.sbtLoggingLib % "1.2.4"
-          ).map(_ % Provided)
+          )
 
         case (SemVer.Major(2), SemVer.Minor(12), _) =>
           List(
             libs.sbtLoggingLib % "1.3.3"
-          ).map(_ % Provided)
+          )
 
         case (SemVer.Major(2), SemVer.Minor(13), _) | (SemVer.Major(3), SemVer.Minor(_), _) =>
           List(
             libs.sbtLoggingLib % "1.5.8"
-          ).map(_ % Provided).map(_.cross(CrossVersion.for3Use2_13))
+          ).map(_.cross(CrossVersion.for3Use2_13))
       },
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
@@ -248,6 +250,29 @@ lazy val cats    =
 lazy val catsJvm = cats.jvm
 lazy val catsJs  = cats.js
 
+lazy val logbackMdcMonix3    = module(ProjectName("logback-mdc-monix3"), crossProject(JVMPlatform, JSPlatform))
+  .settings(
+    description         := "Logger for F[_] - logback MDC context map support for Monix 3",
+    libraryDependencies ++= Seq(
+      libs.logbackClassic,
+      libs.logbackScalaInterop,
+      libs.monix3Execution,
+      libs.tests.monix,
+      libs.tests.effectieMonix3,
+    ) ++ libs.tests.hedgehogLibs,
+    libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+      scalaVersion.value,
+      libraryDependencies.value,
+    ),
+  )
+  .dependsOn(
+    core,
+    monix       % Test,
+    slf4jLogger % Test,
+  )
+lazy val logbackMdcMonix3Jvm = logbackMdcMonix3.jvm
+lazy val logbackMdcMonix3Js  = logbackMdcMonix3.js
+
 lazy val testKit    =
   module(ProjectName("test-kit"), crossProject(JVMPlatform, JSPlatform))
     .settings(
@@ -255,7 +280,7 @@ lazy val testKit    =
       libraryDependencies ++= libs.tests.hedgehogLibs ++
 //        libs.tests.hedgehogExtra ++
         List(
-          libs.cats,
+          libs.cats
         ),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
@@ -321,7 +346,7 @@ lazy val testCatsEffectWithSlf4jLogger    =
   )
     .settings(
       description         := "Test Logger for F[_] - Logger with Slf4j",
-      libraryDependencies ++= Seq(libs.slf4jApi, libs.logbackClassic),
+      libraryDependencies ++= Seq(libs.slf4jApi, libs.logbackClassic, libs.tests.extrasCats),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value,
@@ -339,7 +364,7 @@ lazy val testMonixWithSlf4jLogger    =
   )
     .settings(
       description         := "Test Logger for F[_] - Logger with Slf4j",
-      libraryDependencies ++= Seq(libs.slf4jApi, libs.logbackClassic),
+      libraryDependencies ++= Seq(libs.slf4jApi, libs.logbackClassic, libs.tests.extrasCats),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value,
@@ -357,7 +382,7 @@ lazy val testCatsEffectWithLog4sLogger    =
   )
     .settings(
       description         := "Test Logger for F[_] - Logger with Log4s",
-      libraryDependencies ++= Seq(libs.log4sLib, libs.logbackClassic),
+      libraryDependencies ++= Seq(libs.log4sLib, libs.logbackClassic, libs.tests.extrasCats),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value,
@@ -375,7 +400,7 @@ lazy val testCatsEffectWithLog4jLogger    =
   )
     .settings(
       description         := "Test Logger for F[_] - Logger with Log4j",
-      libraryDependencies ++= Seq(libs.log4jApi, libs.log4jCore),
+      libraryDependencies ++= Seq(libs.log4jApi, libs.log4jCore, libs.tests.extrasCats),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value,
@@ -516,16 +541,22 @@ lazy val props =
 
     final val CatsVersion = "2.7.0"
 
+    val CatsEffect3Version = "3.3.14"
+
+    val Monix3Version = "3.4.0"
+
     final val LoggerF1Version = "1.20.0"
 
     final val ExtrasVersion = "0.25.0"
 
     final val Slf4JVersion   = "2.0.6"
-    final val LogbackVersion = "1.4.5"
+    final val LogbackVersion = "1.4.7"
 
     final val Log4sVersion = "1.10.0"
 
     final val Log4JVersion = "2.19.0"
+
+    val LogbackScalaInteropVersion = "0.1.0"
   }
 
 lazy val libs =
@@ -543,6 +574,10 @@ lazy val libs =
 
     lazy val cats = "org.typelevel" %% "cats-core" % props.CatsVersion
 
+    lazy val catsEffect3 = "org.typelevel" %% "cats-effect" % props.CatsEffect3Version
+
+    lazy val monix3Execution = "io.monix" %% "monix-execution" % props.Monix3Version
+
     lazy val effectieCore: ModuleID        = "io.kevinlee" %% "effectie-core"         % props.EffectieVersion
     lazy val effectieSyntax: ModuleID      = "io.kevinlee" %% "effectie-syntax"       % props.EffectieVersion
     lazy val effectieCatsEffect2: ModuleID = "io.kevinlee" %% "effectie-cats-effect2" % props.EffectieVersion
@@ -550,12 +585,18 @@ lazy val libs =
 
     lazy val effectieMonix: ModuleID = "io.kevinlee" %% "effectie-monix3" % props.EffectieVersion
 
-    object tests {
+    lazy val logbackScalaInterop = "io.kevinlee" % "logback-scala-interop" % props.LogbackScalaInteropVersion
+
+    lazy val tests = new {
+
+      lazy val monix = "io.monix" %% "monix" % props.Monix3Version % Test
+
+      lazy val effectieMonix3 = "io.kevinlee" %% "effectie-monix3" % props.EffectieVersion % Test
 
       lazy val hedgehogLibs: List[ModuleID] = List(
-        "qa.hedgehog" %% "hedgehog-core" % props.HedgehogVersion,
+        "qa.hedgehog" %% "hedgehog-core"   % props.HedgehogVersion,
         "qa.hedgehog" %% "hedgehog-runner" % props.HedgehogVersion,
-        "qa.hedgehog" %% "hedgehog-sbt" % props.HedgehogVersion,
+        "qa.hedgehog" %% "hedgehog-sbt"    % props.HedgehogVersion,
       ).map(_ % Test)
 
       lazy val hedgehogExtra = List(
@@ -564,7 +605,7 @@ lazy val libs =
 
       lazy val extrasCats = "io.kevinlee" %% "extras-cats" % props.ExtrasVersion % Test
 
-      lazy val extrasConcurrent = "io.kevinlee" %% "extras-concurrent" % props.ExtrasVersion % Test
+      lazy val extrasConcurrent        = "io.kevinlee" %% "extras-concurrent"         % props.ExtrasVersion % Test
       lazy val extrasConcurrentTesting = "io.kevinlee" %% "extras-concurrent-testing" % props.ExtrasVersion % Test
 
       lazy val extrasHedgehogCatsEffect3 = "io.kevinlee" %% "extras-hedgehog-ce3" % props.ExtrasVersion % Test
