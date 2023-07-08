@@ -83,6 +83,8 @@ lazy val loggerF = (project in file("."))
 //    catsJs,
     logbackMdcMonix3Jvm,
 //    logbackMdcMonix3Js,
+    logbackMdcCatsEffect3Jvm,
+//    logbackMdcCatsEffect3Js,
     testKitJvm,
 //    testKitJs,
     catsEffectJvm,
@@ -109,7 +111,7 @@ lazy val core    =
       ),
     )
 lazy val coreJvm = core.jvm
-lazy val coreJs  = core.js
+lazy val coreJs  = core.js.settings(commonJsSettings)
 
 lazy val slf4jLogger    = module(ProjectName("slf4j"), crossProject(JVMPlatform, JSPlatform))
   .settings(
@@ -124,7 +126,7 @@ lazy val slf4jLogger    = module(ProjectName("slf4j"), crossProject(JVMPlatform,
   )
   .dependsOn(core)
 lazy val slf4jLoggerJvm = slf4jLogger.jvm
-lazy val slf4jLoggerJs  = slf4jLogger.js
+lazy val slf4jLoggerJs  = slf4jLogger.js.settings(commonJsSettings)
 
 lazy val log4sLogger    =
   module(ProjectName("log4s"), crossProject(JVMPlatform, JSPlatform))
@@ -140,7 +142,7 @@ lazy val log4sLogger    =
     )
     .dependsOn(core)
 lazy val log4sLoggerJvm = log4sLogger.jvm
-lazy val log4sLoggerJs  = log4sLogger.js
+lazy val log4sLoggerJs  = log4sLogger.js.settings(commonJsSettings)
 
 lazy val log4jLogger    =
   module(ProjectName("log4j"), crossProject(JVMPlatform, JSPlatform))
@@ -200,7 +202,7 @@ lazy val log4jLogger    =
     )
     .dependsOn(core)
 lazy val log4jLoggerJvm = log4jLogger.jvm
-lazy val log4jLoggerJs  = log4jLogger.js
+lazy val log4jLoggerJs  = log4jLogger.js.settings(commonJsSettings)
 
 lazy val sbtLogging    =
   module(ProjectName("sbt-logging"), crossProject(JVMPlatform, JSPlatform))
@@ -232,7 +234,7 @@ lazy val sbtLogging    =
     )
     .dependsOn(core)
 lazy val sbtLoggingJvm = sbtLogging.jvm
-lazy val sbtLoggingJs  = sbtLogging.js
+lazy val sbtLoggingJs  = sbtLogging.js.settings(commonJsSettings)
 
 lazy val cats    =
   module(ProjectName("cats"), crossProject(JVMPlatform, JSPlatform))
@@ -251,7 +253,7 @@ lazy val cats    =
     )
     .dependsOn(core % props.IncludeTest)
 lazy val catsJvm = cats.jvm
-lazy val catsJs  = cats.js
+lazy val catsJs  = cats.js.settings(commonJsSettings)
 
 lazy val logbackMdcMonix3    = module(ProjectName("logback-mdc-monix3"), crossProject(JVMPlatform, JSPlatform))
   .settings(
@@ -276,6 +278,30 @@ lazy val logbackMdcMonix3    = module(ProjectName("logback-mdc-monix3"), crossPr
 lazy val logbackMdcMonix3Jvm = logbackMdcMonix3.jvm
 lazy val logbackMdcMonix3Js  = logbackMdcMonix3.js
 
+lazy val logbackMdcCatsEffect3 = module(ProjectName("logback-mdc-cats-effect3"), crossProject(JVMPlatform, JSPlatform))
+  .settings(
+    description         := "Logger for F[_] - logback MDC context map support for Cats Effect 3",
+    libraryDependencies ++= Seq(
+      libs.logbackClassic,
+      libs.logbackScalaInterop,
+      libs.catsEffect3Eap,
+      libs.tests.effectieCatsEffect3,
+      libs.tests.extrasHedgehogCatsEffect3,
+    ) ++ libs.tests.hedgehogLibs,
+    libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+      scalaVersion.value,
+      libraryDependencies.value,
+    ),
+    javaOptions += "-Dcats.effect.ioLocalPropagation=true",
+  )
+  .dependsOn(
+    core,
+    monix       % Test,
+    slf4jLogger % Test,
+  )
+lazy val logbackMdcCatsEffect3Jvm = logbackMdcCatsEffect3.jvm
+lazy val logbackMdcCatsEffect3Js  = logbackMdcCatsEffect3.js.settings(commonJsSettings)
+
 lazy val testKit    =
   module(ProjectName("test-kit"), crossProject(JVMPlatform, JSPlatform))
     .settings(
@@ -292,7 +318,7 @@ lazy val testKit    =
     )
     .dependsOn(core % props.IncludeTest)
 lazy val testKitJvm = testKit.jvm
-lazy val testKitJs  = testKit.js
+lazy val testKitJs  = testKit.js.settings(commonJsSettings)
 
 lazy val catsEffect    =
   module(ProjectName("cats-effect"), crossProject(JVMPlatform, JSPlatform))
@@ -307,7 +333,7 @@ lazy val catsEffect    =
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, cats)
 lazy val catsEffectJvm = catsEffect.jvm
-lazy val catsEffectJs  = catsEffect.js
+lazy val catsEffectJs  = catsEffect.js.settings(commonJsSettings)
 
 lazy val catsEffect3    =
   module(ProjectName("cats-effect3"), crossProject(JVMPlatform, JSPlatform))
@@ -325,7 +351,7 @@ lazy val catsEffect3    =
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, cats)
 lazy val catsEffect3Jvm = catsEffect3.jvm
-lazy val catsEffect3Js  = catsEffect3.js
+lazy val catsEffect3Js  = catsEffect3.js.settings(commonJsSettings)
 
 lazy val monix    =
   module(ProjectName("monix"), crossProject(JVMPlatform, JSPlatform))
@@ -340,7 +366,7 @@ lazy val monix    =
     .settings(noPublish)
     .dependsOn(core % props.IncludeTest, cats)
 lazy val monixJvm = monix.jvm
-lazy val monixJs  = monix.js
+lazy val monixJs  = monix.js.settings(commonJsSettings)
 
 lazy val testCatsEffectWithSlf4jLogger    =
   testProject(
@@ -514,7 +540,7 @@ lazy val props =
     final val GitHubUsername = "Kevin-Lee"
     final val RepoName       = "logger-f"
 
-    final val Scala3Versions = List("3.0.2")
+    final val Scala3Versions = List("3.3.0")
     final val Scala2Versions = List("2.13.11", "2.12.18")
 
 //    final val ProjectScalaVersion = Scala3Versions.head
@@ -527,7 +553,7 @@ lazy val props =
 
     val removeDottyIncompatible: ModuleID => Boolean =
       m =>
-        m.name == "wartremover" ||
+//        m.name == "wartremover" ||
           m.name == "ammonite" ||
           m.name == "kind-projector" ||
           m.name == "better-monadic-for" ||
@@ -581,6 +607,8 @@ lazy val libs =
 
     lazy val catsEffect3 = "org.typelevel" %% "cats-effect" % props.CatsEffect3Version
 
+    lazy val catsEffect3Eap = "org.typelevel" %% "cats-effect" % "3.6-02a43a6"
+
     lazy val monix3Execution = "io.monix" %% "monix-execution" % props.Monix3Version
 
     lazy val effectieCore: ModuleID        = "io.kevinlee" %% "effectie-core"         % props.EffectieVersion
@@ -610,6 +638,8 @@ lazy val libs =
       ).map(_ % Test)
 
       lazy val extrasCats = "io.kevinlee" %% "extras-cats" % props.ExtrasVersion % Test
+
+      lazy val effectieCatsEffect3 = "io.kevinlee" %% "effectie-cats-effect3" % props.EffectieVersion
 
       lazy val extrasConcurrent        = "io.kevinlee" %% "extras-concurrent"         % props.ExtrasVersion % Test
       lazy val extrasConcurrentTesting = "io.kevinlee" %% "extras-concurrent-testing" % props.ExtrasVersion % Test
@@ -667,6 +697,7 @@ def projectCommonSettings(projectName: String, crossProject: CrossProject.Builde
       //      , Compile / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       //      , Test / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value),
+      fork                                    := true,
       Compile / console / wartremoverErrors   := List.empty,
       Compile / console / wartremoverWarnings := List.empty,
       Compile / console / scalacOptions       :=
@@ -693,3 +724,11 @@ def projectCommonSettings(projectName: String, crossProject: CrossProject.Builde
     .settings(
       mavenCentralPublishSettings
     )
+
+lazy val commonJsSettings: SettingsDefinition = List(
+  Test / fork := false,
+//  Test / scalacOptions ++= (if (scalaVersion.value.startsWith("3")) List.empty
+//  else List("-P:scalajs:nowarnGlobalExecutionContext")),
+//  Test / compile / scalacOptions ++= (if (scalaVersion.value.startsWith("3")) List.empty
+//  else List("-P:scalajs:nowarnGlobalExecutionContext")),
+)
