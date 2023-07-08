@@ -14,6 +14,9 @@ import scala.jdk.CollectionConverters._
   * @since 2023-07-07
   */
 object Ce3MdcAdapterSpec extends Properties {
+  println(s"cats.effect.ioLocalPropagation=${sys.props.getOrElse("cats.effect.ioLocalPropagation", "")}")
+  sys.props.put("cats.effect.ioLocalPropagation", "true")
+  println(s"cats.effect.ioLocalPropagation=${sys.props.getOrElse("cats.effect.ioLocalPropagation", "")}")
 
   implicit val ioRuntime: IORuntime = cats.effect.unsafe.implicits.global
 
