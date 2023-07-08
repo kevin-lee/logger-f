@@ -349,7 +349,7 @@ lazy val logbackMdcCatsEffect3    = module(ProjectName("logback-mdc-cats-effect3
     libraryDependencies ++= Seq(
       libs.logbackClassic,
       libs.logbackScalaInterop,
-      libs.catsEffect3Eap,
+      libs.catsEffect3,
       libs.tests.effectieCatsEffect3.value,
       libs.tests.extrasHedgehogCatsEffect3.value,
     ) ++ libs.tests.hedgehogLibs.value,
@@ -357,10 +357,11 @@ lazy val logbackMdcCatsEffect3    = module(ProjectName("logback-mdc-cats-effect3
       scalaVersion.value,
       libraryDependencies.value,
     ),
-    javaOptions += "-Dcats.effect.ioLocalPropagation=true",
+    javaOptions += "-Dcats.effect.trackFiberContext=true",
   )
   .dependsOn(
     core,
+    slf4jMdc,
     monix       % Test,
     slf4jLogger % Test,
   )
@@ -813,6 +814,7 @@ def projectCommonSettings(projectName: String, crossProject: CrossProject.Builde
       //      , Compile / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       //      , Test / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value),
+      fork := true,
       Compile / console / wartremoverErrors := List.empty,
       Compile / console / wartremoverWarnings := List.empty,
       Compile / console / scalacOptions :=

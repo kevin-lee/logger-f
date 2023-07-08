@@ -15,6 +15,13 @@ import scala.jdk.CollectionConverters._
   * @since 2023-07-07
   */
 object Ce3MdcAdapterSpec2 extends Properties {
+  private val oldValue = sys.props.put("cats.effect.trackFiberContext", "true")
+  println(
+    s"${this.getClass.getSimpleName.stripSuffix("$")}[B] cats.effect.trackFiberContext=${oldValue.getOrElse("")}"
+  )
+  println(
+    s"${this.getClass.getSimpleName.stripSuffix("$")}[A] cats.effect.trackFiberContext=${sys.props.getOrElse("cats.effect.trackFiberContext", "")}"
+  )
 
   implicit val ioRuntime: IORuntime = cats.effect.unsafe.implicits.global
 
@@ -91,9 +98,10 @@ object Ce3MdcAdapterSpec2 extends Properties {
       before()
 
       val beforeSet = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
-      MDC.put("key-1", a)
+//      MDC.put("key-1", a)
 
       for {
+        _              <- IO(MDC.put("key-1", a))
         before         <- IO((MDC.get("key-1") ==== a).log("before"))
         beforeIsolated <- IO((MDC.get("key-1") ==== a).log("beforeIsolated"))
                             .start

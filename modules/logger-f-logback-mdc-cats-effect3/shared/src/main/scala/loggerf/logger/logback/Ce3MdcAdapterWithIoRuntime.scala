@@ -1,7 +1,6 @@
 package loggerf.logger.logback
 
-import cats.effect.{IOLocal, SyncIO}
-import cats.syntax.all._
+import cats.effect.{IOLocal, unsafe}
 import ch.qos.logback.classic.LoggerContext
 import logback_scala_interop.JLoggerFMdcAdapter
 import org.slf4j.LoggerFactory
@@ -12,19 +11,11 @@ import scala.jdk.CollectionConverters._
 /** @author Kevin Lee
   * @since 2023-07-07
   */
-class Ce3MdcAdapter extends JLoggerFMdcAdapter {
+class Ce3MdcAdapterWithIoRuntime(private val ioRuntime: unsafe.IORuntime) extends JLoggerFMdcAdapter {
 
   private[this] val localContext: IOLocal[Map[String, String]] =
     IOLocal[Map[String, String]](Map.empty[String, String])
-      .syncStep(100)
-      .flatMap(
-        _.leftMap(_ =>
-          new Error(
-            "Failed to initialize the local context of the Ce3MdcAdapter."
-          )
-        ).liftTo[SyncIO]
-      )
-      .unsafeRunSync()
+      .unsafeRunSync()(ioRuntime)
 
   override def put(key: String, `val`: String): Unit = {
     val unsafeThreadLocal = localContext.unsafeThreadLocal()
@@ -54,12 +45,12 @@ class Ce3MdcAdapter extends JLoggerFMdcAdapter {
   override def getKeys: JSet[String] = localContext.unsafeThreadLocal().get.keySet.asJava
 
 }
-object Ce3MdcAdapter extends Ce3MdcAdapterOps
+object Ce3MdcAdapterWithIoRuntime extends Ce3MdcAdapterWithIoRuntimeOps
 
-trait Ce3MdcAdapterOps {
+trait Ce3MdcAdapterWithIoRuntimeOps {
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
-  protected def initialize0(ce3MdcAdapter: Ce3MdcAdapter): Ce3MdcAdapter = {
+  protected def initialize0(ce3MdcAdapter: Ce3MdcAdapterWithIoRuntime): Ce3MdcAdapterWithIoRuntime = {
     org.slf4j.SetMdcAdapter(ce3MdcAdapter)
     ce3MdcAdapter
   }
@@ -68,20 +59,25 @@ trait Ce3MdcAdapterOps {
   protected def getLoggerContext(): LoggerContext =
     LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
 
-  def initialize(): Ce3MdcAdapter =
-    initializeWithCe3MdcAdapterAndLoggerContext(new Ce3MdcAdapter, getLoggerContext())
+  def initialize()(implicit ioRuntime: unsafe.IORuntime): Ce3MdcAdapterWithIoRuntime =
+    initializeWithCe3MdcAdapterWithIoRuntimeAndLoggerContext(
+      new Ce3MdcAdapterWithIoRuntime(ioRuntime),
+      getLoggerContext(),
+    )
 
-  def initializeWithCe3MdcAdapter(ce3MdcAdapter: Ce3MdcAdapter): Ce3MdcAdapter =
-    initializeWithCe3MdcAdapterAndLoggerContext(ce3MdcAdapter, getLoggerContext())
+  def initializeWithCe3MdcAdapterWithIoRuntime(ce3MdcAdapter: Ce3MdcAdapterWithIoRuntime): Ce3MdcAdapterWithIoRuntime =
+    initializeWithCe3MdcAdapterWithIoRuntimeAndLoggerContext(ce3MdcAdapter, getLoggerContext())
 
-  def initializeWithLoggerContext(loggerContext: LoggerContext): Ce3MdcAdapter =
-    initializeWithCe3MdcAdapterAndLoggerContext(new Ce3MdcAdapter, loggerContext)
+  def initializeWithLoggerContext(loggerContext: LoggerContext)(
+    implicit ioRuntime: unsafe.IORuntime
+  ): Ce3MdcAdapterWithIoRuntime =
+    initializeWithCe3MdcAdapterWithIoRuntimeAndLoggerContext(new Ce3MdcAdapterWithIoRuntime(ioRuntime), loggerContext)
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  def initializeWithCe3MdcAdapterAndLoggerContext(
-    ce3MdcAdapter: Ce3MdcAdapter,
+  def initializeWithCe3MdcAdapterWithIoRuntimeAndLoggerContext(
+    ce3MdcAdapter: Ce3MdcAdapterWithIoRuntime,
     loggerContext: LoggerContext,
-  ): Ce3MdcAdapter = {
+  ): Ce3MdcAdapterWithIoRuntime = {
     val adapter = initialize0(ce3MdcAdapter)
 
     loggerContext.setMDCAdapter(adapter)
