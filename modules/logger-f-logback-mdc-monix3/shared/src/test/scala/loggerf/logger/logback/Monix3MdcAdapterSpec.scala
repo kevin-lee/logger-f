@@ -12,14 +12,14 @@ import scala.jdk.CollectionConverters._
 /** @author Kevin Lee
   * @since 2023-07-03
   */
-object MonixMdcAdapterSpec extends Properties {
+object Monix3MdcAdapterSpec extends Properties {
 
   /*
    * Task.defaultOptions.enableLocalContextPropagation is the same as
    *   sys.props.put("monix.environment.localContextPropagation", "1")
    */
-  implicit val opts: Task.Options              = Task.defaultOptions.enableLocalContextPropagation
-  private val monixMdcAdapter: MonixMdcAdapter = MonixMdcAdapter.initialize()
+  implicit val opts: Task.Options               = Task.defaultOptions.enableLocalContextPropagation
+  private val monixMdcAdapter: Monix3MdcAdapter = Monix3MdcAdapter.initialize()
 
   override def tests: List[Test] = List(
     property("Task - MDC should be able to put and get a value", testPutAndGet),
