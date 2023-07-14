@@ -10,7 +10,7 @@ import scala.jdk.CollectionConverters._
 /** @author Kevin Lee
   * @since 2023-02-18
   */
-class MonixMdcAdapter extends JLoggerFMdcAdapter {
+class Monix3MdcAdapter extends JLoggerFMdcAdapter {
 
   private[this] val localContext: Local[Map[String, String]] =
     Local[Map[String, String]](Map.empty[String, String])
@@ -38,13 +38,13 @@ class MonixMdcAdapter extends JLoggerFMdcAdapter {
   override def getKeys: JSet[String] = localContext().keySet.asJava
 
 }
-object MonixMdcAdapter {
+object Monix3MdcAdapter {
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
-  def initialize(): MonixMdcAdapter = {
+  def initialize(): Monix3MdcAdapter = {
     val field   = classOf[MDC].getDeclaredField("mdcAdapter")
     field.setAccessible(true)
-    val adapter = new MonixMdcAdapter
+    val adapter = new Monix3MdcAdapter
     field.set(null, adapter) // scalafix:ok DisableSyntax.null
     field.setAccessible(false)
     adapter
