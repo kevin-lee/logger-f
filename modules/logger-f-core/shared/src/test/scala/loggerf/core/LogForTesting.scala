@@ -46,6 +46,8 @@ object LogForTesting {
     override def fromTry[A](tryA: Try[A]): Identity[A] = tryA.fold(errorOf, pureOf)
 
     override def flatMapFa[A, B](fa: Identity[A])(f: A => Identity[B]): Identity[B] = f(fa)
+
+    override def fromEffect[A](fa: => Identity[A]): Identity[A] = fa
   }
 
 }
