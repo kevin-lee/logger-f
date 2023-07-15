@@ -1,11 +1,13 @@
 package loggerf.logger.logback
 
+import ch.qos.logback.classic.LoggerContext
 import logback_scala_interop.JLoggerFMdcAdapter
 import monix.execution.misc.Local
-import org.slf4j.MDC
+import org.slf4j.{LoggerFactory, MDC}
 
 import java.util.{Map => JMap, Set => JSet}
 import scala.jdk.CollectionConverters._
+import scala.util.control.NonFatal
 
 /** @author Kevin Lee
   * @since 2023-02-18
@@ -41,7 +43,7 @@ class Monix3MdcAdapter extends JLoggerFMdcAdapter {
 object Monix3MdcAdapter {
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
-  def initialize(): Monix3MdcAdapter = {
+  private def initialize0(): Monix3MdcAdapter = {
     val field   = classOf[MDC].getDeclaredField("mdcAdapter")
     field.setAccessible(true)
     val adapter = new Monix3MdcAdapter
@@ -49,4 +51,25 @@ object Monix3MdcAdapter {
     field.setAccessible(false)
     adapter
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
+  def initialize(): Monix3MdcAdapter = {
+    val loggerContext =
+      LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext] // scalafix:ok DisableSyntax.asInstanceOf
+    initializeWithLoggerContext(loggerContext)
+  }
+
+  def initializeWithLoggerContext(loggerContext: LoggerContext): Monix3MdcAdapter = {
+    val adapter = initialize0()
+    try {
+      val field = classOf[LoggerContext].getDeclaredField("mdcAdapter")
+      field.setAccessible(true)
+      field.set(loggerContext, adapter)
+      field.setAccessible(false)
+      adapter
+    } catch {
+      case NonFatal(_) => adapter
+    }
+  }
+
 }
