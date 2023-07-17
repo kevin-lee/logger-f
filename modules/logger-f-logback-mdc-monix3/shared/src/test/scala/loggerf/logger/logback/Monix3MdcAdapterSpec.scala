@@ -18,7 +18,8 @@ object Monix3MdcAdapterSpec extends Properties {
    * Task.defaultOptions.enableLocalContextPropagation is the same as
    *   sys.props.put("monix.environment.localContextPropagation", "1")
    */
-  implicit val opts: Task.Options               = Task.defaultOptions.enableLocalContextPropagation
+  implicit val opts: Task.Options = Task.defaultOptions.enableLocalContextPropagation
+
   private val monixMdcAdapter: Monix3MdcAdapter = Monix3MdcAdapter.initialize()
 
   override def tests: List[Test] = List(
