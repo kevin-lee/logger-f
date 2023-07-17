@@ -40,27 +40,37 @@ class Monix3MdcAdapter extends JLoggerFMdcAdapter {
   override def getKeys: JSet[String] = localContext().keySet.asJava
 
 }
-object Monix3MdcAdapter {
+object Monix3MdcAdapter extends Monix3MdcAdapterOps
+
+trait Monix3MdcAdapterOps {
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
-  private def initialize0(): Monix3MdcAdapter = {
-    val field   = classOf[MDC].getDeclaredField("mdcAdapter")
+  protected def initialize0(monix3MdcAdapter: Monix3MdcAdapter): Monix3MdcAdapter = {
+    val field = classOf[MDC].getDeclaredField("mdcAdapter")
     field.setAccessible(true)
-    val adapter = new Monix3MdcAdapter
-    field.set(null, adapter) // scalafix:ok DisableSyntax.null
+    field.set(null, monix3MdcAdapter) // scalafix:ok DisableSyntax.null
     field.setAccessible(false)
-    adapter
+    monix3MdcAdapter
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
-  def initialize(): Monix3MdcAdapter = {
-    val loggerContext =
-      LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext] // scalafix:ok DisableSyntax.asInstanceOf
-    initializeWithLoggerContext(loggerContext)
-  }
+  protected def getLoggerContext(): LoggerContext =
+    LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext] // scalafix:ok DisableSyntax.asInstanceOf
 
-  def initializeWithLoggerContext(loggerContext: LoggerContext): Monix3MdcAdapter = {
-    val adapter = initialize0()
+  def initialize(): Monix3MdcAdapter =
+    initializeWithMonix3MdcAdapterAndLoggerContext(new Monix3MdcAdapter, getLoggerContext())
+
+  def initializeWithMonix3MdcAdapter(monix3MdcAdapter: Monix3MdcAdapter): Monix3MdcAdapter =
+    initializeWithMonix3MdcAdapterAndLoggerContext(monix3MdcAdapter, getLoggerContext())
+
+  def initializeWithLoggerContext(loggerContext: LoggerContext): Monix3MdcAdapter =
+    initializeWithMonix3MdcAdapterAndLoggerContext(new Monix3MdcAdapter, loggerContext)
+
+  def initializeWithMonix3MdcAdapterAndLoggerContext(
+    monix3MdcAdapter: Monix3MdcAdapter,
+    loggerContext: LoggerContext,
+  ): Monix3MdcAdapter = {
+    val adapter = initialize0(monix3MdcAdapter)
     try {
       val field = classOf[LoggerContext].getDeclaredField("mdcAdapter")
       field.setAccessible(true)
