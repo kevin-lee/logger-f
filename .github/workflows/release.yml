@@ -11,7 +11,7 @@ on:
 env:
   GH_JAVA_VERSION: "11"
   GH_JAVA_DISTRIBUTION: "temurin"
-  GH_JVM_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=2G -Xmx4G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
+  GH_JAVA_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=2G -Xmx4G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
 
 jobs:
 
@@ -49,7 +49,7 @@ jobs:
           CURRENT_BRANCH_NAME: ${{ github.ref }}
           RUN_ID: ${{ github.run_id }}
           RUN_NUMBER: ${{ github.run_number }}
-          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+          JAVA_OPTS: ${{ env.GH_JAVA_OPTS }}
         run: |
           echo "[BEFORE]CURRENT_BRANCH_NAME=${CURRENT_BRANCH_NAME}"
           export CURRENT_BRANCH_NAME="${CURRENT_BRANCH_NAME#refs/heads/}"
@@ -57,7 +57,7 @@ jobs:
           echo "RUN_ID=${RUN_ID}"
           echo "RUN_NUMBER=${RUN_NUMBER}"
           echo "Push #${PUSH_NUMBER}"
-          echo "JVM_OPTS=${JVM_OPTS}"
+          echo "JAVA_OPTS=${JAVA_OPTS}"
           echo "SBT_OPTS=${SBT_OPTS}"
           java -version
           sbt \
@@ -93,10 +93,10 @@ jobs:
       - name: sbt GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_AUTH_TOKEN_GITHUB }}
-          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+          JAVA_OPTS: ${{ env.GH_JAVA_OPTS }}
         run: |
           echo "Run] sbt GitHub release"
-          echo "JVM_OPTS=${JVM_OPTS}"
+          echo "JAVA_OPTS=${JAVA_OPTS}"
           echo "SBT_OPTS=${SBT_OPTS}"
           echo 'sbt devOopsGitHubRelease'
           sbt \
@@ -137,12 +137,12 @@ jobs:
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           GITHUB_TOKEN: ${{ secrets.RELEASE_AUTH_TOKEN_GITHUB }}
-          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+          JAVA_OPTS: ${{ env.GH_JAVA_OPTS }}
         run: |
           echo "Run] sbt ci-release"
           export SOURCE_DATE_EPOCH=$(date +%s)
           echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
-          echo "JVM_OPTS=${JVM_OPTS}"
+          echo "JAVA_OPTS=${JAVA_OPTS}"
           echo "SBT_OPTS=${SBT_OPTS}"
           echo 'sbt -v clean +packagedArtifacts ci-release'
           sbt \
@@ -186,12 +186,12 @@ jobs:
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+          JAVA_OPTS: ${{ env.GH_JAVA_OPTS }}
         run: |
           echo "Run] sbt ci-release"
           export SOURCE_DATE_EPOCH=$(date +%s)
           echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
-          echo "JVM_OPTS=${JVM_OPTS}"
+          echo "JAVA_OPTS=${JAVA_OPTS}"
           echo "SBT_OPTS=${SBT_OPTS}"
           sbt \
             -v \
