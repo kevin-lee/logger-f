@@ -17,6 +17,18 @@ import scala.annotation.implicitNotFound
   ---
     import loggerf.instances.cats._
   ---
+  -----
+  If this doesn't solve, you probably need a CanLog instance.
+  To create it, please check out the following document.
+
+  https://logger-f.kevinly.dev/docs/cats/import#canlog-logger
+
+  -----
+  If it doesn't solve, it's probably because of missing an Fx[F] instance.
+
+  You can simply import the Fx[F] instance of your effect library.
+  Please check out the message of @implicitNotFound annotation on effectie.core.Fx.
+
   """
 )
 trait Log[F[*]] {
