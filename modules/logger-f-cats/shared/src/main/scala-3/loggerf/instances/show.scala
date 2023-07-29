@@ -7,7 +7,9 @@ import loggerf.core.ToLog
   * @since 2022-02-19
   */
 trait show {
-  inline given showToLog[A: Show]: ToLog[A] = Show[A].show(_)
+  given showToLog[A: Show]: ToLog[A] with {
+    inline def toLogMessage(a: A): String = Show[A].show(a)
+  }
 }
 
 object show extends show
