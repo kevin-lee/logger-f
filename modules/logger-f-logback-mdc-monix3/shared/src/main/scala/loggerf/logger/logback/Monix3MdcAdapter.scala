@@ -43,18 +43,18 @@ object Monix3MdcAdapter extends Monix3MdcAdapterOps
 
 trait Monix3MdcAdapterOps {
 
-  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  @SuppressWarnings(Array("org.wartremover.warts.Null", "scalafix:DisableSyntax.null"))
   protected def initialize0(monix3MdcAdapter: Monix3MdcAdapter): Monix3MdcAdapter = {
     val field = classOf[MDC].getDeclaredField("mdcAdapter")
     field.setAccessible(true)
-    field.set(null, monix3MdcAdapter) // scalafix:ok DisableSyntax.null
+    field.set(null, monix3MdcAdapter)
     field.setAccessible(false)
     monix3MdcAdapter
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
+  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf", "scalafix:DisableSyntax.asInstanceOf"))
   protected def getLoggerContext(): LoggerContext =
-    LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext] // scalafix:ok DisableSyntax.asInstanceOf
+    LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
 
   def initialize(): Monix3MdcAdapter =
     initializeWithMonix3MdcAdapterAndLoggerContext(new Monix3MdcAdapter, getLoggerContext())

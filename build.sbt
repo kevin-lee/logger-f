@@ -70,27 +70,29 @@ lazy val loggerF = (project in file("."))
   .settings(noPublish)
   .aggregate(
     coreJvm,
-//    coreJs,
+    coreJs,
     slf4jLoggerJvm,
-//    slf4jLoggerJs,
+    slf4jLoggerJs,
     log4sLoggerJvm,
-//    log4sLoggerJs,
+    log4sLoggerJs,
     log4jLoggerJvm,
-//    log4jLoggerJs,
+    log4jLoggerJs,
     sbtLoggingJvm,
-//    sbtLoggingJs,
+    sbtLoggingJs,
     catsJvm,
-//    catsJs,
+    catsJs,
     logbackMdcMonix3Jvm,
-//    logbackMdcMonix3Js,
+    logbackMdcMonix3Js,
+    doobie1Jvm,
+    doobie1Js,
     testKitJvm,
-//    testKitJs,
+    testKitJs,
     catsEffectJvm,
-//    catsEffectJs,
+    catsEffectJs,
     catsEffect3Jvm,
-//    catsEffect3Js,
+    catsEffect3Js,
     monixJvm,
-//    monixJs,
+    monixJs,
   )
 
 lazy val core    =
@@ -275,6 +277,28 @@ lazy val logbackMdcMonix3    = module(ProjectName("logback-mdc-monix3"), crossPr
   )
 lazy val logbackMdcMonix3Jvm = logbackMdcMonix3.jvm
 lazy val logbackMdcMonix3Js  = logbackMdcMonix3.js
+
+lazy val doobie1    = module(ProjectName("doobie1"), crossProject(JVMPlatform, JSPlatform))
+  .settings(
+    description         := "Logger for F[_] - for Doobie v1",
+    libraryDependencies ++= Seq(
+      libs.doobieFree,
+      libs.tests.effectieCatsEffect3,
+      libs.tests.extrasHedgehogCatsEffect3,
+    ) ++ libs.tests.hedgehogLibs,
+    libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+      scalaVersion.value,
+      libraryDependencies.value,
+    ),
+  )
+  .dependsOn(
+    core,
+    cats,
+    testKit     % Test,
+    slf4jLogger % Test,
+  )
+lazy val doobie1Jvm = doobie1.jvm
+lazy val doobie1Js  = doobie1.js
 
 lazy val testKit    =
   module(ProjectName("test-kit"), crossProject(JVMPlatform, JSPlatform))
@@ -514,7 +538,7 @@ lazy val props =
     final val GitHubUsername = "Kevin-Lee"
     final val RepoName       = "logger-f"
 
-    final val Scala3Versions = List("3.0.2")
+    final val Scala3Versions = List("3.3.0")
     final val Scala2Versions = List("2.13.11", "2.12.18")
 
 //    final val ProjectScalaVersion = Scala3Versions.head
@@ -549,6 +573,8 @@ lazy val props =
     val CatsEffect3Version = "3.3.14"
 
     val Monix3Version = "3.4.0"
+
+    val Doobie1Version = "1.0.0-RC4"
 
     final val LoggerF1Version = "1.20.0"
 
@@ -593,9 +619,13 @@ lazy val libs =
 
     lazy val logbackScalaInterop = "io.kevinlee" % "logback-scala-interop" % props.LogbackScalaInteropVersion
 
+    lazy val doobieFree = "org.tpolecat" %% "doobie-free" % props.Doobie1Version
+
     lazy val tests = new {
 
       lazy val monix = "io.monix" %% "monix" % props.Monix3Version % Test
+
+      lazy val effectieCatsEffect3 = "io.kevinlee" %% "effectie-cats-effect3" % props.EffectieVersion % Test
 
       lazy val effectieMonix3 = "io.kevinlee" %% "effectie-monix3" % props.EffectieVersion % Test
 
@@ -625,14 +655,7 @@ def prefixedProjectName(name: String) = s"${props.RepoName}${if (name.isEmpty) "
 def libraryDependenciesRemoveScala3Incompatible(
   scalaVersion: String,
   libraries: Seq[ModuleID],
-): Seq[ModuleID] =
-  (
-    if (scalaVersion.startsWith("3."))
-      libraries
-        .filterNot(props.removeDottyIncompatible)
-    else
-      libraries
-  )
+): Seq[ModuleID] = libraries
 
 lazy val mavenCentralPublishSettings: SettingsDefinition = List(
   /* Publish to Maven Central { */
