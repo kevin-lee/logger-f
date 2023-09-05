@@ -1,18 +1,14 @@
 package loggerf.instances
 
-import _root_.cats.Monad
 import _root_.cats.data.{EitherT, OptionT}
 import _root_.cats.syntax.either._
-import _root_.cats.syntax.flatMap._
-import _root_.cats.syntax.functor._
 import _root_.cats.syntax.option._
-import effectie.core._
-import effectie.syntax.all._
 import extras.concurrent.testing.ConcurrentSupport
 import extras.concurrent.testing.types.{ErrorLogger, WaitFor}
 import hedgehog._
 import hedgehog.runner._
 import loggerf.core._
+import loggerf.instances.future.logFuture
 import loggerf.logger._
 import loggerf.syntax.all._
 
@@ -23,34 +19,34 @@ import scala.concurrent.{ExecutionContext, Future}
 /** @author Kevin Lee
   * @since 2022-02-09
   */
-object instancesSpec extends Properties {
+object futureSpec extends Properties {
   override def tests: List[Test] = List(
     property("test Log.log(F[A])", testLogFA),
     property("test Log.log(F[Option[A]])", testLogFOptionA),
     property("test Log.log(F[Option[A]])(ignore, message)", testLogFOptionAIgnoreEmpty),
     property("test Log.log(F[Option[A]])(message, ignore)", testLogFOptionAIgnoreSome),
-    property("test log(OptionT[F, A]])", testLogOptionTFA),
-    property("test log(OptionT[F, A]])(ignore, message)", testLogOptionTFAIgnoreEmpty),
-    property("test log(OptionT[F, A]])(message, ignore)", testLogOptionTFAIgnoreSome),
+    property("test log(OptionT[Future, A]])", testLogOptionTFA),
+    property("test log(OptionT[Future, A]])(ignore, message)", testLogOptionTFAIgnoreEmpty),
+    property("test log(OptionT[Future, A]])(message, ignore)", testLogOptionTFAIgnoreSome),
     property("test Log.log(F[Either[A, B]])", testLogFEitherAB),
     property("test Log.log(F[Either[A, B]])(ignore, message)", testLogFEitherABIgnoreLeft),
     property("test Log.log(F[Either[A, B]])(message, ignore)", testLogFEitherABIgnoreRight),
-    property("test log(EitherT[F, A, B])", testLogEitherTFAB),
-    property("test log(EitherT[F, A, B]])(ignore, message)", testLogEitherTFABIgnoreLeft),
-    property("test log(EitherT[F, A, B]])(message, ignore)", testLogEitherTFABIgnoreRight),
+    property("test log(EitherT[Future, A, B])", testLogEitherTFAB),
+    property("test log(EitherT[Future, A, B]])(ignore, message)", testLogEitherTFABIgnoreLeft),
+    property("test log(EitherT[Future, A, B]])(message, ignore)", testLogEitherTFABIgnoreRight),
     property("test Log.log_(F[A])", testLog_FA),
     property("test Log.log_(F[Option[A]])", testLog_FOptionA),
     property("test Log.log_(F[Option[A]])(ignore, message)", testLog_FOptionAIgnoreEmpty),
     property("test Log.log_(F[Option[A]])(message, ignore)", testLog_FOptionAIgnoreSome),
-    property("test log_(OptionT[F, A]])", testLog_OptionTFA),
-    property("test log_(OptionT[F, A]])(ignore, message)", testLog_OptionTFAIgnoreEmpty),
-    property("test log_(OptionT[F, A]])(message, ignore)", testLog_OptionTFAIgnoreSome),
+    property("test log_(OptionT[Future, A]])", testLog_OptionTFA),
+    property("test log_(OptionT[Future, A]])(ignore, message)", testLog_OptionTFAIgnoreEmpty),
+    property("test log_(OptionT[Future, A]])(message, ignore)", testLog_OptionTFAIgnoreSome),
     property("test Log.log_(F[Either[A, B]])", testLog_FEitherAB),
     property("test Log.log_(F[Either[A, B]])(ignore, message)", testLog_FEitherABIgnoreLeft),
     property("test Log.log_(F[Either[A, B]])(message, ignore)", testLog_FEitherABIgnoreRight),
-    property("test log_(EitherT[F, A, B])", testLog_EitherTFAB),
-    property("test log_(EitherT[F, A, B]])(ignore, message)", testLog_EitherTFABIgnoreLeft),
-    property("test log_(EitherT[F, A, B]])(message, ignore)", testLog_EitherTFABIgnoreRight),
+    property("test log_(EitherT[Future, A, B])", testLog_EitherTFAB),
+    property("test log_(EitherT[Future, A, B]])(ignore, message)", testLog_EitherTFABIgnoreLeft),
+    property("test log_(EitherT[Future, A, B]])(message, ignore)", testLog_EitherTFABIgnoreRight),
   )
 
   implicit val errorLogger: ErrorLogger[Throwable] = ErrorLogger.printlnDefaultErrorLogger
@@ -66,14 +62,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad]: F[Unit] =
-      (for {
-        _ <- Log[F].log(effectOf(debugMsg))(debug)
-        _ <- Log[F].log(effectOf(infoMsg))(info)
-        _ <- Log[F].log(effectOf(warnMsg))(warn)
-        _ <- Log[F].log(effectOf(errorMsg))(error)
-      } yield ())
-
     val expected = LoggerForTesting(
       debugMessages = Vector(debugMsg),
       infoMessages = Vector(infoMsg),
@@ -85,11 +73,17 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
+    def runLog: Future[Unit] =
+      (for {
+        _ <- Log[Future].log(Future(debugMsg))(debug)
+        _ <- Log[Future].log(Future(infoMsg))(info)
+        _ <- Log[Future].log(Future(warnMsg))(warn)
+        _ <- Log[Future].log(Future(errorMsg))(error)
+      } yield ())
 
-      runLog[Future]
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+
+      runLog
 
     }
     logger ==== expected
@@ -103,14 +97,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](oa: Option[String]): F[Option[Unit]] =
-      (for {
-        _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), debug)
-        _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), info)
-        _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), warn)
-        _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), error)
-      } yield ().some)
-
     val expected = logMsg match {
       case Some(logMsg) =>
         LoggerForTesting(
@@ -133,10 +119,17 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(oa: Option[String]): Future[Option[Unit]] =
+      (for {
+        _ <- Log[Future].log(Future(oa))(error(ifEmptyMsg), debug)
+        _ <- Log[Future].log(Future(oa))(error(ifEmptyMsg), info)
+        _ <- Log[Future].log(Future(oa))(error(ifEmptyMsg), warn)
+        _ <- Log[Future].log(Future(oa))(error(ifEmptyMsg), error)
+      } yield ().some)
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](logMsg)
+
+      runLog(logMsg)
     }
 
     logger ==== expected
@@ -147,14 +140,6 @@ object instancesSpec extends Properties {
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: Fx: Log: Monad](oa: Option[String]): F[Option[Unit]] =
-      (for {
-        _ <- Log[F].log(effectOf(oa))(ignore, debug)
-        _ <- Log[F].log(effectOf(oa))(ignore, info)
-        _ <- Log[F].log(effectOf(oa))(ignore, warn)
-        _ <- Log[F].log(effectOf(oa))(ignore, error)
-      } yield ().some)
 
     val expected = logMsg match {
       case Some(logMsg) =>
@@ -178,10 +163,17 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(oa: Option[String]): Future[Option[Unit]] =
+      (for {
+        _ <- Log[Future].log(Future(oa))(ignore, debug)
+        _ <- Log[Future].log(Future(oa))(ignore, info)
+        _ <- Log[Future].log(Future(oa))(ignore, warn)
+        _ <- Log[Future].log(Future(oa))(ignore, error)
+      } yield ().some)
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](logMsg)
+
+      runLog(logMsg)
     }
 
     logger ==== expected
@@ -194,14 +186,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](oa: Option[String]): F[Option[Unit]] =
-      (for {
-        _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
-        _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
-        _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
-        _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
-      } yield ().some)
-
     val expected = logMsg match {
       case Some(logMsg) =>
         LoggerForTesting(
@@ -224,10 +208,17 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(oa: Option[String]): Future[Option[Unit]] =
+      (for {
+        _ <- Log[Future].log(Future(oa))(error(ifEmptyMsg), _ => ignore)
+        _ <- Log[Future].log(Future(oa))(error(ifEmptyMsg), _ => ignore)
+        _ <- Log[Future].log(Future(oa))(error(ifEmptyMsg), _ => ignore)
+        _ <- Log[Future].log(Future(oa))(error(ifEmptyMsg), _ => ignore)
+      } yield ().some)
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](logMsg)
+
+      runLog(logMsg)
     }
 
     logger ==== expected
@@ -240,14 +231,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](oa: Option[String]): OptionT[F, Unit] =
-      (for {
-        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), debug)
-        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), info)
-        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), warn)
-        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), error)
-      } yield ())
-
     val expected = logMsg match {
       case Some(logMsg) =>
         LoggerForTesting(
@@ -270,10 +253,17 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(oa: Option[String]): OptionT[Future, Unit] =
+      (for {
+        _ <- log(OptionT(Future(oa)))(error(ifEmptyMsg), debug)
+        _ <- log(OptionT(Future(oa)))(error(ifEmptyMsg), info)
+        _ <- log(OptionT(Future(oa)))(error(ifEmptyMsg), warn)
+        _ <- log(OptionT(Future(oa)))(error(ifEmptyMsg), error)
+      } yield ())
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](logMsg).value
+
+      runLog(logMsg).value
     }
 
     logger ==== expected
@@ -284,14 +274,6 @@ object instancesSpec extends Properties {
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: Fx: Log: Monad](oa: Option[String]): OptionT[F, Unit] =
-      for {
-        _ <- log(OptionT(effectOf(oa)))(ignore, debug)
-        _ <- log(OptionT(effectOf(oa)))(ignore, info)
-        _ <- log(OptionT(effectOf(oa)))(ignore, warn)
-        _ <- log(OptionT(effectOf(oa)))(ignore, error)
-      } yield ()
 
     val expected = logMsg match {
       case Some(logMsg) =>
@@ -315,10 +297,17 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(oa: Option[String]): OptionT[Future, Unit] =
+      for {
+        _ <- log(OptionT(Future(oa)))(ignore, debug)
+        _ <- log(OptionT(Future(oa)))(ignore, info)
+        _ <- log(OptionT(Future(oa)))(ignore, warn)
+        _ <- log(OptionT(Future(oa)))(ignore, error)
+      } yield ()
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](logMsg).value
+
+      runLog(logMsg).value
     }
 
     logger ==== expected
@@ -331,14 +320,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](oa: Option[String]): OptionT[F, Unit] =
-      for {
-        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
-        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
-        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
-        _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
-      } yield ()
-
     val expected = logMsg match {
       case Some(logMsg) =>
         LoggerForTesting(
@@ -361,10 +342,17 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(oa: Option[String]): OptionT[Future, Unit] =
+      for {
+        _ <- log(OptionT(Future(oa)))(error(ifEmptyMsg), _ => ignore)
+        _ <- log(OptionT(Future(oa)))(error(ifEmptyMsg), _ => ignore)
+        _ <- log(OptionT(Future(oa)))(error(ifEmptyMsg), _ => ignore)
+        _ <- log(OptionT(Future(oa)))(error(ifEmptyMsg), _ => ignore)
+      } yield ()
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](logMsg).value
+
+      runLog(logMsg).value
     }
 
     logger ==== expected
@@ -378,13 +366,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
-      _ <- Log[F].log(effectOf(eab))(error, b => debug(b.toString))
-      _ <- Log[F].log(effectOf(eab))(error, b => info(b.toString))
-      _ <- Log[F].log(effectOf(eab))(error, b => warn(b.toString))
-      _ <- Log[F].log(effectOf(eab))(error, b => error(b.toString))
-    } yield ().asRight[String]
-
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
@@ -409,10 +390,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(eab: Either[String, Int]): Future[Either[String, Unit]] = for {
+      _ <- Log[Future].log(Future(eab))(error, b => debug(b.toString))
+      _ <- Log[Future].log(Future(eab))(error, b => info(b.toString))
+      _ <- Log[Future].log(Future(eab))(error, b => warn(b.toString))
+      _ <- Log[Future].log(Future(eab))(error, b => error(b.toString))
+    } yield ().asRight[String]
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](eab)
+
+      runLog(eab)
     }
 
     logger ==== expected
@@ -426,13 +413,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
-      _ <- Log[F].log(effectOf(eab))(_ => ignore, b => debug(b.toString))
-      _ <- Log[F].log(effectOf(eab))(_ => ignore, b => info(b.toString))
-      _ <- Log[F].log(effectOf(eab))(_ => ignore, b => warn(b.toString))
-      _ <- Log[F].log(effectOf(eab))(_ => ignore, b => error(b.toString))
-    } yield ().asRight[String]
-
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
@@ -457,10 +437,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(eab: Either[String, Int]): Future[Either[String, Unit]] = for {
+      _ <- Log[Future].log(Future(eab))(_ => ignore, b => debug(b.toString))
+      _ <- Log[Future].log(Future(eab))(_ => ignore, b => info(b.toString))
+      _ <- Log[Future].log(Future(eab))(_ => ignore, b => warn(b.toString))
+      _ <- Log[Future].log(Future(eab))(_ => ignore, b => error(b.toString))
+    } yield ().asRight[String]
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](eab)
+
+      runLog(eab)
     }
 
     logger ==== expected
@@ -473,13 +459,6 @@ object instancesSpec extends Properties {
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: Fx: Log: Monad](eab: Either[String, Int]): F[Either[String, Unit]] = for {
-      _ <- Log[F].log(effectOf(eab))(error, _ => ignore)
-      _ <- Log[F].log(effectOf(eab))(error, _ => ignore)
-      _ <- Log[F].log(effectOf(eab))(error, _ => ignore)
-      _ <- Log[F].log(effectOf(eab))(error, _ => ignore)
-    } yield ().asRight[String]
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
@@ -505,10 +484,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(eab: Either[String, Int]): Future[Either[String, Unit]] = for {
+      _ <- Log[Future].log(Future(eab))(error, _ => ignore)
+      _ <- Log[Future].log(Future(eab))(error, _ => ignore)
+      _ <- Log[Future].log(Future(eab))(error, _ => ignore)
+      _ <- Log[Future].log(Future(eab))(error, _ => ignore)
+    } yield ().asRight[String]
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](eab)
+
+      runLog(eab)
     }
 
     logger ==== expected
@@ -522,13 +507,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](eab: Either[String, Int]): EitherT[F, String, Unit] = for {
-      _ <- log(EitherT(effectOf(eab)))(error, b => debug(b.toString))
-      _ <- log(EitherT(effectOf(eab)))(error, b => info(b.toString))
-      _ <- log(EitherT(effectOf(eab)))(error, b => warn(b.toString))
-      _ <- log(EitherT(effectOf(eab)))(error, b => error(b.toString))
-    } yield ()
-
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
@@ -553,10 +531,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(eab: Either[String, Int]): EitherT[Future, String, Unit] = for {
+      _ <- log(EitherT(Future(eab)))(error, b => debug(b.toString))
+      _ <- log(EitherT(Future(eab)))(error, b => info(b.toString))
+      _ <- log(EitherT(Future(eab)))(error, b => warn(b.toString))
+      _ <- log(EitherT(Future(eab)))(error, b => error(b.toString))
+    } yield ()
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](eab).value
+
+      runLog(eab).value
     }
 
     logger ==== expected
@@ -570,13 +554,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](eab: Either[String, Int]): EitherT[F, String, Unit] = for {
-      _ <- log(EitherT(effectOf(eab)))(_ => ignore, b => debug(b.toString))
-      _ <- log(EitherT(effectOf(eab)))(_ => ignore, b => info(b.toString))
-      _ <- log(EitherT(effectOf(eab)))(_ => ignore, b => warn(b.toString))
-      _ <- log(EitherT(effectOf(eab)))(_ => ignore, b => error(b.toString))
-    } yield ()
-
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
@@ -601,10 +578,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(eab: Either[String, Int]): EitherT[Future, String, Unit] = for {
+      _ <- log(EitherT(Future(eab)))(_ => ignore, b => debug(b.toString))
+      _ <- log(EitherT(Future(eab)))(_ => ignore, b => info(b.toString))
+      _ <- log(EitherT(Future(eab)))(_ => ignore, b => warn(b.toString))
+      _ <- log(EitherT(Future(eab)))(_ => ignore, b => error(b.toString))
+    } yield ()
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](eab).value
+
+      runLog(eab).value
     }
 
     logger ==== expected
@@ -617,13 +600,6 @@ object instancesSpec extends Properties {
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: Fx: Log: Monad](eab: Either[String, Int]): EitherT[F, String, Unit] = for {
-      _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
-      _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
-      _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
-      _ <- log(EitherT(effectOf(eab)))(error, _ => ignore)
-    } yield ()
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
@@ -649,10 +625,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(eab: Either[String, Int]): EitherT[Future, String, Unit] = for {
+      _ <- log(EitherT(Future(eab)))(error, _ => ignore)
+      _ <- log(EitherT(Future(eab)))(error, _ => ignore)
+      _ <- log(EitherT(Future(eab)))(error, _ => ignore)
+      _ <- log(EitherT(Future(eab)))(error, _ => ignore)
+    } yield ()
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](eab).value
+
+      runLog(eab).value
     }
 
     logger ==== expected
@@ -667,13 +649,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad]: F[Unit] =
-      Log[F]
-        .log_(effectOf(debugMsg))(debug)
-        .flatMap { _ => Log[F].log_(effectOf(infoMsg))(info) }
-        .flatMap { _ => Log[F].log_(effectOf(warnMsg))(warn) }
-        .flatMap { _ => Log[F].log_(effectOf(errorMsg))(error) }
-
     val expected = LoggerForTesting(
       debugMessages = Vector(debugMsg),
       infoMessages = Vector(infoMsg),
@@ -685,11 +660,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
+    def runLog: Future[Unit] =
+      Log[Future]
+        .log_(Future(debugMsg))(debug)
+        .flatMap { _ => Log[Future].log_(Future(infoMsg))(info) }
+        .flatMap { _ => Log[Future].log_(Future(warnMsg))(warn) }
+        .flatMap { _ => Log[Future].log_(Future(errorMsg))(error) }
 
-      runLog[Future]
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+
+      runLog
 
     }
     logger ==== expected
@@ -703,13 +683,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](oa: Option[String]): F[Unit] =
-      Log[F]
-        .log_(effectOf(oa))(error(ifEmptyMsg), debug)
-        .flatMap { _ => Log[F].log_(effectOf(oa))(error(ifEmptyMsg), info) }
-        .flatMap { _ => Log[F].log_(effectOf(oa))(error(ifEmptyMsg), warn) }
-        .flatMap { _ => Log[F].log_(effectOf(oa))(error(ifEmptyMsg), error) }
-
     val expected = logMsg match {
       case Some(logMsg) =>
         LoggerForTesting(
@@ -732,10 +705,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(oa: Option[String]): Future[Unit] =
+      Log[Future]
+        .log_(Future(oa))(error(ifEmptyMsg), debug)
+        .flatMap { _ => Log[Future].log_(Future(oa))(error(ifEmptyMsg), info) }
+        .flatMap { _ => Log[Future].log_(Future(oa))(error(ifEmptyMsg), warn) }
+        .flatMap { _ => Log[Future].log_(Future(oa))(error(ifEmptyMsg), error) }
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](logMsg)
+
+      runLog(logMsg)
     }
 
     logger ==== expected
@@ -746,13 +725,6 @@ object instancesSpec extends Properties {
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: Fx: Log: Monad](oa: Option[String]): F[Unit] =
-      Log[F]
-        .log_(effectOf(oa))(ignore, debug)
-        .flatMap { _ => Log[F].log_(effectOf(oa))(ignore, info) }
-        .flatMap { _ => Log[F].log_(effectOf(oa))(ignore, warn) }
-        .flatMap { _ => Log[F].log_(effectOf(oa))(ignore, error) }
 
     val expected = logMsg match {
       case Some(logMsg) =>
@@ -776,10 +748,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(oa: Option[String]): Future[Unit] =
+      Log[Future]
+        .log_(Future(oa))(ignore, debug)
+        .flatMap { _ => Log[Future].log_(Future(oa))(ignore, info) }
+        .flatMap { _ => Log[Future].log_(Future(oa))(ignore, warn) }
+        .flatMap { _ => Log[Future].log_(Future(oa))(ignore, error) }
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](logMsg)
+
+      runLog(logMsg)
     }
 
     logger ==== expected
@@ -792,13 +770,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](oa: Option[String]): F[Unit] =
-      Log[F]
-        .log_(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
-        .flatMap { _ => Log[F].log_(effectOf(oa))(error(ifEmptyMsg), _ => ignore) }
-        .flatMap { _ => Log[F].log_(effectOf(oa))(error(ifEmptyMsg), _ => ignore) }
-        .flatMap { _ => Log[F].log_(effectOf(oa))(error(ifEmptyMsg), _ => ignore) }
-
     val expected = logMsg match {
       case Some(logMsg) =>
         LoggerForTesting(
@@ -821,10 +792,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(oa: Option[String]): Future[Unit] =
+      Log[Future]
+        .log_(Future(oa))(error(ifEmptyMsg), _ => ignore)
+        .flatMap { _ => Log[Future].log_(Future(oa))(error(ifEmptyMsg), _ => ignore) }
+        .flatMap { _ => Log[Future].log_(Future(oa))(error(ifEmptyMsg), _ => ignore) }
+        .flatMap { _ => Log[Future].log_(Future(oa))(error(ifEmptyMsg), _ => ignore) }
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](logMsg)
+
+      runLog(logMsg)
     }
 
     logger ==== expected
@@ -837,12 +814,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](oa: Option[String]): OptionT[F, Unit] =
-      log_(OptionT(effectOf(oa)))(error(ifEmptyMsg), debug)
-        .flatMap { _ => log_(OptionT(effectOf(oa)))(error(ifEmptyMsg), info) }
-        .flatMap { _ => log_(OptionT(effectOf(oa)))(error(ifEmptyMsg), warn) }
-        .flatMap { _ => log_(OptionT(effectOf(oa)))(error(ifEmptyMsg), error) }
-
     val expected = logMsg match {
       case Some(logMsg) =>
         LoggerForTesting(
@@ -865,10 +836,15 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(oa: Option[String]): OptionT[Future, Unit] =
+      log_(OptionT(Future(oa)))(error(ifEmptyMsg), debug)
+        .flatMap { _ => log_(OptionT(Future(oa)))(error(ifEmptyMsg), info) }
+        .flatMap { _ => log_(OptionT(Future(oa)))(error(ifEmptyMsg), warn) }
+        .flatMap { _ => log_(OptionT(Future(oa)))(error(ifEmptyMsg), error) }
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](logMsg).value
+
+      runLog(logMsg).value
     }
 
     logger ==== expected
@@ -879,12 +855,6 @@ object instancesSpec extends Properties {
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: Fx: Log: Monad](oa: Option[String]): OptionT[F, Unit] =
-      log_(OptionT(effectOf(oa)))(ignore, debug)
-        .flatMap { _ => log_(OptionT(effectOf(oa)))(ignore, info) }
-        .flatMap { _ => log_(OptionT(effectOf(oa)))(ignore, warn) }
-        .flatMap { _ => log_(OptionT(effectOf(oa)))(ignore, error) }
 
     val expected = logMsg match {
       case Some(logMsg) =>
@@ -908,10 +878,15 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(oa: Option[String]): OptionT[Future, Unit] =
+      log_(OptionT(Future(oa)))(ignore, debug)
+        .flatMap { _ => log_(OptionT(Future(oa)))(ignore, info) }
+        .flatMap { _ => log_(OptionT(Future(oa)))(ignore, warn) }
+        .flatMap { _ => log_(OptionT(Future(oa)))(ignore, error) }
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](logMsg).value
+
+      runLog(logMsg).value
     }
 
     logger ==== expected
@@ -924,12 +899,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](oa: Option[String]): OptionT[F, Unit] =
-      log_(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
-        .flatMap { _ => log_(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore) }
-        .flatMap { _ => log_(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore) }
-        .flatMap { _ => log_(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore) }
-
     val expected = logMsg match {
       case Some(logMsg) =>
         LoggerForTesting(
@@ -952,10 +921,15 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(oa: Option[String]): OptionT[Future, Unit] =
+      log_(OptionT(Future(oa)))(error(ifEmptyMsg), _ => ignore)
+        .flatMap { _ => log_(OptionT(Future(oa)))(error(ifEmptyMsg), _ => ignore) }
+        .flatMap { _ => log_(OptionT(Future(oa)))(error(ifEmptyMsg), _ => ignore) }
+        .flatMap { _ => log_(OptionT(Future(oa)))(error(ifEmptyMsg), _ => ignore) }
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](logMsg).value
+
+      runLog(logMsg).value
     }
 
     logger ==== expected
@@ -969,13 +943,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](eab: Either[String, Int]): F[Unit] =
-      Log[F]
-        .log_(effectOf(eab))(error, b => debug(b.toString))
-        .flatMap { _ => Log[F].log_(effectOf(eab))(error, b => info(b.toString)) }
-        .flatMap { _ => Log[F].log_(effectOf(eab))(error, b => warn(b.toString)) }
-        .flatMap { _ => Log[F].log_(effectOf(eab))(error, b => error(b.toString)) }
-
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
@@ -1000,10 +967,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(eab: Either[String, Int]): Future[Unit] =
+      Log[Future]
+        .log_(Future(eab))(error, b => debug(b.toString))
+        .flatMap { _ => Log[Future].log_(Future(eab))(error, b => info(b.toString)) }
+        .flatMap { _ => Log[Future].log_(Future(eab))(error, b => warn(b.toString)) }
+        .flatMap { _ => Log[Future].log_(Future(eab))(error, b => error(b.toString)) }
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](eab)
+
+      runLog(eab)
     }
 
     logger ==== expected
@@ -1017,13 +990,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](eab: Either[String, Int]): F[Unit] =
-      Log[F]
-        .log_(effectOf(eab))(_ => ignore, b => debug(b.toString))
-        .flatMap { _ => Log[F].log_(effectOf(eab))(_ => ignore, b => info(b.toString)) }
-        .flatMap { _ => Log[F].log_(effectOf(eab))(_ => ignore, b => warn(b.toString)) }
-        .flatMap { _ => Log[F].log_(effectOf(eab))(_ => ignore, b => error(b.toString)) }
-
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
@@ -1048,10 +1014,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(eab: Either[String, Int]): Future[Unit] =
+      Log[Future]
+        .log_(Future(eab))(_ => ignore, b => debug(b.toString))
+        .flatMap { _ => Log[Future].log_(Future(eab))(_ => ignore, b => info(b.toString)) }
+        .flatMap { _ => Log[Future].log_(Future(eab))(_ => ignore, b => warn(b.toString)) }
+        .flatMap { _ => Log[Future].log_(Future(eab))(_ => ignore, b => error(b.toString)) }
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](eab)
+
+      runLog(eab)
     }
 
     logger ==== expected
@@ -1064,13 +1036,6 @@ object instancesSpec extends Properties {
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: Fx: Log: Monad](eab: Either[String, Int]): F[Unit] =
-      Log[F]
-        .log_(effectOf(eab))(error, _ => ignore)
-        .flatMap { _ => Log[F].log_(effectOf(eab))(error, _ => ignore) }
-        .flatMap { _ => Log[F].log_(effectOf(eab))(error, _ => ignore) }
-        .flatMap { _ => Log[F].log_(effectOf(eab))(error, _ => ignore) }
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
@@ -1096,10 +1061,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(eab: Either[String, Int]): Future[Unit] =
+      Log[Future]
+        .log_(Future(eab))(error, _ => ignore)
+        .flatMap { _ => Log[Future].log_(Future(eab))(error, _ => ignore) }
+        .flatMap { _ => Log[Future].log_(Future(eab))(error, _ => ignore) }
+        .flatMap { _ => Log[Future].log_(Future(eab))(error, _ => ignore) }
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](eab)
+
+      runLog(eab)
     }
 
     logger ==== expected
@@ -1115,13 +1086,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](eab: Either[String, Int]): EitherT[F, String, Unit] = for {
-      _ <- log_(EitherT(effectOf(eab)))(error, b => debug(b.toString))
-      _ <- log_(EitherT(effectOf(eab)))(error, b => info(b.toString))
-      _ <- log_(EitherT(effectOf(eab)))(error, b => warn(b.toString))
-      _ <- log_(EitherT(effectOf(eab)))(error, b => error(b.toString))
-    } yield ()
-
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
@@ -1146,10 +1110,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(eab: Either[String, Int]): EitherT[Future, String, Unit] = for {
+      _ <- log_(EitherT(Future(eab)))(error, b => debug(b.toString))
+      _ <- log_(EitherT(Future(eab)))(error, b => info(b.toString))
+      _ <- log_(EitherT(Future(eab)))(error, b => warn(b.toString))
+      _ <- log_(EitherT(Future(eab)))(error, b => error(b.toString))
+    } yield ()
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](eab).value
+
+      runLog(eab).value
     }
 
     logger ==== expected
@@ -1163,13 +1133,6 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad](eab: Either[String, Int]): EitherT[F, String, Unit] = for {
-      _ <- log_(EitherT(effectOf(eab)))(_ => ignore, b => debug(b.toString))
-      _ <- log_(EitherT(effectOf(eab)))(_ => ignore, b => info(b.toString))
-      _ <- log_(EitherT(effectOf(eab)))(_ => ignore, b => warn(b.toString))
-      _ <- log_(EitherT(effectOf(eab)))(_ => ignore, b => error(b.toString))
-    } yield ()
-
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
@@ -1194,10 +1157,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(eab: Either[String, Int]): EitherT[Future, String, Unit] = for {
+      _ <- log_(EitherT(Future(eab)))(_ => ignore, b => debug(b.toString))
+      _ <- log_(EitherT(Future(eab)))(_ => ignore, b => info(b.toString))
+      _ <- log_(EitherT(Future(eab)))(_ => ignore, b => warn(b.toString))
+      _ <- log_(EitherT(Future(eab)))(_ => ignore, b => error(b.toString))
+    } yield ()
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](eab).value
+
+      runLog(eab).value
     }
 
     logger ==== expected
@@ -1210,13 +1179,6 @@ object instancesSpec extends Properties {
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
-
-    def runLog[F[*]: Fx: Log: Monad](eab: Either[String, Int]): EitherT[F, String, Unit] = for {
-      _ <- log_(EitherT(effectOf(eab)))(error, _ => ignore)
-      _ <- log_(EitherT(effectOf(eab)))(error, _ => ignore)
-      _ <- log_(EitherT(effectOf(eab)))(error, _ => ignore)
-      _ <- log_(EitherT(effectOf(eab)))(error, _ => ignore)
-    } yield ()
 
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
@@ -1242,10 +1204,16 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
+    def runLog(eab: Either[String, Int]): EitherT[Future, String, Unit] = for {
+      _ <- log_(EitherT(Future(eab)))(error, _ => ignore)
+      _ <- log_(EitherT(Future(eab)))(error, _ => ignore)
+      _ <- log_(EitherT(Future(eab)))(error, _ => ignore)
+      _ <- log_(EitherT(Future(eab)))(error, _ => ignore)
+    } yield ()
+
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
-      import effectie.instances.future.fx._
-      import loggerf.instances.cats.logF
-      runLog[Future](eab).value
+
+      runLog(eab).value
     }
 
     logger ==== expected
