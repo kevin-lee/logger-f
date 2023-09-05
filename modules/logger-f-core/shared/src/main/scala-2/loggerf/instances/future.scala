@@ -12,18 +12,18 @@ import scala.concurrent.{ExecutionContext, Future}
 object future {
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   implicit def logFuture(
-    implicit EF: FxCtor[Future],
-    canLog: CanLog,
+    implicit canLog: CanLog,
     EC: ExecutionContext,
   ): Log[Future] =
-    new LogFuture(EF, canLog, EC)
+    new LogFuture(canLog, EC)
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   final class LogFuture(
-    override val EF: FxCtor[Future],
     override val canLog: CanLog,
     val EC: ExecutionContext,
   ) extends Log[Future] {
+
+    override val EF: FxCtor[Future] = effectie.instances.future.fxCtor.fxCtorFuture(EC)
 
     @inline override def map0[A, B](fa: Future[A])(f: A => B): Future[B] =
       fa.map(f)(EC)

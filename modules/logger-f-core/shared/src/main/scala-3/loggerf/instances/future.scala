@@ -12,17 +12,17 @@ import scala.concurrent.{ExecutionContext, Future}
 object future {
 
   given logFuture(
-    using EF: FxCtor[Future],
-    canLog: CanLog,
+    using canLog: CanLog,
     EC: ExecutionContext,
   ): Log[Future] =
-    new LogFuture(EF, canLog, EC)
+    new LogFuture(canLog, EC)
 
   final class LogFuture(
-    override val EF: FxCtor[Future],
     override val canLog: CanLog,
     val EC: ExecutionContext,
   ) extends Log[Future] {
+
+    override val EF: FxCtor[Future] = effectie.instances.future.fxCtor.fxCtorFuture(EC)
 
     override def map0[A, B](fa: Future[A])(f: A => B): Future[B] = fa.map(f)(EC)
 
