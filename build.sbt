@@ -240,6 +240,7 @@ lazy val cats    =
         libs.effectieCore,
         libs.cats,
         libs.effectieSyntax,
+        libs.effectieCats % Test,
       ),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
@@ -580,6 +581,7 @@ lazy val libs =
 
     lazy val effectieCore: ModuleID        = "io.kevinlee" %% "effectie-core"         % props.EffectieVersion
     lazy val effectieSyntax: ModuleID      = "io.kevinlee" %% "effectie-syntax"       % props.EffectieVersion
+    lazy val effectieCats: ModuleID        = "io.kevinlee" %% "effectie-cats"         % props.EffectieVersion
     lazy val effectieCatsEffect2: ModuleID = "io.kevinlee" %% "effectie-cats-effect2" % props.EffectieVersion
     lazy val effectieCatsEffect3: ModuleID = "io.kevinlee" %% "effectie-cats-effect3" % props.EffectieVersion
 
