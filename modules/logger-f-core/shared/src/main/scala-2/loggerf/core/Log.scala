@@ -58,7 +58,8 @@ trait Log[F[*]] {
   )(toLeveledMessage: (String => LogMessage with NotIgnorable) with LogMessage.LeveledMessage.Leveled): F[String] =
     toLeveledMessage.toLazyInput(message) match {
       case LogMessage.LeveledMessage(msg, level) =>
-        map0(EF.effectOf(canLog.getLogger(level)(msg())))(_ => message)
+        lazy val messageString = msg()
+        map0(EF.effectOf(canLog.getLogger(level)(messageString)))(_ => messageString)
     }
 
   def logS_(
