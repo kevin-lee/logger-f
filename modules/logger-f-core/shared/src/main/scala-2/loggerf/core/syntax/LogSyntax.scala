@@ -12,12 +12,12 @@ trait LogSyntax {
 
   import LogSyntax._
 
-  @inline def log[F[*], A](fa: F[A])(toLeveledMessage: A => LogMessage with NotIgnorable)(
+  @inline def log[F[*], A](fa: F[A])(toLeveledMessage: A => LogMessage with MaybeIgnorable)(
     implicit L: Log[F]
   ): F[A] =
     L.log(fa)(toLeveledMessage)
 
-  @inline def log_[F[*], A](fa: F[A])(toLeveledMessage: A => LogMessage with NotIgnorable)(
+  @inline def log_[F[*], A](fa: F[A])(toLeveledMessage: A => LogMessage with MaybeIgnorable)(
     implicit L: Log[F]
   ): F[Unit] =
     L.log_(fa)(toLeveledMessage)
@@ -93,10 +93,10 @@ trait LogSyntax {
 
 object LogSyntax extends LogSyntax {
   final class LogFOfASyntax[F[*], A](private val fa: F[A]) extends AnyVal {
-    @inline def log(toLeveledMessage: A => LogMessage with NotIgnorable)(implicit L: Log[F]): F[A] =
+    @inline def log(toLeveledMessage: A => LogMessage with MaybeIgnorable)(implicit L: Log[F]): F[A] =
       LogSyntax.log(fa)(toLeveledMessage)
 
-    @inline def log_(toLeveledMessage: A => LogMessage with NotIgnorable)(implicit L: Log[F]): F[Unit] =
+    @inline def log_(toLeveledMessage: A => LogMessage with MaybeIgnorable)(implicit L: Log[F]): F[Unit] =
       LogSyntax.log_(fa)(toLeveledMessage)
   }
 
