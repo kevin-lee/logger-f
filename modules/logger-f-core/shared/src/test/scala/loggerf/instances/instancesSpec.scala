@@ -17,13 +17,18 @@ import java.util.concurrent.ExecutorService
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
+import loggerf.test_data
+import loggerf.test_data.TestCases
+
 /** @author Kevin Lee
   * @since 2022-02-09
   */
 object instancesSpec extends Properties {
   override def tests: List[Test] = List(
     property("test Log.log(F[A])", testLogFA),
+    property("test Log.log(F[A]) with matching cases", testLogFAWithMatchingCases),
     property("test Log.log_(F[A])", testLog_FA),
+    property("test Log.log_(F[A]) with matching cases", testLog_FAWithMatchingCases),
     property("test Log.logS(String)", testLogS),
     property("test Log.logS_(String)", testLogS_()),
     property("test Log.log(F[Option[A]])", testLogFOptionA),
@@ -56,9 +61,13 @@ object instancesSpec extends Properties {
     def runLog[F[*]: Fx: Log: Monad]: F[Unit] =
       (for {
         _ <- Log[F].log(Fx[F].effectOf(debugMsg))(debug)
+        _ <- Log[F].log(Fx[F].effectOf(debugMsg))(ignoreA)
         _ <- Log[F].log(Fx[F].effectOf(infoMsg))(info)
+        _ <- Log[F].log(Fx[F].effectOf(infoMsg))(ignoreA)
         _ <- Log[F].log(Fx[F].effectOf(warnMsg))(warn)
+        _ <- Log[F].log(Fx[F].effectOf(warnMsg))(ignoreA)
         _ <- Log[F].log(Fx[F].effectOf(errorMsg))(error)
+        _ <- Log[F].log(Fx[F].effectOf(errorMsg))(ignoreA)
       } yield ())
 
     val expected = LoggerForTesting(
@@ -67,6 +76,69 @@ object instancesSpec extends Properties {
       warnMessages = Vector(warnMsg),
       errorMessages = Vector(errorMsg),
     )
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+
+      runLog[Future]
+
+    }
+    logger ==== expected
+
+  }
+
+  def testLogFAWithMatchingCases: Property = for {
+    debugMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+    infoMsg   <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+    warnMsg   <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+    errorMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+    testCases <- test_data.Gens.genTestCases.log("testCases")
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: Fx: Log: Monad]: F[Unit] = {
+      val fa1 = Log[F].log(Fx[F].effectOf(testCases)) {
+        case TestCases(_, _, true) =>
+          ignore
+        case TestCases(id, name, false) =>
+          debug(s"$debugMsg / id=${id.toString}, name=$name, not enabled")
+      }
+      val fa2 = Log[F].log(fa1) {
+        case TestCases(_, _, true) =>
+          ignore
+        case TestCases(id, name, false) =>
+          info(s"$infoMsg / id=${id.toString}, name=$name, not enabled")
+      }
+      val fa3 = Log[F].log(fa2) {
+        case TestCases(_, _, true) =>
+          ignore
+        case TestCases(id, name, false) =>
+          warn(s"$warnMsg / id=${id.toString}, name=$name, not enabled")
+      }
+      val fa4 = Log[F].log(fa3) {
+        case TestCases(_, _, true) =>
+          ignore
+        case TestCases(id, name, false) =>
+          error(s"$errorMsg / id=${id.toString}, name=$name, not enabled")
+      }
+      fa4 *> Fx[F].unitOf
+
+    }
+
+    val expected =
+      if (testCases.enabled)
+        LoggerForTesting()
+      else
+        LoggerForTesting(
+          debugMessages = Vector(s"$debugMsg / id=${testCases.id.toString}, name=${testCases.name}, not enabled"),
+          infoMessages = Vector(s"$infoMsg / id=${testCases.id.toString}, name=${testCases.name}, not enabled"),
+          warnMessages = Vector(s"$warnMsg / id=${testCases.id.toString}, name=${testCases.name}, not enabled"),
+          errorMessages = Vector(s"$errorMsg / id=${testCases.id.toString}, name=${testCases.name}, not enabled"),
+        )
 
     implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
     implicit val ec: ExecutionContext =
@@ -93,9 +165,13 @@ object instancesSpec extends Properties {
     def runLog[F[*]: Fx: Log: Monad]: F[Unit] =
       Log[F]
         .log_(Fx[F].effectOf(debugMsg))(debug)
+        .flatMap { _ => Log[F].log_(Fx[F].effectOf(debugMsg))(ignoreA) }
         .flatMap { _ => Log[F].log_(Fx[F].effectOf(infoMsg))(info) }
+        .flatMap { _ => Log[F].log_(Fx[F].effectOf(infoMsg))(ignoreA) }
         .flatMap { _ => Log[F].log_(Fx[F].effectOf(warnMsg))(warn) }
+        .flatMap { _ => Log[F].log_(Fx[F].effectOf(warnMsg))(ignoreA) }
         .flatMap { _ => Log[F].log_(Fx[F].effectOf(errorMsg))(error) }
+        .flatMap { _ => Log[F].log_(Fx[F].effectOf(errorMsg))(ignoreA) }
 
     val expected = LoggerForTesting(
       debugMessages = Vector(debugMsg),
@@ -103,6 +179,65 @@ object instancesSpec extends Properties {
       warnMessages = Vector(warnMsg),
       errorMessages = Vector(errorMsg),
     )
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+
+      runLog[Future]
+
+    }
+    logger ==== expected
+
+  }
+
+  def testLog_FAWithMatchingCases: Property = for {
+    debugMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+    infoMsg   <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+    warnMsg   <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+    errorMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+    testCases <- test_data.Gens.genTestCases.log("testCases")
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: Fx: Log: Monad]: F[Unit] = {
+      val fa = Fx[F].effectOf(testCases)
+      Log[F].log_(fa) {
+        case TestCases(_, _, true) =>
+          ignore
+        case TestCases(id, name, false) =>
+          debug(s"$debugMsg / id=${id.toString}, name=$name, not enabled")
+      } *> Log[F].log_(fa) {
+        case TestCases(_, _, true) =>
+          ignore
+        case TestCases(id, name, false) =>
+          info(s"$infoMsg / id=${id.toString}, name=$name, not enabled")
+      } *> Log[F].log_(fa) {
+        case TestCases(_, _, true) =>
+          ignore
+        case TestCases(id, name, false) =>
+          warn(s"$warnMsg / id=${id.toString}, name=$name, not enabled")
+      } *> Log[F].log_(fa) {
+        case TestCases(_, _, true) =>
+          ignore
+        case TestCases(id, name, false) =>
+          error(s"$errorMsg / id=${id.toString}, name=$name, not enabled")
+      }
+    }
+
+    val expected =
+      if (testCases.enabled)
+        LoggerForTesting()
+      else
+        LoggerForTesting(
+          debugMessages = Vector(s"$debugMsg / id=${testCases.id.toString}, name=${testCases.name}, not enabled"),
+          infoMessages = Vector(s"$infoMsg / id=${testCases.id.toString}, name=${testCases.name}, not enabled"),
+          warnMessages = Vector(s"$warnMsg / id=${testCases.id.toString}, name=${testCases.name}, not enabled"),
+          errorMessages = Vector(s"$errorMsg / id=${testCases.id.toString}, name=${testCases.name}, not enabled"),
+        )
 
     implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
     implicit val ec: ExecutionContext =

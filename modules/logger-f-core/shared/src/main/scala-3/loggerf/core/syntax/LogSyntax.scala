@@ -13,10 +13,10 @@ import scala.concurrent.Future
 trait LogSyntax {
 
   extension [F[*], A](fa: F[A]) {
-    def log(toLeveledMessage: A => LeveledMessage)(using L: Log[F]): F[A] =
+    def log(toLeveledMessage: A => LeveledMessage | Ignore.type)(using L: Log[F]): F[A] =
       L.log(fa)(toLeveledMessage)
 
-    def log_(toLeveledMessage: A => LeveledMessage)(using L: Log[F]): F[Unit] =
+    def log_(toLeveledMessage: A => LeveledMessage | Ignore.type)(using L: Log[F]): F[Unit] =
       L.log_(fa)(toLeveledMessage)
   }
 

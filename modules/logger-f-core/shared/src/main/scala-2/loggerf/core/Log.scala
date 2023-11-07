@@ -40,15 +40,17 @@ trait Log[F[*]] {
 
   def canLog: CanLog
 
-  def log[A](fa: F[A])(toLeveledMessage: A => LogMessage with NotIgnorable): F[A] =
+  def log[A](fa: F[A])(toLeveledMessage: A => LogMessage with MaybeIgnorable): F[A] =
     flatMap0(fa) { a =>
       toLeveledMessage(a) match {
         case LogMessage.LeveledMessage(message, level) =>
           flatMap0(EF.effectOf(canLog.getLogger(level)(message())))(_ => EF.pureOf(a))
+        case LogMessage.Ignore =>
+          EF.pureOf(a)
       }
     }
 
-  def log_[A](fa: F[A])(toLeveledMessage: A => LogMessage with NotIgnorable): F[Unit] =
+  def log_[A](fa: F[A])(toLeveledMessage: A => LogMessage with MaybeIgnorable): F[Unit] =
     map0(log(fa)(toLeveledMessage))(_ => ())
 
   def logS(

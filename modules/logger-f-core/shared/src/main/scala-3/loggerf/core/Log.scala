@@ -19,6 +19,18 @@ import scala.annotation.implicitNotFound
     // or
     import loggerf.instances.cats.logF
   ---
+  -----
+  If this doesn't solve, you probably need a CanLog instance.
+  To create it, please check out the following document.
+
+  https://logger-f.kevinly.dev/docs/cats/import#canlog-logger
+
+  -----
+  If it doesn't solve, it's probably because of missing an Fx[F] instance.
+
+  You can simply import the Fx[F] instance of your effect library.
+  Please check out the message of @implicitNotFound annotation on effectie.core.Fx.
+
   """
 )
 trait Log[F[*]] {
@@ -31,15 +43,17 @@ trait Log[F[*]] {
 
   def canLog: CanLog
 
-  def log[A](fa: F[A])(toLeveledMessage: A => LeveledMessage): F[A] =
+  def log[A](fa: F[A])(toLeveledMessage: A => LeveledMessage | Ignore.type): F[A] =
     flatMap0(fa) { a =>
       toLeveledMessage(a) match {
         case LeveledMessage(message, level) =>
           flatMap0(EF.effectOf(canLog.getLogger(level)(message())))(_ => EF.pureOf(a))
+        case Ignore =>
+          EF.pureOf(a)
       }
     }
 
-  def log_[A](fa: F[A])(toLeveledMessage: A => LeveledMessage): F[Unit] =
+  def log_[A](fa: F[A])(toLeveledMessage: A => LeveledMessage | Ignore.type): F[Unit] =
     map0(log(fa)(toLeveledMessage))(_ => ())
 
   def logS(message: => String)(toLeveledMessage: (String => LeveledMessage) with LeveledMessage.Leveled): F[String] =
