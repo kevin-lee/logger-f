@@ -20,17 +20,19 @@ jobs:
     strategy:
       matrix:
         scala:
-          - { name: "Scala", java-version: "11", java-distribution: "temurin", report: "" }
+          - { name: "Scala 2", version: "2.12.13", binary-version: "2.12", java-version: "11", java-distribution: "temurin", report: "" }
+          - { name: "Scala 2", version: "2.13.6",  binary-version: "2.13", java-version: "11", java-distribution: "temurin", report: "" }
+    #          - { name: "Scala 3", version: "3.0.2",   binary-version: "3",    java-version: "11", java-distribution: "temurin", report: "" }
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.1.1
       - uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.scala.java-version }}
           distribution: ${{ matrix.scala.java-distribution }}
 
       - name: Cache SBT
-        uses: actions/cache@v3
+        uses: actions/cache@v3.3.2
         with:
           path: |
             ~/.ivy2/cache
@@ -40,13 +42,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-sbt
 
-      - name: "[Push] Build All for ${{ matrix.scala.name }} - ${{ github.run_number }}"
+      - name: "[Push] Build All for ${{ matrix.scala.name }} v${{ matrix.scala.version }} - ${{ github.run_number }}"
         if: github.event_name == 'push'
         env:
           CURRENT_BRANCH_NAME: ${{ github.ref }}
           RUN_ID: ${{ github.run_id }}
           RUN_NUMBER: ${{ github.run_number }}
-          JAVA_OPTS: ${{ env.GH_JAVA_OPTS }}
+          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
         run: |
           echo "[BEFORE]CURRENT_BRANCH_NAME=${CURRENT_BRANCH_NAME}"
           export CURRENT_BRANCH_NAME="${CURRENT_BRANCH_NAME#refs/heads/}"
@@ -55,28 +57,30 @@ jobs:
           echo "RUN_NUMBER=${RUN_NUMBER}"
           echo "Push #${PUSH_NUMBER}"
           java -version
-          echo "JAVA_OPTS=${JAVA_OPTS}"
+          echo "JVM_OPTS=${JVM_OPTS}"
           echo "SBT_OPTS=${SBT_OPTS}"
           sbt \
-            "+scalafixAll --check" \
-            +scalafmtCheckAll
+            ++${{ matrix.scala.version }}! \
+            "scalafixAll --check" \
+            scalafmtCheckAll
 
-      - name: "[PR] Build All for ${{ matrix.scala.name }} - PR-#${{ github.event.pull_request.number }} - ${{ github.run_number }}"
+      - name: "[PR] Build All for ${{ matrix.scala.name }} v${{ matrix.scala.version }} - PR-#${{ github.event.pull_request.number }} - ${{ github.run_number }}"
         if: github.event_name == 'pull_request'
         env:
           CURRENT_BRANCH_NAME: ${{ github.base_ref }}
           RUN_ID: ${{ github.run_id }}
           RUN_NUMBER: ${{ github.run_number }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          JAVA_OPTS: ${{ env.GH_JAVA_OPTS }}
+          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
         run: |
           echo "Rull request to the '${CURRENT_BRANCH_NAME}' branch"
           echo "RUN_ID=${RUN_ID}"
           echo "RUN_NUMBER=${RUN_NUMBER}"
           echo "PR #${PR_NUMBER}"
           java -version
-          echo "JAVA_OPTS=${JAVA_OPTS}"
+          echo "JVM_OPTS=${JVM_OPTS}"
           echo "SBT_OPTS=${SBT_OPTS}"
           sbt \
-            "+scalafixAll --check" \
-            +scalafmtCheckAll
+            ++${{ matrix.scala.version }}! \
+            "scalafixAll --check" \
+            scalafmtCheckAll

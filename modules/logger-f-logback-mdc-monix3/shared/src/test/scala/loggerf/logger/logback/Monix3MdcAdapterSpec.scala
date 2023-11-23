@@ -453,6 +453,7 @@ object Monix3MdcAdapterSpec extends Properties {
                             )
         } yield Result.all(
           List(
+            keySet,
             keySetAfter,
             keySetAfter,
             keySetAfter2,

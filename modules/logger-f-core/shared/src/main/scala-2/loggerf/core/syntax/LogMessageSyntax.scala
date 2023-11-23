@@ -2,6 +2,8 @@ package loggerf.core.syntax
 
 import loggerf.core.ToLog
 
+import scala.annotation.nowarn
+
 trait LogMessageSyntax {
 
   import loggerf.LogMessage._
@@ -33,6 +35,7 @@ trait LogMessageSyntax {
 
   def ignore: LogMessage with Ignorable = Ignore
 
+  @nowarn(value = "msg=parameter value a in method ignoreA is never used")
   def ignoreA[A](a: A): LogMessage with Ignorable = ignore
 
 }

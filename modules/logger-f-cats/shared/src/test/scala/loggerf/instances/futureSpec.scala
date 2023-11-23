@@ -187,7 +187,7 @@ object futureSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     val expected = logMsg match {
-      case Some(logMsg) =>
+      case Some(logMsg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -321,7 +321,7 @@ object futureSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     val expected = logMsg match {
-      case Some(logMsg) =>
+      case Some(logMsg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -424,7 +424,7 @@ object futureSpec extends Properties {
           errorMessages = Vector(n.toString),
         )
 
-      case Left(msg) =>
+      case Left(msg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -463,7 +463,7 @@ object futureSpec extends Properties {
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
-      case Right(n) =>
+      case Right(n @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -565,7 +565,7 @@ object futureSpec extends Properties {
           errorMessages = Vector(n.toString),
         )
 
-      case Left(msg) =>
+      case Left(msg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -604,7 +604,7 @@ object futureSpec extends Properties {
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
-      case Right(n) =>
+      case Right(n @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -771,7 +771,7 @@ object futureSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     val expected = logMsg match {
-      case Some(logMsg) =>
+      case Some(logMsg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -900,7 +900,7 @@ object futureSpec extends Properties {
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
     val expected = logMsg match {
-      case Some(logMsg) =>
+      case Some(logMsg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -1001,7 +1001,7 @@ object futureSpec extends Properties {
           errorMessages = Vector(n.toString),
         )
 
-      case Left(msg) =>
+      case Left(msg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -1040,7 +1040,7 @@ object futureSpec extends Properties {
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
-      case Right(n) =>
+      case Right(n @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -1144,7 +1144,7 @@ object futureSpec extends Properties {
           errorMessages = Vector(n.toString),
         )
 
-      case Left(msg) =>
+      case Left(msg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -1183,7 +1183,7 @@ object futureSpec extends Properties {
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
-      case Right(n) =>
+      case Right(n @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
