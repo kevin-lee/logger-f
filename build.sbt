@@ -27,29 +27,31 @@ ThisBuild / licenses   := props.licenses
 
 ThisBuild / resolvers += "sonatype-snapshots" at s"https://${props.SonatypeCredentialHost}/content/repositories/snapshots"
 
-ThisBuild / semanticdbEnabled := true
-ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+//ThisBuild / semanticdbEnabled := true
+//ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
-ThisBuild / scalafixConfig                               := (
-  if (scalaVersion.value.startsWith("3")) file(".scalafix-scala3.conf").some
-  else file(".scalafix-scala2.conf").some
-)
-
-ThisBuild / scalafixScalaBinaryVersion                   := {
-  val log        = sLog.value
-  val newVersion = if (scalaVersion.value.startsWith("3")) {
-    (ThisBuild / scalafixScalaBinaryVersion).value
-  } else {
-    CrossVersion.binaryScalaVersion(scalaVersion.value)
-  }
-
-  log.info(
-    s">> Change ThisBuild / scalafixScalaBinaryVersion from ${(ThisBuild / scalafixScalaBinaryVersion).value} to $newVersion"
+ThisBuild / scalafixConfig := (
+  if (scalaVersion.value.startsWith("3"))
+    ((ThisBuild / baseDirectory).value / ".scalafix-scala3.conf").some
+  else
+    ((ThisBuild / baseDirectory).value / ".scalafix-scala2.conf").some
   )
-  newVersion
-}
 
-ThisBuild / scalafixDependencies += "com.github.xuwei-k" %% "scalafix-rules" % "0.2.12"
+//ThisBuild / scalafixScalaBinaryVersion                   := {
+//  val log        = sLog.value
+//  val newVersion = if (scalaVersion.value.startsWith("3")) {
+//    (ThisBuild / scalafixScalaBinaryVersion).value
+//  } else {
+//    CrossVersion.binaryScalaVersion(scalaVersion.value)
+//  }
+//
+//  log.info(
+//    s">> Change ThisBuild / scalafixScalaBinaryVersion from ${(ThisBuild / scalafixScalaBinaryVersion).value} to $newVersion"
+//  )
+//  newVersion
+//}
+
+//ThisBuild / scalafixDependencies += "com.github.xuwei-k" %% "scalafix-rules" % "0.2.12"
 
 lazy val loggerF = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin)
@@ -419,6 +421,7 @@ lazy val docs = (project in file("docs-gen-tmp/docs"))
     mdocIn              := file("docs/latest"),
     mdocOut             := file("generated-docs/docs"),
     cleanFiles += ((ThisBuild / baseDirectory).value / "generated-docs" / "docs"),
+    scalacOptions ~= (_.filter(opt => opt != "-Xfatal-warnings")),
     libraryDependencies ++= {
       val latestTag = getTheLatestTaggedVersion()
       Seq(
@@ -452,6 +455,7 @@ lazy val docsV1 = (project in file("docs-gen-tmp/docs-v1"))
     mdocIn              := file("docs/v1"),
     mdocOut             := file("website/versioned_docs/version-v1/docs"),
     cleanFiles += ((ThisBuild / baseDirectory).value / "website" / "versioned_docs" / "version-v1"),
+    scalacOptions ~= (_.filter(opt => opt != "-Xfatal-warnings")),
     libraryDependencies ++=
       Seq(
         "io.kevinlee" %% "logger-f-cats-effect"   % props.LoggerF1Version,
@@ -653,6 +657,12 @@ def projectCommonSettings(projectName: String, crossProject: CrossProject.Builde
     .settings(
       name                                    := projectName,
       licenses                                := props.licenses,
+      scalafixConfig := (
+        if (scalaVersion.value.startsWith("3"))
+          ((ThisBuild / baseDirectory).value / ".scalafix-scala3.conf").some
+        else
+          ((ThisBuild / baseDirectory).value / ".scalafix-scala2.conf").some
+        ),
       /* WartRemover and scalacOptions { */
       //      , Compile / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       //      , Test / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)

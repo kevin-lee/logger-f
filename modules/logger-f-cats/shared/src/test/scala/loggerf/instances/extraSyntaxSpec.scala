@@ -117,7 +117,7 @@ object extraSyntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: FxCtor: Log: Monad]: F[Unit] =
+    def runLog[F[*]: Log: Monad]: F[Unit] =
       (for {
         _ <- logS(debugMsg)(debug(prefix(prefixString)))
         _ <- logS(infoMsg)(info(prefix(prefixString)))
@@ -137,7 +137,6 @@ object extraSyntaxSpec extends Properties {
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
-      import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future]
     }
@@ -155,7 +154,7 @@ object extraSyntaxSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: FxCtor: Log: Monad]: F[Unit] =
+    def runLog[F[*]: Log: Monad]: F[Unit] =
       (for {
         _ <- logS_(debugMsg)(debug(prefix(prefixString)))
         _ <- logS_(infoMsg)(info(prefix(prefixString)))
@@ -175,7 +174,6 @@ object extraSyntaxSpec extends Properties {
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
-      import effectie.instances.future.fxCtor._
       import loggerf.instances.future.logFuture
       runLog[Future]
     }
@@ -331,7 +329,7 @@ object extraSyntaxSpec extends Properties {
       } yield ().some
 
     val expected = logMsg match {
-      case Some(logMsg) =>
+      case Some(logMsg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -378,7 +376,7 @@ object extraSyntaxSpec extends Properties {
       } yield ().some
 
     val expected = logMsg match {
-      case Some(logMsg) =>
+      case Some(logMsg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -484,7 +482,7 @@ object extraSyntaxSpec extends Properties {
           errorMessages = Vector(prefixString + n.toString),
         )
 
-      case Left(msg) =>
+      case Left(msg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -533,7 +531,7 @@ object extraSyntaxSpec extends Properties {
           errorMessages = Vector(prefixString + n.toString),
         )
 
-      case Left(msg) =>
+      case Left(msg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -574,7 +572,7 @@ object extraSyntaxSpec extends Properties {
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
-      case Right(n) =>
+      case Right(n @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -623,7 +621,7 @@ object extraSyntaxSpec extends Properties {
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
-      case Right(n) =>
+      case Right(n @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -760,7 +758,7 @@ object extraSyntaxSpec extends Properties {
     } yield ()).value
 
     val expected = logMsg match {
-      case Some(logMsg) =>
+      case Some(logMsg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -866,7 +864,7 @@ object extraSyntaxSpec extends Properties {
           errorMessages = Vector(prefixString + n.toString),
         )
 
-      case Left(msg) =>
+      case Left(msg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -915,7 +913,7 @@ object extraSyntaxSpec extends Properties {
           errorMessages = Vector(prefixString + n.toString),
         )
 
-      case Left(msg) =>
+      case Left(msg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -956,7 +954,7 @@ object extraSyntaxSpec extends Properties {
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
-      case Right(n) =>
+      case Right(n @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -1005,7 +1003,7 @@ object extraSyntaxSpec extends Properties {
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
-      case Right(n) =>
+      case Right(n @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -1049,7 +1047,7 @@ object extraSyntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[*]: FxCtor: Log: Monad]: F[Unit] =
+      def runLog[F[*]: Log: Monad]: F[Unit] =
         for {
           _ <- debugMsg.logS(debug(prefix(prefixString)))
           _ <- infoMsg.logS(info(prefix(prefixString)))
@@ -1069,7 +1067,6 @@ object extraSyntaxSpec extends Properties {
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
       ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
-        import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future]
       }
@@ -1087,7 +1084,7 @@ object extraSyntaxSpec extends Properties {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
 
-      def runLog[F[*]: FxCtor: Log: Monad]: F[Unit] =
+      def runLog[F[*]: Log: Monad]: F[Unit] =
         for {
           _ <- debugMsg.logS_(debug(prefix(prefixString)))
           _ <- infoMsg.logS_(info(prefix(prefixString)))
@@ -1107,7 +1104,6 @@ object extraSyntaxSpec extends Properties {
         ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
       ConcurrentSupport.futureToValueAndTerminate(es, waitFor500Millis) {
-        import effectie.instances.future.fxCtor._
         import loggerf.instances.future.logFuture
         runLog[Future]
       }
@@ -1263,7 +1259,7 @@ object extraSyntaxSpec extends Properties {
         } yield ().some
 
       val expected = logMsg match {
-        case Some(logMsg) =>
+        case Some(logMsg @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -1369,7 +1365,7 @@ object extraSyntaxSpec extends Properties {
             errorMessages = Vector(prefixString + n.toString),
           )
 
-        case Left(msg) =>
+        case Left(msg @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -1418,7 +1414,7 @@ object extraSyntaxSpec extends Properties {
             errorMessages = Vector(prefixString + n.toString),
           )
 
-        case Left(msg) =>
+        case Left(msg @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -1459,7 +1455,7 @@ object extraSyntaxSpec extends Properties {
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
       val expected = eab match {
-        case Right(n) =>
+        case Right(n @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -1508,7 +1504,7 @@ object extraSyntaxSpec extends Properties {
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
       val expected = eab match {
-        case Right(n) =>
+        case Right(n @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -1645,7 +1641,7 @@ object extraSyntaxSpec extends Properties {
       } yield ()).value
 
       val expected = logMsg match {
-        case Some(logMsg) =>
+        case Some(logMsg @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -1751,7 +1747,7 @@ object extraSyntaxSpec extends Properties {
             errorMessages = Vector(prefixString + n.toString),
           )
 
-        case Left(msg) =>
+        case Left(msg @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -1800,7 +1796,7 @@ object extraSyntaxSpec extends Properties {
             errorMessages = Vector(prefixString + n.toString),
           )
 
-        case Left(msg) =>
+        case Left(msg @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -1841,7 +1837,7 @@ object extraSyntaxSpec extends Properties {
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
       val expected = eab match {
-        case Right(n) =>
+        case Right(n @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -1890,7 +1886,7 @@ object extraSyntaxSpec extends Properties {
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
       val expected = eab match {
-        case Right(n) =>
+        case Right(n @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,

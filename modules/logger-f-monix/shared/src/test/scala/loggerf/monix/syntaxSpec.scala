@@ -178,7 +178,7 @@ object syntaxSpec extends Properties {
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
-      case Some(logMsg) =>
+      case Some(logMsg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -270,7 +270,7 @@ object syntaxSpec extends Properties {
           errorMessages = Vector(n.toString),
         )
 
-      case Left(msg) =>
+      case Left(msg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -304,7 +304,7 @@ object syntaxSpec extends Properties {
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
-      case Right(n) =>
+      case Right(n @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -364,8 +364,7 @@ object syntaxSpec extends Properties {
   }
 
   def testLogOptionTFAIgnoreEmpty: Property = for {
-    logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
-    ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+    logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
   } yield {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
@@ -421,7 +420,7 @@ object syntaxSpec extends Properties {
     runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
-      case Some(logMsg) =>
+      case Some(logMsg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -513,7 +512,7 @@ object syntaxSpec extends Properties {
           errorMessages = Vector(n.toString),
         )
 
-      case Left(msg) =>
+      case Left(msg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -547,7 +546,7 @@ object syntaxSpec extends Properties {
     runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
-      case Right(n) =>
+      case Right(n @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -698,7 +697,7 @@ object syntaxSpec extends Properties {
       runLog[Task](logMsg).runSyncUnsafe()
 
       val expected = logMsg match {
-        case Some(logMsg) =>
+        case Some(logMsg @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -790,7 +789,7 @@ object syntaxSpec extends Properties {
             errorMessages = Vector(n.toString),
           )
 
-        case Left(msg) =>
+        case Left(msg @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -824,7 +823,7 @@ object syntaxSpec extends Properties {
       runLog[Task](eab).runSyncUnsafe()
 
       val expected = eab match {
-        case Right(n) =>
+        case Right(n @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -884,8 +883,7 @@ object syntaxSpec extends Properties {
     }
 
     def testLogOptionTFAIgnoreEmpty: Property = for {
-      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
-      ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
     } yield {
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
@@ -941,7 +939,7 @@ object syntaxSpec extends Properties {
       runLog[Task](logMsg).runSyncUnsafe()
 
       val expected = logMsg match {
-        case Some(logMsg) =>
+        case Some(logMsg @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -1033,7 +1031,7 @@ object syntaxSpec extends Properties {
             errorMessages = Vector(n.toString),
           )
 
-        case Left(msg) =>
+        case Left(msg @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -1067,7 +1065,7 @@ object syntaxSpec extends Properties {
       runLog[Task](eab).runSyncUnsafe()
 
       val expected = eab match {
-        case Right(n) =>
+        case Right(n @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,

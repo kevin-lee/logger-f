@@ -3,19 +3,15 @@ package loggerf.cats
 import cats._
 import cats.data.{EitherT, OptionT}
 import cats.effect._
-import cats.effect.unsafe.IORuntime
 import cats.syntax.all._
 import effectie.core.FxCtor
 import effectie.syntax.all._
-import extras.concurrent.testing.ConcurrentSupport
 import extras.hedgehog.ce3.syntax.runner._
 import hedgehog._
 import hedgehog.runner._
 import loggerf.core.Log
 import loggerf.logger.LoggerForTesting
 import loggerf.syntax.all._
-
-import java.util.concurrent.ExecutorService
 
 /** @author Kevin Lee
   * @since 2020-04-12
@@ -99,9 +95,6 @@ object syntaxSpec extends Properties {
           _ <- log(effectOf(oa))(error(ifEmptyMsg), error)
         } yield ().some)
 
-      val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-      implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
       val expected = logMsg match {
         case Some(logMsg) =>
           LoggerForTesting(
@@ -141,9 +134,6 @@ object syntaxSpec extends Properties {
           _ <- log(effectOf(oa))(ignore, warn)
           _ <- log(effectOf(oa))(ignore, error)
         } yield ().some)
-
-      val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-      implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
 
       val expected = logMsg match {
         case Some(logMsg) =>
@@ -187,7 +177,7 @@ object syntaxSpec extends Properties {
         } yield ().some)
 
       val expected = logMsg match {
-        case Some(logMsg) =>
+        case Some(logMsg @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -281,7 +271,7 @@ object syntaxSpec extends Properties {
             errorMessages = Vector(n.toString),
           )
 
-        case Left(msg) =>
+        case Left(msg @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -316,7 +306,7 @@ object syntaxSpec extends Properties {
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
       val expected = eab match {
-        case Right(n) =>
+        case Right(n @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -382,8 +372,7 @@ object syntaxSpec extends Properties {
 
   def testLogOptionTFAIgnoreEmpty: Property =
     for {
-      logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
-      ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+      logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
     } yield withIO { implicit ticker =>
 
       implicit val logger: LoggerForTesting = LoggerForTesting()
@@ -435,11 +424,8 @@ object syntaxSpec extends Properties {
         _ <- log(OptionT(effectOf(oa)))(error(ifEmptyMsg), _ => ignore)
       } yield ()).value
 
-      val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-      implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
       val expected = logMsg match {
-        case Some(logMsg) =>
+        case Some(logMsg @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -533,7 +519,7 @@ object syntaxSpec extends Properties {
             errorMessages = Vector(n.toString),
           )
 
-        case Left(msg) =>
+        case Left(msg @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -568,7 +554,7 @@ object syntaxSpec extends Properties {
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
       val expected = eab match {
-        case Right(n) =>
+        case Right(n @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -723,7 +709,7 @@ object syntaxSpec extends Properties {
           } yield ().some)
 
         val expected = logMsg match {
-          case Some(logMsg) =>
+          case Some(logMsg @ _) =>
             LoggerForTesting(
               debugMessages = Vector.empty,
               infoMessages = Vector.empty,
@@ -817,7 +803,7 @@ object syntaxSpec extends Properties {
               errorMessages = Vector(n.toString),
             )
 
-          case Left(msg) =>
+          case Left(msg @ _) =>
             LoggerForTesting(
               debugMessages = Vector.empty,
               infoMessages = Vector.empty,
@@ -852,7 +838,7 @@ object syntaxSpec extends Properties {
         val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
         val expected = eab match {
-          case Right(n) =>
+          case Right(n @ _) =>
             LoggerForTesting(
               debugMessages = Vector.empty,
               infoMessages = Vector.empty,
@@ -918,8 +904,7 @@ object syntaxSpec extends Properties {
 
     def testLogOptionTFAIgnoreEmpty: Property =
       for {
-        logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
-        ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+        logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
       } yield withIO { implicit ticker =>
 
         implicit val logger: LoggerForTesting = LoggerForTesting()
@@ -972,7 +957,7 @@ object syntaxSpec extends Properties {
         } yield ()).value
 
         val expected = logMsg match {
-          case Some(logMsg) =>
+          case Some(logMsg @ _) =>
             LoggerForTesting(
               debugMessages = Vector.empty,
               infoMessages = Vector.empty,
@@ -1066,7 +1051,7 @@ object syntaxSpec extends Properties {
               errorMessages = Vector(n.toString),
             )
 
-          case Left(msg) =>
+          case Left(msg @ _) =>
             LoggerForTesting(
               debugMessages = Vector.empty,
               infoMessages = Vector.empty,
@@ -1101,7 +1086,7 @@ object syntaxSpec extends Properties {
         val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
         val expected = eab match {
-          case Right(n) =>
+          case Right(n @ _) =>
             LoggerForTesting(
               debugMessages = Vector.empty,
               infoMessages = Vector.empty,

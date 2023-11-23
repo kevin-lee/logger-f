@@ -261,7 +261,7 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad]: F[(String, String, String, String)] =
+    def runLog[F[*]: Log: Monad]: F[(String, String, String, String)] =
       for {
         msg1 <- Log[F].logS(debugMsg)(debug)
         msg2 <- Log[F].logS(infoMsg)(info)
@@ -297,7 +297,7 @@ object instancesSpec extends Properties {
 
     implicit val logger: LoggerForTesting = LoggerForTesting()
 
-    def runLog[F[*]: Fx: Log: Monad]: F[Unit] =
+    def runLog[F[*]: Log: Monad]: F[Unit] =
       Log[F]
         .logS_(debugMsg)(debug)
         .flatMap { _ => Log[F].logS_(infoMsg)(info) }
@@ -427,7 +427,7 @@ object instancesSpec extends Properties {
       } yield ().some)
 
     val expected = logMsg match {
-      case Some(logMsg) =>
+      case Some(logMsg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -555,7 +555,7 @@ object instancesSpec extends Properties {
         .flatMap { _ => Log[F].log_(Fx[F].effectOf(oa))(error(ifEmptyMsg), _ => ignore) }
 
     val expected = logMsg match {
-      case Some(logMsg) =>
+      case Some(logMsg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -655,7 +655,7 @@ object instancesSpec extends Properties {
           errorMessages = Vector(n.toString),
         )
 
-      case Left(msg) =>
+      case Left(msg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -693,7 +693,7 @@ object instancesSpec extends Properties {
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
-      case Right(n) =>
+      case Right(n @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -793,7 +793,7 @@ object instancesSpec extends Properties {
           errorMessages = Vector(n.toString),
         )
 
-      case Left(msg) =>
+      case Left(msg @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,
@@ -831,7 +831,7 @@ object instancesSpec extends Properties {
     val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
     val expected = eab match {
-      case Right(n) =>
+      case Right(n @ _) =>
         LoggerForTesting(
           debugMessages = Vector.empty,
           infoMessages = Vector.empty,

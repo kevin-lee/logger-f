@@ -2,7 +2,6 @@ package loggerf.cats
 
 import cats._
 import cats.effect._
-import cats.effect.unsafe.IORuntime
 import cats.syntax.all._
 import effectie.core.FxCtor
 import effectie.syntax.all._
@@ -10,9 +9,9 @@ import extras.concurrent.testing.ConcurrentSupport
 import extras.hedgehog.ce3.syntax.runner._
 import hedgehog._
 import hedgehog.runner._
-import loggerf.syntax.all._
 import loggerf.core._
 import loggerf.logger.LoggerForTesting
+import loggerf.syntax.all._
 
 import java.util.concurrent.ExecutorService
 
@@ -158,11 +157,8 @@ object instancesSpec extends Properties {
           _ <- Log[F].log(effectOf(oa))(error(ifEmptyMsg), _ => ignore)
         } yield ().some)
 
-      val es: ExecutorService    = ConcurrentSupport.newExecutorService(2)
-      implicit val rt: IORuntime = testing.IoAppUtils.runtime(es)
-
       val expected = logMsg match {
-        case Some(logMsg) =>
+        case Some(logMsg @ _) =>
           LoggerForTesting(
             debugMessages = Vector.empty,
             infoMessages = Vector.empty,
@@ -252,7 +248,7 @@ object instancesSpec extends Properties {
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
       val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
-      testing.IoAppUtils.runWithRuntime(testing.IoAppUtils.runtime(es)) { implicit runtime =>
+      testing.IoAppUtils.runWithRuntime(testing.IoAppUtils.runtime(es)) { _ =>
 
         val expected = eab match {
           case Right(n) =>
@@ -263,7 +259,7 @@ object instancesSpec extends Properties {
               errorMessages = Vector(n.toString),
             )
 
-          case Left(msg) =>
+          case Left(msg @ _) =>
             LoggerForTesting(
               debugMessages = Vector.empty,
               infoMessages = Vector.empty,
@@ -299,10 +295,10 @@ object instancesSpec extends Properties {
       val eab = if (isRight) rightInt.asRight[String] else leftString.asLeft[Int]
 
       val es: ExecutorService = ConcurrentSupport.newExecutorService(2)
-      testing.IoAppUtils.runWithRuntime(testing.IoAppUtils.runtime(es)) { implicit runtime =>
+      testing.IoAppUtils.runWithRuntime(testing.IoAppUtils.runtime(es)) { _ =>
 
         val expected = eab match {
-          case Right(n) =>
+          case Right(n @ _) =>
             LoggerForTesting(
               debugMessages = Vector.empty,
               infoMessages = Vector.empty,
