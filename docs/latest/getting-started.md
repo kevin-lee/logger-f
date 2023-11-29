@@ -39,42 +39,183 @@ logger-f can be used wit any effect library or `Future` as long as there is an i
 If you use logback, please use this.
 :::
 
+<Tabs
+groupId="slf4j"
+defaultValue="slf4j-sbt"
+values={[
+{label: 'sbt', value: 'slf4j-sbt'},
+{label: 'sbt (with libraryDependencies)', value: 'slf4j-sbt-lib'},
+{label: 'scala-cli', value: 'slf4j-scala-cli'},
+]}>
+<TabItem value="slf4j-sbt">
+
 In `build.sbt`,
 
 ```scala
-Seq(
-  "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
-  "io.kevinlee" %% "logger-f-slf4j" % "@VERSION@"
-)
+"io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+"io.kevinlee" %% "logger-f-slf4j" % "@VERSION@",
 ```
+
+  </TabItem>
+
+  <TabItem value="slf4j-sbt-lib">
+
+In `build.sbt`,
+
+```scala
+libraryDependencies ++= Seq(
+    "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+    "io.kevinlee" %% "logger-f-slf4j" % "@VERSION@",
+  )
+```
+
+  </TabItem>
+
+  <TabItem value="slf4j-scala-cli">
+
+```scala
+//> using dep "io.kevinlee::logger-f-cats:@VERSION@"
+//> using dep "io.kevinlee::logger-f-slf4j:@VERSION@"
+```
+
+  </TabItem>
+</Tabs>
+
 
 #### With Log4j
 
+<Tabs
+groupId="log4j"
+defaultValue="log4j-sbt"
+values={[
+{label: 'sbt', value: 'log4j-sbt'},
+{label: 'sbt (with libraryDependencies)', value: 'log4j-sbt-lib'},
+{label: 'scala-cli', value: 'log4j-scala-cli'},
+]}>
+<TabItem value="log4j-sbt">
+
+In `build.sbt`,
+
 ```scala
-Seq(
-  "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
-  "io.kevinlee" %% "logger-f-log4j" % "@VERSION@"
-)
+"io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+"io.kevinlee" %% "logger-f-log4j" % "@VERSION@",
 ```
+
+  </TabItem>
+
+  <TabItem value="log4j-sbt-lib">
+
+In `build.sbt`,
+
+```scala
+libraryDependencies ++= Seq(
+    "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+    "io.kevinlee" %% "logger-f-log4j" % "@VERSION@",
+  )
+```
+
+  </TabItem>
+
+  <TabItem value="log4j-scala-cli">
+
+```scala
+//> using dep "io.kevinlee::logger-f-cats:@VERSION@"
+//> using dep "io.kevinlee::logger-f-log4j:@VERSION@"
+```
+
+  </TabItem>
+</Tabs>
+
 
 #### With Log4s
 
+<Tabs
+groupId="log4s"
+defaultValue="log4s-sbt"
+values={[
+{label: 'sbt', value: 'log4s-sbt'},
+{label: 'sbt (with libraryDependencies)', value: 'log4s-sbt-lib'},
+{label: 'scala-cli', value: 'log4s-scala-cli'},
+]}>
+<TabItem value="log4s-sbt">
+
+In `build.sbt`,
+
 ```scala
-Seq(
-  "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
-  "io.kevinlee" %% "logger-f-log4s" % "@VERSION@"
-)
+"io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+"io.kevinlee" %% "logger-f-log4s" % "@VERSION@",
 ```
+
+  </TabItem>
+
+  <TabItem value="log4s-sbt-lib">
+
+In `build.sbt`,
+
+```scala
+libraryDependencies ++= Seq(
+    "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+    "io.kevinlee" %% "logger-f-log4s" % "@VERSION@",
+  )
+```
+
+  </TabItem>
+
+  <TabItem value="log4s-scala-cli">
+
+```scala
+//> using dep "io.kevinlee::logger-f-cats:@VERSION@"
+//> using dep "io.kevinlee::logger-f-log4s:@VERSION@"
+```
+
+  </TabItem>
+</Tabs>
+
 
 #### With sbt Logging Util
 For sbt plugin development,
 
+<Tabs
+groupId="sbt-logging"
+defaultValue="sbt-logging-sbt"
+values={[
+{label: 'sbt', value: 'sbt-logging-sbt'},
+{label: 'sbt (with libraryDependencies)', value: 'sbt-logging-sbt-lib'},
+{label: 'scala-cli', value: 'sbt-logging-scala-cli'},
+]}>
+<TabItem value="sbt-logging-sbt">
+
+In `build.sbt`,
+
 ```scala
-Seq(
-  "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
-  "io.kevinlee" %% "logger-f-sbt-logging" % "@VERSION@"
-)
+"io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+"io.kevinlee" %% "logger-f-sbt-logging" % "@VERSION@",
 ```
+
+  </TabItem>
+
+  <TabItem value="sbt-logging-sbt-lib">
+
+In `build.sbt`,
+
+```scala
+libraryDependencies ++= Seq(
+    "io.kevinlee" %% "logger-f-cats" % "@VERSION@",
+    "io.kevinlee" %% "logger-f-sbt-logging" % "@VERSION@",
+  )
+```
+
+  </TabItem>
+
+  <TabItem value="sbt-logging-scala-cli">
+
+```scala
+//> using dep "io.kevinlee::logger-f-cats:@VERSION@"
+//> using dep "io.kevinlee::logger-f-sbt-logging:@VERSION@"
+```
+
+  </TabItem>
+</Tabs>
 
 
 ## Why
