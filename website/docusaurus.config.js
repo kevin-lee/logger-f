@@ -35,7 +35,7 @@ const websiteConfig = {
       title: 'logger-f',
       logo: {
         alt: 'logger-f Logo',
-        src: 'img/logger-f-logo-32x32.png',
+        src: 'img/logger-f-32x32.png',
       },
       items: [
         {
