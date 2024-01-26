@@ -60,7 +60,7 @@ function Home() {
       description="Logger for F[_]">
       <header className={clsx('hero hero--primary', styles.heroBanner)}>
         <div className="container">
-          <img src={`${useBaseUrl('img/')}/poster.png`} alt="Project Logo" />
+          <img src={`${useBaseUrl('img/')}/logger-f-logo-400x400.png`} alt="Project Logo" />
           <h1 className="hero__title">{siteConfig.title}</h1>
           <p className="hero__subtitle"><div dangerouslySetInnerHTML={{__html: siteConfig.tagline}} /></p>
           <div className={styles.buttons}>
