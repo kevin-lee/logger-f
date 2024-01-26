@@ -1,13 +1,12 @@
+import {themes as prismThemes} from 'prism-react-renderer';
+
 const algoliaConfig = require('./algolia.config.json');
 const googleAnalyticsConfig = require('./google-analytics.config.json');
 
-const lightCodeTheme = require('prism-react-renderer/themes/nightOwlLight');
-const darkCodeTheme = require('prism-react-renderer/themes/nightOwl');
+const lightCodeTheme = prismThemes.nightOwlLight;
+const darkCodeTheme = prismThemes.nightOwl;
 
-const isEmptyObject = obj => {
-  for (field in obj) return false;
-  return true;
-};
+const isEmptyObject = (obj) => Object.keys(obj).length === 0;
 
 const isSearchable = !isEmptyObject(algoliaConfig);
 const hasGoogleAnalytics = !isEmptyObject(googleAnalyticsConfig);
@@ -115,7 +114,7 @@ const websiteConfig = {
               "path": "v1",
             },
             "current": {
-              "label": "2.0.0-beta22",
+              "label": "2.0.0-beta24",
             },
           }
         },
