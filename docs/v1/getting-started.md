@@ -24,7 +24,7 @@ import TabItem from '@theme/TabItem';
 
 * Supported Scala Versions: @SUPPORTED_SCALA_VERSIONS@
 
-## ![](/img/logger-f-logo-96x96.png) LoggerF - Logger for `F[_]`
+## ![](/img/logger-f-96x96.png) LoggerF - Logger for `F[_]`
 
 LoggerF is a tool for logging tagless final with an effect library. LoggerF requires [Effectie](https://kevin-lee.github.io/effectie) to construct `F[_]`. All the example code in this doc site uses Effectie so if you're not familiar with it, please check out [Effectie](https://kevin-lee.github.io/effectie) website.
 

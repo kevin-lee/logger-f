@@ -7,7 +7,7 @@ slug: /
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-![](/img/logger-f-logo-200x200.png)
+![](/img/logger-f-200x200.png)
 
 [![Build Status](https://github.com/Kevin-Lee/logger-f/workflows/Build-All/badge.svg)](https://github.com/Kevin-Lee/logger-f/actions?workflow=Build-All)
 [![Release Status](https://github.com/Kevin-Lee/logger-f/workflows/Release/badge.svg)](https://github.com/Kevin-Lee/logger-f/actions?workflow=Release)
