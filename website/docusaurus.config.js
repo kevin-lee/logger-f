@@ -23,6 +23,7 @@ const websiteConfig = {
   organizationName: 'Kevin-Lee', // Usually your GitHub org/user name.
   projectName: 'logger-f', // Usually your repo name.
   themeConfig: {
+    image: 'img/logger-f-social-card.jpg',
     prism: {
       theme: lightCodeTheme,
       darkTheme: darkCodeTheme,
