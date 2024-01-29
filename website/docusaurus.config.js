@@ -24,6 +24,11 @@ const websiteConfig = {
   projectName: 'logger-f', // Usually your repo name.
   themeConfig: {
     image: 'img/logger-f-social-card.jpg',
+    docs: {
+      sidebar: {
+        hideable: true,
+      },
+    },
     prism: {
       theme: lightCodeTheme,
       darkTheme: darkCodeTheme,
