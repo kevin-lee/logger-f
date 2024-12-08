@@ -515,7 +515,7 @@ lazy val props =
     final val RepoName       = "logger-f"
 
     final val Scala3Versions = List("3.0.2")
-    final val Scala2Versions = List("2.13.6", "2.12.13")
+    final val Scala2Versions = List("2.13.11", "2.12.18")
 
 //    final val ProjectScalaVersion = Scala3Versions.head
     final val ProjectScalaVersion = Scala2Versions.head
@@ -555,13 +555,13 @@ lazy val props =
     final val ExtrasVersion = "0.25.0"
 
     final val Slf4JVersion   = "2.0.6"
-    final val LogbackVersion = "1.4.11"
+    final val LogbackVersion = "1.4.12"
 
     final val Log4sVersion = "1.10.0"
 
     final val Log4JVersion = "2.19.0"
 
-    val LogbackScalaInteropVersion = "0.5.0"
+    val LogbackScalaInteropVersion = "0.6.0"
   }
 
 lazy val libs =
