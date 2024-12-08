@@ -361,7 +361,7 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
       runLog[Future](logMsg)
     }
 
@@ -404,7 +404,7 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
       runLog[Future](logMsg)
     }
 
@@ -448,7 +448,7 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
       runLog[Future](logMsg)
     }
 
@@ -622,7 +622,7 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
       runLog[Future](eab)
     }
 
@@ -668,7 +668,7 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
       runLog[Future](eab)
     }
 
@@ -714,7 +714,7 @@ object instancesSpec extends Properties {
     implicit val ec: ExecutionContext =
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
       runLog[Future](eab)
     }
 

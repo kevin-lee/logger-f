@@ -76,7 +76,7 @@ object instancesSpec extends Properties {
 
     import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
-    runLog[IO](logMsg).unsafeRunSync()
+    val _ = runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
       case Some(logMsg) =>
@@ -115,7 +115,7 @@ object instancesSpec extends Properties {
 
     import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
-    runLog[IO](logMsg).unsafeRunSync()
+    val _ = runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
       case Some(logMsg) =>
@@ -155,7 +155,7 @@ object instancesSpec extends Properties {
 
     import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
-    runLog[IO](logMsg).unsafeRunSync()
+    val _ = runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
       case Some(logMsg @ _) =>
@@ -195,7 +195,7 @@ object instancesSpec extends Properties {
 
     import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
-    runLog[IO](logMsg).unsafeRunSync()
+    val _ = runLog[IO](logMsg).unsafeRunSync()
 
     val expected = logMsg match {
       case Some(logMsg @ _) =>
@@ -237,7 +237,7 @@ object instancesSpec extends Properties {
 
     import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
-    runLog[IO](eab).unsafeRunSync()
+    val _ = runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
       case Right(n) =>
@@ -279,7 +279,7 @@ object instancesSpec extends Properties {
 
     import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
-    runLog[IO](eab).unsafeRunSync()
+    val _ = runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
       case Right(n) =>
@@ -321,7 +321,7 @@ object instancesSpec extends Properties {
 
     import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
-    runLog[IO](eab).unsafeRunSync()
+    val _ = runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
       case Right(n) =>
@@ -363,7 +363,7 @@ object instancesSpec extends Properties {
 
     import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
-    runLog[IO](eab).unsafeRunSync()
+    val _ = runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
       case Right(n @ _) =>
@@ -405,7 +405,7 @@ object instancesSpec extends Properties {
 
     import effectie.instances.ce2.fx.ioFx
     import loggerf.instances.cats.logF
-    runLog[IO](eab).unsafeRunSync()
+    val _ = runLog[IO](eab).unsafeRunSync()
 
     val expected = eab match {
       case Right(n @ _) =>

@@ -81,7 +81,7 @@ object futureSpec extends Properties {
         _ <- Log[Future].log(Future(errorMsg))(error)
       } yield ())
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog
 
@@ -127,7 +127,7 @@ object futureSpec extends Properties {
         _ <- Log[Future].log(Future(oa))(error(ifEmptyMsg), error)
       } yield ().some)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(logMsg)
     }
@@ -171,7 +171,7 @@ object futureSpec extends Properties {
         _ <- Log[Future].log(Future(oa))(ignore, error)
       } yield ().some)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(logMsg)
     }
@@ -216,7 +216,7 @@ object futureSpec extends Properties {
         _ <- Log[Future].log(Future(oa))(error(ifEmptyMsg), _ => ignore)
       } yield ().some)
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(logMsg)
     }
@@ -261,7 +261,7 @@ object futureSpec extends Properties {
         _ <- log(OptionT(Future(oa)))(error(ifEmptyMsg), error)
       } yield ())
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(logMsg).value
     }
@@ -305,7 +305,7 @@ object futureSpec extends Properties {
         _ <- log(OptionT(Future(oa)))(ignore, error)
       } yield ()
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(logMsg).value
     }
@@ -350,7 +350,7 @@ object futureSpec extends Properties {
         _ <- log(OptionT(Future(oa)))(error(ifEmptyMsg), _ => ignore)
       } yield ()
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(logMsg).value
     }
@@ -397,7 +397,7 @@ object futureSpec extends Properties {
       _ <- Log[Future].log(Future(eab))(error, b => error(b.toString))
     } yield ().asRight[String]
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(eab)
     }
@@ -444,7 +444,7 @@ object futureSpec extends Properties {
       _ <- Log[Future].log(Future(eab))(_ => ignore, b => error(b.toString))
     } yield ().asRight[String]
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(eab)
     }
@@ -491,7 +491,7 @@ object futureSpec extends Properties {
       _ <- Log[Future].log(Future(eab))(error, _ => ignore)
     } yield ().asRight[String]
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(eab)
     }
@@ -538,7 +538,7 @@ object futureSpec extends Properties {
       _ <- log(EitherT(Future(eab)))(error, b => error(b.toString))
     } yield ()
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(eab).value
     }
@@ -585,7 +585,7 @@ object futureSpec extends Properties {
       _ <- log(EitherT(Future(eab)))(_ => ignore, b => error(b.toString))
     } yield ()
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(eab).value
     }
@@ -632,7 +632,7 @@ object futureSpec extends Properties {
       _ <- log(EitherT(Future(eab)))(error, _ => ignore)
     } yield ()
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(eab).value
     }
@@ -667,7 +667,7 @@ object futureSpec extends Properties {
         .flatMap { _ => Log[Future].log_(Future(warnMsg))(warn) }
         .flatMap { _ => Log[Future].log_(Future(errorMsg))(error) }
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog
 
@@ -712,7 +712,7 @@ object futureSpec extends Properties {
         .flatMap { _ => Log[Future].log_(Future(oa))(error(ifEmptyMsg), warn) }
         .flatMap { _ => Log[Future].log_(Future(oa))(error(ifEmptyMsg), error) }
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(logMsg)
     }
@@ -755,7 +755,7 @@ object futureSpec extends Properties {
         .flatMap { _ => Log[Future].log_(Future(oa))(ignore, warn) }
         .flatMap { _ => Log[Future].log_(Future(oa))(ignore, error) }
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(logMsg)
     }
@@ -799,7 +799,7 @@ object futureSpec extends Properties {
         .flatMap { _ => Log[Future].log_(Future(oa))(error(ifEmptyMsg), _ => ignore) }
         .flatMap { _ => Log[Future].log_(Future(oa))(error(ifEmptyMsg), _ => ignore) }
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(logMsg)
     }
@@ -842,7 +842,7 @@ object futureSpec extends Properties {
         .flatMap { _ => log_(OptionT(Future(oa)))(error(ifEmptyMsg), warn) }
         .flatMap { _ => log_(OptionT(Future(oa)))(error(ifEmptyMsg), error) }
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(logMsg).value
     }
@@ -884,7 +884,7 @@ object futureSpec extends Properties {
         .flatMap { _ => log_(OptionT(Future(oa)))(ignore, warn) }
         .flatMap { _ => log_(OptionT(Future(oa)))(ignore, error) }
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(logMsg).value
     }
@@ -927,7 +927,7 @@ object futureSpec extends Properties {
         .flatMap { _ => log_(OptionT(Future(oa)))(error(ifEmptyMsg), _ => ignore) }
         .flatMap { _ => log_(OptionT(Future(oa)))(error(ifEmptyMsg), _ => ignore) }
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(logMsg).value
     }
@@ -974,7 +974,7 @@ object futureSpec extends Properties {
         .flatMap { _ => Log[Future].log_(Future(eab))(error, b => warn(b.toString)) }
         .flatMap { _ => Log[Future].log_(Future(eab))(error, b => error(b.toString)) }
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(eab)
     }
@@ -1021,7 +1021,7 @@ object futureSpec extends Properties {
         .flatMap { _ => Log[Future].log_(Future(eab))(_ => ignore, b => warn(b.toString)) }
         .flatMap { _ => Log[Future].log_(Future(eab))(_ => ignore, b => error(b.toString)) }
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(eab)
     }
@@ -1068,7 +1068,7 @@ object futureSpec extends Properties {
         .flatMap { _ => Log[Future].log_(Future(eab))(error, _ => ignore) }
         .flatMap { _ => Log[Future].log_(Future(eab))(error, _ => ignore) }
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(eab)
     }
@@ -1117,7 +1117,7 @@ object futureSpec extends Properties {
       _ <- log_(EitherT(Future(eab)))(error, b => error(b.toString))
     } yield ()
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(eab).value
     }
@@ -1164,7 +1164,7 @@ object futureSpec extends Properties {
       _ <- log_(EitherT(Future(eab)))(_ => ignore, b => error(b.toString))
     } yield ()
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(eab).value
     }
@@ -1211,7 +1211,7 @@ object futureSpec extends Properties {
       _ <- log_(EitherT(Future(eab)))(error, _ => ignore)
     } yield ()
 
-    ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
 
       runLog(eab).value
     }

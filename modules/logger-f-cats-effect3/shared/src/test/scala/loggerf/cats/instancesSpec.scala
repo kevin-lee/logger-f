@@ -56,7 +56,7 @@ object instancesSpec extends Properties {
 
       import effectie.instances.ce3.fx.ioFx
       import loggerf.instances.cats.logF
-      runLog[IO].completeAs(())
+      val _ = runLog[IO].completeAs(())
       logger ==== expected
     }
 

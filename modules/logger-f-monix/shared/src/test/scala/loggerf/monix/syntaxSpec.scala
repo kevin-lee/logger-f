@@ -96,7 +96,7 @@ object syntaxSpec extends Properties {
 
     import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
-    runLog[Task](logMsg).runSyncUnsafe()
+    val _ = runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
       case Some(logMsg) =>
@@ -135,7 +135,7 @@ object syntaxSpec extends Properties {
 
     import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
-    runLog[Task](logMsg).runSyncUnsafe()
+    val _ = runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
       case Some(logMsg) =>
@@ -175,7 +175,7 @@ object syntaxSpec extends Properties {
 
     import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
-    runLog[Task](logMsg).runSyncUnsafe()
+    val _ = runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
       case Some(logMsg @ _) =>
@@ -217,7 +217,7 @@ object syntaxSpec extends Properties {
 
     import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
-    runLog[Task](eab).runSyncUnsafe()
+    val _ = runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
       case Right(n) =>
@@ -259,7 +259,7 @@ object syntaxSpec extends Properties {
 
     import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
-    runLog[Task](eab).runSyncUnsafe()
+    val _ = runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
       case Right(n) =>
@@ -301,7 +301,7 @@ object syntaxSpec extends Properties {
 
     import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
-    runLog[Task](eab).runSyncUnsafe()
+    val _ = runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
       case Right(n @ _) =>
@@ -340,7 +340,7 @@ object syntaxSpec extends Properties {
 
     import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
-    runLog[Task](logMsg).runSyncUnsafe()
+    val _ = runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
       case Some(logMsg) =>
@@ -378,7 +378,7 @@ object syntaxSpec extends Properties {
 
     import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
-    runLog[Task](logMsg).runSyncUnsafe()
+    val _ = runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
       case Some(logMsg) =>
@@ -417,7 +417,7 @@ object syntaxSpec extends Properties {
 
     import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
-    runLog[Task](logMsg).runSyncUnsafe()
+    val _ = runLog[Task](logMsg).runSyncUnsafe()
 
     val expected = logMsg match {
       case Some(logMsg @ _) =>
@@ -459,7 +459,7 @@ object syntaxSpec extends Properties {
 
     import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
-    runLog[Task](eab).runSyncUnsafe()
+    val _ = runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
       case Right(n) =>
@@ -501,7 +501,7 @@ object syntaxSpec extends Properties {
 
     import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
-    runLog[Task](eab).runSyncUnsafe()
+    val _ = runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
       case Right(n) =>
@@ -543,7 +543,7 @@ object syntaxSpec extends Properties {
 
     import effectie.instances.monix3.fx._
     import loggerf.instances.cats.logF
-    runLog[Task](eab).runSyncUnsafe()
+    val _ = runLog[Task](eab).runSyncUnsafe()
 
     val expected = eab match {
       case Right(n @ _) =>
@@ -615,7 +615,7 @@ object syntaxSpec extends Properties {
 
       import effectie.instances.monix3.fx._
       import loggerf.instances.cats.logF
-      runLog[Task](logMsg).runSyncUnsafe()
+      val _ = runLog[Task](logMsg).runSyncUnsafe()
 
       val expected = logMsg match {
         case Some(logMsg) =>
@@ -654,7 +654,7 @@ object syntaxSpec extends Properties {
 
       import effectie.instances.monix3.fx._
       import loggerf.instances.cats.logF
-      runLog[Task](logMsg).runSyncUnsafe()
+      val _ = runLog[Task](logMsg).runSyncUnsafe()
 
       val expected = logMsg match {
         case Some(logMsg) =>
@@ -694,7 +694,7 @@ object syntaxSpec extends Properties {
 
       import effectie.instances.monix3.fx._
       import loggerf.instances.cats.logF
-      runLog[Task](logMsg).runSyncUnsafe()
+      val _ = runLog[Task](logMsg).runSyncUnsafe()
 
       val expected = logMsg match {
         case Some(logMsg @ _) =>
@@ -736,7 +736,7 @@ object syntaxSpec extends Properties {
 
       import effectie.instances.monix3.fx._
       import loggerf.instances.cats.logF
-      runLog[Task](eab).runSyncUnsafe()
+      val _ = runLog[Task](eab).runSyncUnsafe()
 
       val expected = eab match {
         case Right(n) =>
@@ -778,7 +778,7 @@ object syntaxSpec extends Properties {
 
       import effectie.instances.monix3.fx._
       import loggerf.instances.cats.logF
-      runLog[Task](eab).runSyncUnsafe()
+      val _ = runLog[Task](eab).runSyncUnsafe()
 
       val expected = eab match {
         case Right(n) =>
@@ -820,7 +820,7 @@ object syntaxSpec extends Properties {
 
       import effectie.instances.monix3.fx._
       import loggerf.instances.cats.logF
-      runLog[Task](eab).runSyncUnsafe()
+      val _ = runLog[Task](eab).runSyncUnsafe()
 
       val expected = eab match {
         case Right(n @ _) =>
@@ -859,7 +859,7 @@ object syntaxSpec extends Properties {
 
       import effectie.instances.monix3.fx._
       import loggerf.instances.cats.logF
-      runLog[Task](logMsg).runSyncUnsafe()
+      val _ = runLog[Task](logMsg).runSyncUnsafe()
 
       val expected = logMsg match {
         case Some(logMsg) =>
@@ -897,7 +897,7 @@ object syntaxSpec extends Properties {
 
       import effectie.instances.monix3.fx._
       import loggerf.instances.cats.logF
-      runLog[Task](logMsg).runSyncUnsafe()
+      val _ = runLog[Task](logMsg).runSyncUnsafe()
 
       val expected = logMsg match {
         case Some(logMsg) =>
@@ -936,7 +936,7 @@ object syntaxSpec extends Properties {
 
       import effectie.instances.monix3.fx._
       import loggerf.instances.cats.logF
-      runLog[Task](logMsg).runSyncUnsafe()
+      val _ = runLog[Task](logMsg).runSyncUnsafe()
 
       val expected = logMsg match {
         case Some(logMsg @ _) =>
@@ -978,7 +978,7 @@ object syntaxSpec extends Properties {
 
       import effectie.instances.monix3.fx._
       import loggerf.instances.cats.logF
-      runLog[Task](eab).runSyncUnsafe()
+      val _ = runLog[Task](eab).runSyncUnsafe()
 
       val expected = eab match {
         case Right(n) =>
@@ -1020,7 +1020,7 @@ object syntaxSpec extends Properties {
 
       import effectie.instances.monix3.fx._
       import loggerf.instances.cats.logF
-      runLog[Task](eab).runSyncUnsafe()
+      val _ = runLog[Task](eab).runSyncUnsafe()
 
       val expected = eab match {
         case Right(n) =>
@@ -1062,7 +1062,7 @@ object syntaxSpec extends Properties {
 
       import effectie.instances.monix3.fx._
       import loggerf.instances.cats.logF
-      runLog[Task](eab).runSyncUnsafe()
+      val _ = runLog[Task](eab).runSyncUnsafe()
 
       val expected = eab match {
         case Right(n @ _) =>

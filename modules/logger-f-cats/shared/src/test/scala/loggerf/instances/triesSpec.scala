@@ -78,7 +78,7 @@ object triesSpec extends Properties {
 
     import effectie.instances.tries.fx._
 
-    runLog[Try]
+    val _ = runLog[Try]
 
     logger ==== expected
 
@@ -118,7 +118,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](logMsg)
+    val _ = runLog[Try](logMsg)
 
     logger ==== expected
   }
@@ -156,7 +156,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](logMsg)
+    val _ = runLog[Try](logMsg)
 
     logger ==== expected
   }
@@ -195,7 +195,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](logMsg)
+    val _ = runLog[Try](logMsg)
 
     logger ==== expected
   }
@@ -234,7 +234,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](logMsg).value
+    val _ = runLog[Try](logMsg).value
 
     logger ==== expected
   }
@@ -272,7 +272,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](logMsg).value
+    val _ = runLog[Try](logMsg).value
 
     logger ==== expected
   }
@@ -311,7 +311,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](logMsg).value
+    val _ = runLog[Try](logMsg).value
 
     logger ==== expected
   }
@@ -352,7 +352,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](eab)
+    val _ = runLog[Try](eab)
 
     logger ==== expected
   }
@@ -393,7 +393,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](eab)
+    val _ = runLog[Try](eab)
 
     logger ==== expected
   }
@@ -434,7 +434,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](eab)
+    val _ = runLog[Try](eab)
 
     logger ==== expected
   }
@@ -475,7 +475,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](eab).value
+    val _ = runLog[Try](eab).value
 
     logger ==== expected
   }
@@ -516,7 +516,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](eab).value
+    val _ = runLog[Try](eab).value
 
     logger ==== expected
   }
@@ -557,7 +557,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](eab).value
+    val _ = runLog[Try](eab).value
 
     logger ==== expected
   }
@@ -586,7 +586,7 @@ object triesSpec extends Properties {
     )
 
     import effectie.instances.tries.fx._
-    runLog[Try]
+    val _ = runLog[Try]
 
     logger ==== expected
 
@@ -625,7 +625,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](logMsg)
+    val _ = runLog[Try](logMsg)
 
     logger ==== expected
   }
@@ -662,7 +662,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](logMsg)
+    val _ = runLog[Try](logMsg)
 
     logger ==== expected
   }
@@ -700,7 +700,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](logMsg)
+    val _ = runLog[Try](logMsg)
 
     logger ==== expected
   }
@@ -737,7 +737,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](logMsg).value
+    val _ = runLog[Try](logMsg).value
 
     logger ==== expected
   }
@@ -773,7 +773,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](logMsg).value
+    val _ = runLog[Try](logMsg).value
 
     logger ==== expected
   }
@@ -810,7 +810,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](logMsg).value
+    val _ = runLog[Try](logMsg).value
 
     logger ==== expected
   }
@@ -851,7 +851,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](eab)
+    val _ = runLog[Try](eab)
 
     logger ==== expected
   }
@@ -892,7 +892,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](eab)
+    val _ = runLog[Try](eab)
 
     logger ==== expected
   }
@@ -933,7 +933,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](eab)
+    val _ = runLog[Try](eab)
 
     logger ==== expected
   }
@@ -976,7 +976,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](eab).value
+    val _ = runLog[Try](eab).value
 
     logger ==== expected
   }
@@ -1017,7 +1017,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](eab).value
+    val _ = runLog[Try](eab).value
 
     logger ==== expected
   }
@@ -1058,7 +1058,7 @@ object triesSpec extends Properties {
     }
 
     import effectie.instances.tries.fx._
-    runLog[Try](eab).value
+    val _ = runLog[Try](eab).value
 
     logger ==== expected
   }
