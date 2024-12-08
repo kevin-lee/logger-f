@@ -35,7 +35,7 @@ trait LogMessageSyntax {
 
   def ignore: LogMessage with Ignorable = Ignore
 
-  @nowarn(value = "msg=parameter value a in method ignoreA is never used")
+  @nowarn(value = "msg=parameter [\\w\\s]+ in method ignoreA is never used")
   def ignoreA[A](a: A): LogMessage with Ignorable = ignore
 
 }

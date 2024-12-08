@@ -120,7 +120,7 @@ object idSpec extends Properties {
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
 
-    runLog[G](logMsg)
+    val _ = runLog[G](logMsg)
 
     logger ==== expected
   }
@@ -159,7 +159,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](logMsg)
+    val _ = runLog[G](logMsg)
 
     logger ==== expected
   }
@@ -199,7 +199,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](logMsg)
+    val _ = runLog[G](logMsg)
 
     logger ==== expected
   }
@@ -239,7 +239,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](logMsg).value
+    val _ = runLog[G](logMsg).value
 
     logger ==== expected
   }
@@ -278,7 +278,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](logMsg).value
+    val _ = runLog[G](logMsg).value
 
     logger ==== expected
   }
@@ -318,7 +318,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](logMsg).value
+    val _ = runLog[G](logMsg).value
 
     logger ==== expected
   }
@@ -360,7 +360,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](eab)
+    val _ = runLog[G](eab)
 
     logger ==== expected
   }
@@ -402,7 +402,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](eab)
+    val _ = runLog[G](eab)
 
     logger ==== expected
   }
@@ -444,7 +444,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](eab)
+    val _ = runLog[G](eab)
 
     logger ==== expected
   }
@@ -486,7 +486,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](eab).value
+    val _ = runLog[G](eab).value
 
     logger ==== expected
   }
@@ -528,7 +528,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](eab).value
+    val _ = runLog[G](eab).value
 
     logger ==== expected
   }
@@ -570,7 +570,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](eab).value
+    val _ = runLog[G](eab).value
 
     logger ==== expected
   }
@@ -640,7 +640,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](logMsg)
+    val _ = runLog[G](logMsg)
 
     logger ==== expected
   }
@@ -678,7 +678,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](logMsg)
+    val _ = runLog[G](logMsg)
 
     logger ==== expected
   }
@@ -717,7 +717,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](logMsg)
+    val _ = runLog[G](logMsg)
 
     logger ==== expected
   }
@@ -755,7 +755,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](logMsg).value
+    val _ = runLog[G](logMsg).value
 
     logger ==== expected
   }
@@ -792,7 +792,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](logMsg).value
+    val _ = runLog[G](logMsg).value
 
     logger ==== expected
   }
@@ -830,7 +830,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](logMsg).value
+    val _ = runLog[G](logMsg).value
 
     logger ==== expected
   }
@@ -872,7 +872,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](eab)
+    val _ = runLog[G](eab)
 
     logger ==== expected
   }
@@ -914,7 +914,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](eab)
+    val _ = runLog[G](eab)
 
     logger ==== expected
   }
@@ -956,7 +956,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](eab)
+    val _ = runLog[G](eab)
 
     logger ==== expected
   }
@@ -1000,7 +1000,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](eab).value
+    val _ = runLog[G](eab).value
 
     logger ==== expected
   }
@@ -1042,7 +1042,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](eab).value
+    val _ = runLog[G](eab).value
 
     logger ==== expected
   }
@@ -1084,7 +1084,7 @@ object idSpec extends Properties {
 
     import effectie.instances.id.fx._
     import loggerf.instances.cats.logF
-    runLog[G](eab).value
+    val _ = runLog[G](eab).value
 
     logger ==== expected
   }
