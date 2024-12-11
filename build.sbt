@@ -555,13 +555,13 @@ lazy val props =
     final val ExtrasVersion = "0.25.0"
 
     final val Slf4JVersion   = "2.0.6"
-    final val LogbackVersion = "1.4.13"
+    final val LogbackVersion = "1.4.14"
 
     final val Log4sVersion = "1.10.0"
 
     final val Log4JVersion = "2.19.0"
 
-    val LogbackScalaInteropVersion = "0.7.0"
+    val LogbackScalaInteropVersion = "0.8.0"
   }
 
 lazy val libs =
