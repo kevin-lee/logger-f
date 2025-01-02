@@ -1,7 +1,6 @@
 package loggerf.logger.logback
 
-import cats.effect.{IOLocal, SyncIO}
-import cats.syntax.all._
+import cats.effect.{IOLocal, unsafe}
 import ch.qos.logback.classic.LoggerContext
 import logback_scala_interop.JLoggerFMdcAdapter
 import org.slf4j.{LoggerFactory, MDC}
@@ -13,19 +12,11 @@ import scala.util.control.NonFatal
 /** @author Kevin Lee
   * @since 2023-07-07
   */
-class Ce3MdcAdapter extends JLoggerFMdcAdapter {
+class Ce3MdcAdapterWithIoRuntime(private val ioRuntime: unsafe.IORuntime) extends JLoggerFMdcAdapter {
 
   private[this] val localContext: IOLocal[Map[String, String]] =
     IOLocal[Map[String, String]](Map.empty[String, String])
-      .syncStep(100)
-      .flatMap(
-        _.leftMap(_ =>
-          new Error(
-            "Failed to initialize the local context of the Ce3MdcAdapter."
-          )
-        ).liftTo[SyncIO]
-      )
-      .unsafeRunSync()
+      .unsafeRunSync()(ioRuntime)
 
   override def put(key: String, `val`: String): Unit = {
     val unsafeThreadLocal = localContext.unsafeThreadLocal()
@@ -55,27 +46,29 @@ class Ce3MdcAdapter extends JLoggerFMdcAdapter {
   override def getKeys: JSet[String] = localContext.unsafeThreadLocal().get.keySet.asJava
 
 }
-object Ce3MdcAdapter {
+object Ce3MdcAdapterWithIoRuntime {
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
-  private def initialize0(): Ce3MdcAdapter = {
+  private def initialize0(ioRuntime: unsafe.IORuntime): Ce3MdcAdapterWithIoRuntime = {
     val field   = classOf[MDC].getDeclaredField("mdcAdapter")
     field.setAccessible(true)
-    val adapter = new Ce3MdcAdapter
+    val adapter = new Ce3MdcAdapterWithIoRuntime(ioRuntime)
     field.set(null, adapter) // scalafix:ok DisableSyntax.null
     field.setAccessible(false)
     adapter
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf", "scalafix:DisableSyntax.asInstanceOf"))
-  def initialize(): Ce3MdcAdapter = {
+  def initialize()(implicit ioRuntime: unsafe.IORuntime): Ce3MdcAdapterWithIoRuntime = {
     val loggerContext =
       LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
     initializeWithLoggerContext(loggerContext)
   }
 
-  def initializeWithLoggerContext(loggerContext: LoggerContext): Ce3MdcAdapter = {
-    val adapter = initialize0()
+  def initializeWithLoggerContext(
+    loggerContext: LoggerContext
+  )(implicit ioRuntime: unsafe.IORuntime): Ce3MdcAdapterWithIoRuntime = {
+    val adapter = initialize0(ioRuntime)
     try {
       val field = classOf[LoggerContext].getDeclaredField("mdcAdapter")
       field.setAccessible(true)
