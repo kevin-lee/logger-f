@@ -280,11 +280,11 @@ lazy val logbackMdcMonix3Js  = logbackMdcMonix3.js
 
 lazy val logbackMdcCatsEffect3 = module(ProjectName("logback-mdc-cats-effect3"), crossProject(JVMPlatform, JSPlatform))
   .settings(
-    description         := "Logger for F[_] - logback MDC context map support for Cats Effect 3",
+    description := "Logger for F[_] - logback MDC context map support for Cats Effect 3",
     libraryDependencies ++= Seq(
       libs.logbackClassic,
       libs.logbackScalaInterop,
-      libs.catsEffect3Eap,
+      libs.catsEffect3,
       libs.tests.effectieCatsEffect3,
       libs.tests.extrasHedgehogCatsEffect3,
     ) ++ libs.tests.hedgehogLibs,
@@ -292,7 +292,7 @@ lazy val logbackMdcCatsEffect3 = module(ProjectName("logback-mdc-cats-effect3"),
       scalaVersion.value,
       libraryDependencies.value,
     ),
-    javaOptions += "-Dcats.effect.ioLocalPropagation=true",
+    javaOptions += "-Dcats.effect.trackFiberContext=true",
   )
   .dependsOn(
     core,
@@ -554,7 +554,7 @@ lazy val props =
     val removeDottyIncompatible: ModuleID => Boolean =
       m =>
 //        m.name == "wartremover" ||
-          m.name == "ammonite" ||
+        m.name == "ammonite" ||
           m.name == "kind-projector" ||
           m.name == "better-monadic-for" ||
           m.name == "mdoc"
@@ -572,7 +572,7 @@ lazy val props =
 
     final val CatsVersion = "2.7.0"
 
-    val CatsEffect3Version = "3.3.14"
+    val CatsEffect3Version = "3.6.0-RC1"
 
     val Monix3Version = "3.4.0"
 
@@ -606,8 +606,6 @@ lazy val libs =
     lazy val cats = "org.typelevel" %% "cats-core" % props.CatsVersion
 
     lazy val catsEffect3 = "org.typelevel" %% "cats-effect" % props.CatsEffect3Version
-
-    lazy val catsEffect3Eap = "org.typelevel" %% "cats-effect" % "3.6-02a43a6"
 
     lazy val monix3Execution = "io.monix" %% "monix-execution" % props.Monix3Version
 
@@ -726,7 +724,7 @@ def projectCommonSettings(projectName: String, crossProject: CrossProject.Builde
     )
 
 lazy val commonJsSettings: SettingsDefinition = List(
-  Test / fork := false,
+  Test / fork := false
 //  Test / scalacOptions ++= (if (scalaVersion.value.startsWith("3")) List.empty
 //  else List("-P:scalajs:nowarnGlobalExecutionContext")),
 //  Test / compile / scalacOptions ++= (if (scalaVersion.value.startsWith("3")) List.empty
