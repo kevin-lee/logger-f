@@ -13,7 +13,7 @@ import scala.jdk.CollectionConverters._
 /** @author Kevin Lee
   * @since 2023-07-07
   */
-object Ce3MdcAdapterSpec extends Properties {
+object Ce3MdcAdapterWithIoRuntimeSpec extends Properties {
   private val oldValue = sys.props.put("cats.effect.trackFiberContext", "true")
   println(
     s"${this.getClass.getSimpleName.stripSuffix("$")}[B] cats.effect.trackFiberContext=${oldValue.getOrElse("")}"
@@ -24,7 +24,7 @@ object Ce3MdcAdapterSpec extends Properties {
 
   implicit val ioRuntime: IORuntime = cats.effect.unsafe.implicits.global
 
-  private val ce3MdcAdapter: Ce3MdcAdapter = Ce3MdcAdapter.initialize()
+  private val ce3MdcAdapter: Ce3MdcAdapterWithIoRuntime = Ce3MdcAdapterWithIoRuntime.initialize()
 
   override def tests: List[Test] = List(
     property("IO - MDC should be able to put and get a value", testPutAndGet),
@@ -174,11 +174,12 @@ object Ce3MdcAdapterSpec extends Properties {
 //        (MDC.get("key-1") ==== a2).log(s"""before: MDC.get("key-1") should be $a2""") // scalafix:ok DisableSyntax.null
 
       val test = for {
-//        beforeSet2     <- IO((MDC.get("key-1") ==== a2).log(s"""before set2: MDC.get("key-1") should be $a2""")) // scalafix:ok DisableSyntax.null
+//        beforeSet2     <- IO((MDC.get("key-1") ==== a2).log("before set2")) // scalafix:ok DisableSyntax.null
         _              <- IO(MDC.put("key-1", a))
         beforeSet2     <- IO(
                             (MDC.get("key-1") ==== a).log(s"""before set2: MDC.get("key-1") should be $a""")
                           ) // scalafix:ok DisableSyntax.null
+        _              <- IO(MDC.put("key-1", a))
         before         <-
           IO {
             val actual1 = MDC.get("key-1")
@@ -318,8 +319,8 @@ object Ce3MdcAdapterSpec extends Properties {
 
 //      val afterIo = (MDC.get("key-1") ==== a2).log(s"""after IO: MDC.get("key-1") should be $a2""")
       Result.all(
-        test.unsafeRunSync()
-          ++ List(
+        test.unsafeRunSync() ++
+          List(
 //            afterIo
           )
       )
