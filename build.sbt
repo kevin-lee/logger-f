@@ -301,7 +301,7 @@ lazy val logbackMdcMonix3Js  = logbackMdcMonix3.js
 
 lazy val logbackMdcCatsEffect3 = module(ProjectName("logback-mdc-cats-effect3"), crossProject(JVMPlatform, JSPlatform))
   .settings(
-    description         := "Logger for F[_] - logback MDC context map support for Cats Effect 3",
+    description := "Logger for F[_] - logback MDC context map support for Cats Effect 3",
     libraryDependencies ++= Seq(
       libs.logbackClassic,
       libs.logbackScalaInterop,
@@ -575,7 +575,7 @@ lazy val props =
     val removeDottyIncompatible: ModuleID => Boolean =
       m =>
 //        m.name == "wartremover" ||
-          m.name == "ammonite" ||
+        m.name == "ammonite" ||
           m.name == "kind-projector" ||
           m.name == "better-monadic-for" ||
           m.name == "mdoc"
@@ -718,7 +718,7 @@ def projectCommonSettings(projectName: String, crossProject: CrossProject.Builde
       //      , Compile / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       //      , Test / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value),
-      fork                                    := true,
+      fork := true,
       Compile / console / wartremoverErrors := List.empty,
       Compile / console / wartremoverWarnings := List.empty,
       Compile / console / scalacOptions :=
@@ -747,7 +747,7 @@ def projectCommonSettings(projectName: String, crossProject: CrossProject.Builde
     )
 
 lazy val commonJsSettings: SettingsDefinition = List(
-  Test / fork := false,
+  Test / fork := false
 //  Test / scalacOptions ++= (if (scalaVersion.value.startsWith("3")) List.empty
 //  else List("-P:scalajs:nowarnGlobalExecutionContext")),
 //  Test / compile / scalacOptions ++= (if (scalaVersion.value.startsWith("3")) List.empty
