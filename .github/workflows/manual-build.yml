@@ -7,6 +7,10 @@ on:
         description: 'Java Version'
         required: true
         default: '11'
+      java-distribution:
+        description: 'Java destribution'
+        required: true
+        default: 'temurin'
       scala-version:
         description: 'Scala Version'
         required: true
@@ -15,6 +19,9 @@ on:
         description: 'Scala Binary Version - Make sure it matches with Scala Version above'
         required: true
         default: '2.13'
+
+env:
+  GH_SBT_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=2G -Xmx4G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
 
 jobs:
 
@@ -28,7 +35,8 @@ jobs:
             name: "Scala",
             version: "${{ github.event.inputs.scala-version }}",
             binary-version: "${{ github.event.inputs.scala-binary-version }}",
-            java-version: "${{ github.event.inputs.java-version }}"
+            java-version: "${{ github.event.inputs.java-version }}",
+            java-distribution: "${{ github.event.inputs.java-distribution }}"
           }
 
     steps:
@@ -36,23 +44,16 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.scala.java-version }}
-
-      - name: Cache SBT
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.cache/coursier
-            ~/.sbt
-          key: ${{ runner.os }}-sbt-${{ matrix.scala.binary-version }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-sbt-${{ matrix.scala.binary-version }}-
+          distribution: ${{ matrix.scala.java-distribution }}
+          cache: sbt
+      - uses: sbt/setup-sbt@v1
 
       - name: "Build All for ${{ matrix.scala.name }} ${{ matrix.scala.version }} - ${{ github.run_number }}"
         env:
           CURRENT_BRANCH_NAME: ${{ github.ref }}
           RUN_ID: ${{ github.run_id }}
           RUN_NUMBER: ${{ github.run_number }}
+          SBT_OPTS: ${{ env.GH_SBT_OPTS }}
         run: |
           export CURRENT_BRANCH_NAME="${CURRENT_BRANCH_NAME#refs/heads/}"
           echo "[BEFORE]CURRENT_BRANCH_NAME=${CURRENT_BRANCH_NAME}"

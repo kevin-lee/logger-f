@@ -11,6 +11,9 @@ on:
       - main
       - 'logger-f-1'
 
+env:
+  GH_SBT_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=2G -Xmx4G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
+
 jobs:
 
   build:
@@ -29,17 +32,8 @@ jobs:
         with:
           java-version: ${{ matrix.scala.java-version }}
           distribution: ${{ matrix.scala.java-distribution }}
-
-      - name: Cache SBT
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.cache/coursier
-            ~/.sbt
-          key: ${{ runner.os }}-sbt-${{ matrix.scala.binary-version }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-sbt-${{ matrix.scala.binary-version }}-
+          cache: sbt
+      - uses: sbt/setup-sbt@v1
 
       - name: "[Push] Build All for ${{ matrix.scala.name }}: ${{ matrix.scala.version }} - ${{ github.run_number }}"
         if: github.event_name == 'push'
@@ -47,6 +41,7 @@ jobs:
           CURRENT_BRANCH_NAME: ${{ github.ref }}
           RUN_ID: ${{ github.run_id }}
           RUN_NUMBER: ${{ github.run_number }}
+          SBT_OPTS: ${{ env.GH_SBT_OPTS }}
         run: |
           echo "[BEFORE]CURRENT_BRANCH_NAME=${CURRENT_BRANCH_NAME}"
           export CURRENT_BRANCH_NAME="${CURRENT_BRANCH_NAME#refs/heads/}"
@@ -54,6 +49,7 @@ jobs:
           echo "RUN_ID=${RUN_ID}"
           echo "RUN_NUMBER=${RUN_NUMBER}"
           echo "Push #${PUSH_NUMBER}"
+          echo "SBT_OPTS=${SBT_OPTS}"
           java -version
           .github/workflows/sbt-build-all.sh ${{ matrix.scala.version }}
 
@@ -64,6 +60,7 @@ jobs:
           RUN_ID: ${{ github.run_id }}
           RUN_NUMBER: ${{ github.run_number }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          SBT_OPTS: ${{ env.GH_SBT_OPTS }}
         run: |
           echo "Rull request to the '${CURRENT_BRANCH_NAME}' branch"
           echo "RUN_ID=${RUN_ID}"

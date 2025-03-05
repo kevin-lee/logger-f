@@ -10,6 +10,9 @@ on:
       - main
       - 'logger-f-1'
 
+env:
+  GH_SBT_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=2G -Xmx4G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
+
 jobs:
 
   build:
@@ -26,17 +29,8 @@ jobs:
         with:
           java-version: ${{ matrix.scala.java-version }}
           distribution: ${{ matrix.scala.java-distribution }}
-
-      - name: Cache SBT
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.cache/coursier
-            ~/.sbt
-          key: ${{ runner.os }}-sbt-${{ matrix.scala.binary-version }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-sbt-${{ matrix.scala.binary-version }}-
+          cache: sbt
+      - uses: sbt/setup-sbt@v1
 
       - name: "[Codecov] Report ${{ matrix.scala.name }} ${{ matrix.scala.version }} - ${{ github.run_number }}"
         if: ${{ matrix.scala.report == 'report' }}
@@ -44,6 +38,7 @@ jobs:
           CURRENT_BRANCH_NAME: ${{ github.ref }}
           RUN_ID: ${{ github.run_id }}
           RUN_NUMBER: ${{ github.run_number }}
+          SBT_OPTS: ${{ env.GH_SBT_OPTS }}
         run: |
           echo "[BEFORE]CURRENT_BRANCH_NAME=${CURRENT_BRANCH_NAME}"
           export CURRENT_BRANCH_NAME="${CURRENT_BRANCH_NAME#refs/heads/}"
