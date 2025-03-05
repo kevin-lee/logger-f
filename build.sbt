@@ -3,9 +3,9 @@ import just.semver.SemVer
 import kevinlee.sbt.SbtCommon.crossVersionProps
 import sbtcrossproject.CrossProject
 
-ThisBuild / scalaVersion       := props.ProjectScalaVersion
-ThisBuild / organization       := "io.kevinlee"
-ThisBuild / organizationName   := "Kevin's Code"
+ThisBuild / scalaVersion := props.ProjectScalaVersion
+ThisBuild / organization := "io.kevinlee"
+ThisBuild / organizationName := "Kevin's Code"
 ThisBuild / crossScalaVersions := props.CrossScalaVersions
 
 ThisBuild / developers := List(
@@ -16,14 +16,14 @@ ThisBuild / developers := List(
     url(s"https://github.com/${props.GitHubUsername}"),
   )
 )
-ThisBuild / homepage   := url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}").some
-ThisBuild / scmInfo    :=
+ThisBuild / homepage := url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}").some
+ThisBuild / scmInfo :=
   ScmInfo(
     browseUrl = url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}"),
     connection = s"scm:git:git@github.com:${props.GitHubUsername}/${props.RepoName}.git",
   ).some
 
-ThisBuild / licenses   := props.licenses
+ThisBuild / licenses := props.licenses
 
 ThisBuild / resolvers += "sonatype-snapshots" at s"https://${props.SonatypeCredentialHost}/content/repositories/snapshots"
 
@@ -35,7 +35,7 @@ ThisBuild / scalafixConfig := (
     ((ThisBuild / baseDirectory).value / ".scalafix-scala3.conf").some
   else
     ((ThisBuild / baseDirectory).value / ".scalafix-scala2.conf").some
-  )
+)
 
 //ThisBuild / scalafixScalaBinaryVersion                   := {
 //  val log        = sLog.value
@@ -56,9 +56,9 @@ ThisBuild / scalafixConfig := (
 lazy val loggerF = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin)
   .settings(
-    name                     := prefixedProjectName(""),
-    description              := "Logger for F[_]",
-    libraryDependencies      := libraryDependenciesRemoveScala3Incompatible(
+    name := prefixedProjectName(""),
+    description := "Logger for F[_]",
+    libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
       scalaVersion.value,
       libraryDependencies.value,
     )
@@ -96,7 +96,7 @@ lazy val loggerF = (project in file("."))
 lazy val core    =
   module(ProjectName("core"), crossProject(JVMPlatform, JSPlatform))
     .settings(
-      description         := "Logger for F[_] - Core",
+      description := "Logger for F[_] - Core",
       libraryDependencies ++= List(
         libs.effectieCore,
         libs.cats % Test,
@@ -113,7 +113,7 @@ lazy val coreJs  = core.js
 
 lazy val slf4jLogger    = module(ProjectName("slf4j"), crossProject(JVMPlatform, JSPlatform))
   .settings(
-    description         := "Logger for F[_] - Logger with Slf4j",
+    description := "Logger for F[_] - Logger with Slf4j",
     libraryDependencies ++= Seq(
       libs.slf4jApi
     ),
@@ -129,7 +129,7 @@ lazy val slf4jLoggerJs  = slf4jLogger.js
 lazy val log4sLogger    =
   module(ProjectName("log4s"), crossProject(JVMPlatform, JSPlatform))
     .settings(
-      description         := "Logger for F[_] - Logger with Log4s",
+      description := "Logger for F[_] - Logger with Log4s",
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value,
@@ -145,7 +145,7 @@ lazy val log4sLoggerJs  = log4sLogger.js
 lazy val log4jLogger    =
   module(ProjectName("log4j"), crossProject(JVMPlatform, JSPlatform))
     .settings(
-      description         := "Logger for F[_] - Logger with Log4j",
+      description := "Logger for F[_] - Logger with Log4j",
       Compile / unmanagedSourceDirectories ++= {
         val sharedSourceDir = (baseDirectory.value / ".." / "shared").getCanonicalFile / "src" / "main"
         if (scalaVersion.value.startsWith("3."))
@@ -205,7 +205,7 @@ lazy val log4jLoggerJs  = log4jLogger.js
 lazy val sbtLogging    =
   module(ProjectName("sbt-logging"), crossProject(JVMPlatform, JSPlatform))
     .settings(
-      description         := "Logger for F[_] - Logger with sbt logging",
+      description := "Logger for F[_] - Logger with sbt logging",
       libraryDependencies ++= crossVersionProps(
         List.empty,
         SemVer.parseUnsafe(scalaVersion.value),
@@ -237,7 +237,7 @@ lazy val sbtLoggingJs  = sbtLogging.js
 lazy val cats    =
   module(ProjectName("cats"), crossProject(JVMPlatform, JSPlatform))
     .settings(
-      description         := "Logger for F[_] - Cats",
+      description := "Logger for F[_] - Cats",
       libraryDependencies ++= libs.tests.hedgehogLibs ++ List(
         libs.effectieCore,
         libs.cats,
@@ -255,7 +255,7 @@ lazy val catsJs  = cats.js
 
 lazy val logbackMdcMonix3    = module(ProjectName("logback-mdc-monix3"), crossProject(JVMPlatform, JSPlatform))
   .settings(
-    description         := "Logger for F[_] - logback MDC context map support for Monix 3",
+    description := "Logger for F[_] - logback MDC context map support for Monix 3",
     libraryDependencies ++= Seq(
       libs.logbackClassic,
       libs.logbackScalaInterop,
@@ -279,7 +279,7 @@ lazy val logbackMdcMonix3Js  = logbackMdcMonix3.js
 lazy val testKit    =
   module(ProjectName("test-kit"), crossProject(JVMPlatform, JSPlatform))
     .settings(
-      description         := "Logger for F[_] - Test Kit",
+      description := "Logger for F[_] - Test Kit",
       libraryDependencies ++= libs.tests.hedgehogLibs ++
 //        libs.tests.hedgehogExtra ++
         List(
@@ -297,7 +297,7 @@ lazy val testKitJs  = testKit.js
 lazy val catsEffect    =
   module(ProjectName("cats-effect"), crossProject(JVMPlatform, JSPlatform))
     .settings(
-      description         := "Logger for F[_] - Cats Effect",
+      description := "Logger for F[_] - Cats Effect",
       libraryDependencies ++= libs.tests.hedgehogLibs ++ List(libs.effectieCatsEffect2 % Test),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
@@ -312,7 +312,7 @@ lazy val catsEffectJs  = catsEffect.js
 lazy val catsEffect3    =
   module(ProjectName("cats-effect3"), crossProject(JVMPlatform, JSPlatform))
     .settings(
-      description         := "Logger for F[_] - Cats Effect 3",
+      description := "Logger for F[_] - Cats Effect 3",
       libraryDependencies ++= libs.tests.hedgehogLibs ++ List(
         libs.effectieCatsEffect3 % Test,
         libs.tests.extrasHedgehogCatsEffect3,
@@ -330,7 +330,7 @@ lazy val catsEffect3Js  = catsEffect3.js
 lazy val monix    =
   module(ProjectName("monix"), crossProject(JVMPlatform, JSPlatform))
     .settings(
-      description         := "Logger for F[_] - Monix",
+      description := "Logger for F[_] - Monix",
       libraryDependencies ++= libs.tests.hedgehogLibs ++ List(libs.effectieMonix % Test),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
@@ -348,7 +348,7 @@ lazy val testCatsEffectWithSlf4jLogger    =
     crossProject(JVMPlatform, JSPlatform),
   )
     .settings(
-      description         := "Test Logger for F[_] - Logger with Slf4j",
+      description := "Test Logger for F[_] - Logger with Slf4j",
       libraryDependencies ++= Seq(libs.slf4jApi, libs.logbackClassic, libs.tests.extrasCats),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
@@ -366,7 +366,7 @@ lazy val testMonixWithSlf4jLogger    =
     crossProject(JVMPlatform, JSPlatform),
   )
     .settings(
-      description         := "Test Logger for F[_] - Logger with Slf4j",
+      description := "Test Logger for F[_] - Logger with Slf4j",
       libraryDependencies ++= Seq(libs.slf4jApi, libs.logbackClassic, libs.tests.extrasCats),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
@@ -384,7 +384,7 @@ lazy val testCatsEffectWithLog4sLogger    =
     crossProject(JVMPlatform, JSPlatform),
   )
     .settings(
-      description         := "Test Logger for F[_] - Logger with Log4s",
+      description := "Test Logger for F[_] - Logger with Log4s",
       libraryDependencies ++= Seq(libs.log4sLib, libs.logbackClassic, libs.tests.extrasCats),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
@@ -402,7 +402,7 @@ lazy val testCatsEffectWithLog4jLogger    =
     crossProject(JVMPlatform, JSPlatform),
   )
     .settings(
-      description         := "Test Logger for F[_] - Logger with Log4j",
+      description := "Test Logger for F[_] - Logger with Log4j",
       libraryDependencies ++= Seq(libs.log4jApi, libs.log4jCore, libs.tests.extrasCats),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
@@ -417,9 +417,9 @@ lazy val testCatsEffectWithLog4jLoggerJs  = testCatsEffectWithLog4jLogger.js
 lazy val docs = (project in file("docs-gen-tmp/docs"))
   .enablePlugins(MdocPlugin, DocusaurPlugin)
   .settings(
-    name                := "docs",
-    mdocIn              := file("docs/latest"),
-    mdocOut             := file("generated-docs/docs"),
+    name := "docs",
+    mdocIn := file("docs/latest"),
+    mdocOut := file("generated-docs/docs"),
     cleanFiles += ((ThisBuild / baseDirectory).value / "generated-docs" / "docs"),
     scalacOptions ~= (_.filter(opt => opt != "-Xfatal-warnings")),
     libraryDependencies ++= {
@@ -442,18 +442,18 @@ lazy val docs = (project in file("docs-gen-tmp/docs"))
       scalaVersion.value,
       libraryDependencies.value,
     ),
-    mdocVariables       := createMdocVariables(none),
-    docusaurDir         := (ThisBuild / baseDirectory).value / "website",
-    docusaurBuildDir    := docusaurDir.value / "build",
+    mdocVariables := createMdocVariables(none),
+    docusaurDir := (ThisBuild / baseDirectory).value / "website",
+    docusaurBuildDir := docusaurDir.value / "build",
   )
   .settings(noPublish)
 
 lazy val docsV1 = (project in file("docs-gen-tmp/docs-v1"))
   .enablePlugins(MdocPlugin)
   .settings(
-    name                := "docsV1",
-    mdocIn              := file("docs/v1"),
-    mdocOut             := file("website/versioned_docs/version-v1/docs"),
+    name := "docsV1",
+    mdocIn := file("docs/v1"),
+    mdocOut := file("website/versioned_docs/version-v1/docs"),
     cleanFiles += ((ThisBuild / baseDirectory).value / "website" / "versioned_docs" / "version-v1"),
     scalacOptions ~= (_.filter(opt => opt != "-Xfatal-warnings")),
     libraryDependencies ++=
@@ -472,7 +472,7 @@ lazy val docsV1 = (project in file("docs-gen-tmp/docs-v1"))
       scalaVersion.value,
       libraryDependencies.value,
     ),
-    mdocVariables       := createMdocVariables(props.LoggerF1Version.some),
+    mdocVariables := createMdocVariables(props.LoggerF1Version.some),
   )
   .settings(noPublish)
 
@@ -637,7 +637,7 @@ def libraryDependenciesRemoveScala3Incompatible(
 lazy val mavenCentralPublishSettings: SettingsDefinition = List(
   /* Publish to Maven Central { */
   sonatypeCredentialHost := props.SonatypeCredentialHost,
-  sonatypeRepository     := props.SonatypeRepository,
+  sonatypeRepository := props.SonatypeRepository,
   /* } Publish to Maven Central */
 )
 
@@ -655,34 +655,34 @@ def projectCommonSettings(projectName: String, crossProject: CrossProject.Builde
   crossProject
     .in(file(s"modules/$projectName"))
     .settings(
-      name                                    := projectName,
-      licenses                                := props.licenses,
+      name := projectName,
+      licenses := props.licenses,
       scalafixConfig := (
         if (scalaVersion.value.startsWith("3"))
           ((ThisBuild / baseDirectory).value / ".scalafix-scala3.conf").some
         else
           ((ThisBuild / baseDirectory).value / ".scalafix-scala2.conf").some
-        ),
+      ),
       /* WartRemover and scalacOptions { */
       //      , Compile / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       //      , Test / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value),
-      Compile / console / wartremoverErrors   := List.empty,
+      Compile / console / wartremoverErrors := List.empty,
       Compile / console / wartremoverWarnings := List.empty,
-      Compile / console / scalacOptions       :=
+      Compile / console / scalacOptions :=
         (console / scalacOptions)
           .value
           .filterNot(option => option.contains("wartremover") || option.contains("import")),
-      Test / console / wartremoverErrors      := List.empty,
-      Test / console / wartremoverWarnings    := List.empty,
-      Test / console / scalacOptions          :=
+      Test / console / wartremoverErrors := List.empty,
+      Test / console / wartremoverWarnings := List.empty,
+      Test / console / scalacOptions :=
         (console / scalacOptions)
           .value
           .filterNot(option => option.contains("wartremover") || option.contains("import")),
       /* } WartRemover and scalacOptions */
       testFrameworks ++= Seq(TestFramework("hedgehog.sbt.Framework")),
       /* Coveralls { */
-      coverageHighlighting                    := (CrossVersion.partialVersion(scalaVersion.value) match {
+      coverageHighlighting := (CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 10)) | Some((2, 11)) =>
           false
         case _ =>
