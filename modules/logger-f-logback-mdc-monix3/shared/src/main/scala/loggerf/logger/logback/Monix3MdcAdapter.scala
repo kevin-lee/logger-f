@@ -7,7 +7,6 @@ import org.slf4j.{LoggerFactory, MDC}
 
 import java.util.{Map => JMap, Set => JSet}
 import scala.jdk.CollectionConverters._
-import scala.util.control.NonFatal
 
 /** @author Kevin Lee
   * @since 2023-02-18
@@ -71,15 +70,8 @@ trait Monix3MdcAdapterOps {
     loggerContext: LoggerContext,
   ): Monix3MdcAdapter = {
     val adapter = initialize0(monix3MdcAdapter)
-    try {
-      val field = classOf[LoggerContext].getDeclaredField("mdcAdapter")
-      field.setAccessible(true)
-      field.set(loggerContext, adapter)
-      field.setAccessible(false)
-      adapter
-    } catch {
-      case NonFatal(_) => adapter
-    }
+    loggerContext.setMDCAdapter(adapter)
+    adapter
   }
 
 }
