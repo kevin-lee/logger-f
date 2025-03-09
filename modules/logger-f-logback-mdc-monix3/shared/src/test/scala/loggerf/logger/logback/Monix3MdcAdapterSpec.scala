@@ -4,10 +4,14 @@ import cats.syntax.all._
 import hedgehog._
 import hedgehog.runner._
 import monix.eval.{Task, TaskLocal}
-import org.slf4j.MDC
+import org.slf4j.spi.MDCAdapter
+import org.slf4j.{MDC, SetMdcAdapter}
 
+import java.io.{PrintWriter, StringWriter}
 import java.time.Instant
+import java.util
 import scala.jdk.CollectionConverters._
+import scala.util.control.NonFatal
 
 /** @author Kevin Lee
   * @since 2023-07-03
@@ -20,7 +24,23 @@ object Monix3MdcAdapterSpec extends Properties {
    */
   implicit val opts: Task.Options = Task.defaultOptions.enableLocalContextPropagation
 
-  private val monixMdcAdapter: Monix3MdcAdapter = Monix3MdcAdapter.initialize()
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  private val monixMdcAdapter: Monix3MdcAdapter =
+    try {
+      Monix3MdcAdapter.initialize()
+    } catch {
+      case NonFatal(ex) =>
+        val writer = new StringWriter()
+        val out    = new PrintWriter(writer)
+        ex.printStackTrace(out)
+        System
+          .err
+          .println(
+            s"""Error when initializing Monix3MdcAdapter: ${writer.toString}
+           |""".stripMargin
+          )
+        throw ex // scalafix:ok DisableSyntax.throw
+    }
 
   override def tests: List[Test] = List(
     property("Task - MDC should be able to put and get a value", testPutAndGet),
@@ -39,6 +59,7 @@ object Monix3MdcAdapterSpec extends Properties {
     property("Task - MDC: It should return context map for getCopyOfContextMap", testGetCopyOfContextMap),
     property("Task - MDC: It should return context map for getPropertyMap", testGetPropertyMap),
     property("Task - MDC: It should return context map for getKeys", testGetKeys),
+    property("test SetMdcAdapter", testSetMdcAdapter),
   )
 
   def before(): Unit =
@@ -484,4 +505,48 @@ object Monix3MdcAdapterSpec extends Properties {
     }.toMap
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def testSetMdcAdapter: Property = for {
+    mdcAdapterName1 <- Gen.string(Gen.ascii, Range.linear(5, 5)).log("mdcAdapterName1")
+    mdcAdapterName2 <- Gen.string(Gen.ascii, Range.linear(5, 5)).log("mdcAdapterName2")
+    mdcAdapterName  <- Gen.constant(mdcAdapterName1 + mdcAdapterName2).log("mdcAdapterName")
+  } yield {
+    val mdcAdapter = TestMdcAdapter(mdcAdapterName)
+    val before     = MDC.getMDCAdapter()
+
+    SetMdcAdapter(mdcAdapter)
+
+    val after = MDC.getMDCAdapter()
+
+    Result.all(
+      List(
+        Result.diffNamed("before should not be equal to the new MDCAdapter", before, mdcAdapter)(_ != _),
+        (after ==== mdcAdapter).log("after SetMdcAdapter should be equal to the new MDCAdapter"),
+      )
+    )
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Var"))
+  final case class TestMdcAdapter(name: String) extends MDCAdapter {
+
+    override def put(key: String, `val`: String): Unit = ???
+
+    override def get(key: String): String = ???
+
+    override def remove(key: String): Unit = ???
+
+    override def clear(): Unit = ???
+
+    override def getCopyOfContextMap: util.Map[String, String] = ???
+
+    override def setContextMap(contextMap: util.Map[String, String]): Unit = ???
+
+    override def pushByKey(key: String, value: String): Unit = ???
+
+    override def popByKey(key: String): String = ???
+
+    override def getCopyOfDequeByKey(key: String): util.Deque[String] = ???
+
+    override def clearDequeByKey(key: String): Unit = ???
+  }
 }
