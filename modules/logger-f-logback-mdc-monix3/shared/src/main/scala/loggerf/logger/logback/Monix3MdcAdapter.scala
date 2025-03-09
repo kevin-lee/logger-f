@@ -3,7 +3,7 @@ package loggerf.logger.logback
 import ch.qos.logback.classic.LoggerContext
 import logback_scala_interop.JLoggerFMdcAdapter
 import monix.execution.misc.Local
-import org.slf4j.{LoggerFactory, MDC}
+import org.slf4j.LoggerFactory
 
 import java.util.{Map => JMap, Set => JSet}
 import scala.jdk.CollectionConverters._
@@ -45,10 +45,7 @@ trait Monix3MdcAdapterOps {
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   protected def initialize0(monix3MdcAdapter: Monix3MdcAdapter): Monix3MdcAdapter = {
-    val field = classOf[MDC].getDeclaredField("mdcAdapter")
-    field.setAccessible(true)
-    field.set(null, monix3MdcAdapter) // scalafix:ok DisableSyntax.null
-    field.setAccessible(false)
+    org.slf4j.SetMdcAdapter(monix3MdcAdapter)
     monix3MdcAdapter
   }
 

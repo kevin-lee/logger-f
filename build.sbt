@@ -81,6 +81,8 @@ lazy val loggerF = (project in file("."))
 //    sbtLoggingJs,
     catsJvm,
 //    catsJs,
+    slf4jMdcJvm,
+//    slf4jMdcJs,
     logbackMdcMonix3Jvm,
 //    logbackMdcMonix3Js,
     testKitJvm,
@@ -253,6 +255,24 @@ lazy val cats    =
 lazy val catsJvm = cats.jvm
 lazy val catsJs  = cats.js
 
+lazy val slf4jMdc    = module(ProjectName("slf4j-mdc"), crossProject(JVMPlatform, JSPlatform))
+  .settings(
+    description := "Logger for F[_] - A tool to set MDC's MDCAdapter",
+    libraryDependencies ++= Seq(
+      libs.slf4jApi,
+      libs.cats % Test,
+    ) ++ libs.tests.hedgehogLibs,
+    libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+      scalaVersion.value,
+      libraryDependencies.value,
+    ),
+  )
+  .dependsOn(
+    core
+  )
+lazy val slf4jMdcJvm = slf4jMdc.jvm
+lazy val slf4jMdcJs  = slf4jMdc.js
+
 lazy val logbackMdcMonix3    = module(ProjectName("logback-mdc-monix3"), crossProject(JVMPlatform, JSPlatform))
   .settings(
     description := "Logger for F[_] - logback MDC context map support for Monix 3",
@@ -270,6 +290,7 @@ lazy val logbackMdcMonix3    = module(ProjectName("logback-mdc-monix3"), crossPr
   )
   .dependsOn(
     core,
+    slf4jMdc,
     monix       % Test,
     slf4jLogger % Test,
   )
@@ -554,14 +575,14 @@ lazy val props =
 
     final val ExtrasVersion = "0.25.0"
 
-    final val Slf4JVersion   = "2.0.16"
-    final val LogbackVersion = "1.5.16"
+    final val Slf4JVersion   = "2.0.17"
+    final val LogbackVersion = "1.5.17"
 
     final val Log4sVersion = "1.10.0"
 
     final val Log4JVersion = "2.19.0"
 
-    val LogbackScalaInteropVersion = "1.16.0"
+    val LogbackScalaInteropVersion = "1.17.0"
   }
 
 lazy val libs =
