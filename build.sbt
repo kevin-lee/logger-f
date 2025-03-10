@@ -82,9 +82,8 @@ lazy val loggerF = (project in file("."))
     catsJvm,
 //    catsJs,
     slf4jMdcJvm,
-//    slf4jMdcJs,
     logbackMdcMonix3Jvm,
-//    logbackMdcMonix3Js,
+    testLogbackMdcMonix3Jvm,
     testKitJvm,
 //    testKitJs,
     catsEffectJvm,
@@ -255,7 +254,7 @@ lazy val cats    =
 lazy val catsJvm = cats.jvm
 lazy val catsJs  = cats.js
 
-lazy val slf4jMdc    = module(ProjectName("slf4j-mdc"), crossProject(JVMPlatform, JSPlatform))
+lazy val slf4jMdc    = module(ProjectName("slf4j-mdc"), crossProject(JVMPlatform))
   .settings(
     description := "Logger for F[_] - A tool to set MDC's MDCAdapter",
     libraryDependencies ++= Seq(
@@ -271,15 +270,15 @@ lazy val slf4jMdc    = module(ProjectName("slf4j-mdc"), crossProject(JVMPlatform
     core
   )
 lazy val slf4jMdcJvm = slf4jMdc.jvm
-lazy val slf4jMdcJs  = slf4jMdc.js
 
-lazy val logbackMdcMonix3    = module(ProjectName("logback-mdc-monix3"), crossProject(JVMPlatform, JSPlatform))
+lazy val logbackMdcMonix3    = module(ProjectName("logback-mdc-monix3"), crossProject(JVMPlatform))
   .settings(
     description := "Logger for F[_] - logback MDC context map support for Monix 3",
     libraryDependencies ++= Seq(
       libs.logbackClassic,
       libs.logbackScalaInterop,
       libs.monix3Execution,
+      libs.slf4jApi % Test,
       libs.tests.monix,
       libs.tests.effectieMonix3,
     ) ++ libs.tests.hedgehogLibs,
@@ -295,7 +294,31 @@ lazy val logbackMdcMonix3    = module(ProjectName("logback-mdc-monix3"), crossPr
     slf4jLogger % Test,
   )
 lazy val logbackMdcMonix3Jvm = logbackMdcMonix3.jvm
-lazy val logbackMdcMonix3Js  = logbackMdcMonix3.js
+
+lazy val testLogbackMdcMonix3    = testProject(ProjectName("logback-mdc-monix3"), crossProject(JVMPlatform))
+  .settings(
+    description := "Logger for F[_] - testing logback MDC context map support for Monix 3",
+    libraryDependencies ++= Seq(
+      libs.slf4jApiLatest            % Test,
+      libs.logbackClassicLatest      % Test,
+      libs.logbackScalaInteropLatest % Test,
+      libs.monix3Execution           % Test,
+      libs.tests.monix,
+      libs.tests.effectieMonix3,
+    ) ++ libs.tests.hedgehogLibs,
+    libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+      scalaVersion.value,
+      libraryDependencies.value,
+    ),
+  )
+  .dependsOn(
+    core             % Test,
+    slf4jMdc         % Test,
+    logbackMdcMonix3 % "test->test",
+    monix            % Test,
+    slf4jLogger      % Test,
+  )
+lazy val testLogbackMdcMonix3Jvm = testLogbackMdcMonix3.jvm
 
 lazy val testKit    =
   module(ProjectName("test-kit"), crossProject(JVMPlatform, JSPlatform))
@@ -575,21 +598,28 @@ lazy val props =
 
     final val ExtrasVersion = "0.25.0"
 
-    final val Slf4JVersion   = "2.0.17"
-    final val LogbackVersion = "1.5.17"
+    val Slf4JVersion       = "2.0.12"
+    val Slf4JLatestVersion = "2.0.17"
+
+    val LogbackVersion       = "1.5.0"
+    val LogbackLatestVersion = "1.5.17"
 
     final val Log4sVersion = "1.10.0"
 
     final val Log4JVersion = "2.19.0"
 
-    val LogbackScalaInteropVersion = "1.17.0"
+    val LogbackScalaInteropVersion       = "1.0.0"
+    val LogbackScalaInteropLatestVersion = "1.17.0"
   }
 
 lazy val libs =
   new {
 
-    lazy val slf4jApi: ModuleID       = "org.slf4j"      % "slf4j-api"       % props.Slf4JVersion
-    lazy val logbackClassic: ModuleID = "ch.qos.logback" % "logback-classic" % props.LogbackVersion
+    lazy val slf4jApi: ModuleID       = "org.slf4j" % "slf4j-api" % props.Slf4JVersion
+    lazy val slf4jApiLatest: ModuleID = "org.slf4j" % "slf4j-api" % props.Slf4JLatestVersion
+
+    lazy val logbackClassic: ModuleID       = "ch.qos.logback" % "logback-classic" % props.LogbackVersion
+    lazy val logbackClassicLatest: ModuleID = "ch.qos.logback" % "logback-classic" % props.LogbackLatestVersion
 
     lazy val log4sLib: ModuleID = "org.log4s" %% "log4s" % props.Log4sVersion
 
@@ -612,7 +642,9 @@ lazy val libs =
 
     lazy val effectieMonix: ModuleID = "io.kevinlee" %% "effectie-monix3" % props.EffectieVersion
 
-    lazy val logbackScalaInterop = "io.kevinlee" % "logback-scala-interop" % props.LogbackScalaInteropVersion
+    lazy val logbackScalaInterop       = "io.kevinlee" % "logback-scala-interop" % props.LogbackScalaInteropVersion
+    lazy val logbackScalaInteropLatest =
+      "io.kevinlee" % "logback-scala-interop" % props.LogbackScalaInteropLatestVersion
 
     lazy val tests = new {
 
@@ -670,6 +702,19 @@ def module(projectName: ProjectName, crossProject: CrossProject.Builder): CrossP
 def testProject(projectName: ProjectName, crossProject: CrossProject.Builder): CrossProject = {
   val prefixedName = s"test-${prefixedProjectName(projectName.projectName)}"
   projectCommonSettings(prefixedName, crossProject)
+    .settings(
+      // Disable publishing tasks
+      publish / skip := true,
+      publish := {},
+      publishLocal := {},
+      // Prevent artifact generation for publishing
+      publishArtifact := false,
+      packagedArtifacts := Map.empty,
+      // Disable specific packaging tasks
+      packageBin / publishArtifact := false,
+      packageDoc / publishArtifact := false,
+      packageSrc / publishArtifact := false,
+    )
 }
 
 def projectCommonSettings(projectName: String, crossProject: CrossProject.Builder): CrossProject =
