@@ -62,13 +62,29 @@ trait Monix3MdcAdapterOps {
   def initializeWithLoggerContext(loggerContext: LoggerContext): Monix3MdcAdapter =
     initializeWithMonix3MdcAdapterAndLoggerContext(new Monix3MdcAdapter, loggerContext)
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def initializeWithMonix3MdcAdapterAndLoggerContext(
     monix3MdcAdapter: Monix3MdcAdapter,
     loggerContext: LoggerContext,
   ): Monix3MdcAdapter = {
     val adapter = initialize0(monix3MdcAdapter)
+
     loggerContext.setMDCAdapter(adapter)
-    adapter
+    if (loggerContext.getMDCAdapter == adapter) {
+//      println("[LoggerContext] It's set by setMDCAdapter.")
+      adapter
+    } else {
+//      println(
+//        "[LoggerContext] The old setMDCAdapter doesn't replace `mdcAdapter` if it has already been set, " +
+//          "so it will use reflection to set it in the `mdcAdapter` field."
+//      )
+      val loggerContextClass = classOf[LoggerContext]
+      val field              = loggerContextClass.getDeclaredField("mdcAdapter")
+      field.setAccessible(true)
+      field.set(loggerContext, adapter)
+      field.setAccessible(false)
+      adapter
+    }
   }
 
 }

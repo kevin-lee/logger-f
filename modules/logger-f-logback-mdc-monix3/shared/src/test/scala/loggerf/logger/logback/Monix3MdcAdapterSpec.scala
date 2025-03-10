@@ -4,8 +4,7 @@ import cats.syntax.all._
 import hedgehog._
 import hedgehog.runner._
 import monix.eval.{Task, TaskLocal}
-import org.slf4j.spi.MDCAdapter
-import org.slf4j.{MDC, SetMdcAdapter}
+import org.slf4j.{LoggerFactory, MDC, SetMdcAdapter}
 
 import java.io.{PrintWriter, StringWriter}
 import java.time.Instant
@@ -16,7 +15,8 @@ import scala.util.control.NonFatal
 /** @author Kevin Lee
   * @since 2023-07-03
   */
-object Monix3MdcAdapterSpec extends Properties {
+trait Monix3MdcAdapterSpecsOnly {
+  import Monix3MdcAdapterSpec._
 
   /*
    * Task.defaultOptions.enableLocalContextPropagation is the same as
@@ -37,12 +37,12 @@ object Monix3MdcAdapterSpec extends Properties {
           .err
           .println(
             s"""Error when initializing Monix3MdcAdapter: ${writer.toString}
-           |""".stripMargin
+               |""".stripMargin
           )
         throw ex // scalafix:ok DisableSyntax.throw
     }
 
-  override def tests: List[Test] = List(
+  def tests: List[Test] = List(
     property("Task - MDC should be able to put and get a value", testPutAndGet),
     property("Task - MDC should be able to put and get multiple values concurrently", testPutAndGetMultiple),
     property(
@@ -59,7 +59,8 @@ object Monix3MdcAdapterSpec extends Properties {
     property("Task - MDC: It should return context map for getCopyOfContextMap", testGetCopyOfContextMap),
     property("Task - MDC: It should return context map for getPropertyMap", testGetPropertyMap),
     property("Task - MDC: It should return context map for getKeys", testGetKeys),
-    property("test SetMdcAdapter", testSetMdcAdapter),
+    property("test SetMdcAdapter for MDC", testSetMdcAdapterForMDC),
+    property("test LoggerContext.setMDCAdapter", testLoggerContextSetMdcAdapter),
   )
 
   def before(): Unit =
@@ -487,7 +488,7 @@ object Monix3MdcAdapterSpec extends Properties {
   @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   private def productToMap[A <: Product](product: A): Map[String, String] = {
     // This doesn't work for Scala 2.12
-//    val fields = product.productElementNames.toVector
+    //    val fields = product.productElementNames.toVector
 
     val fields = product.getClass.getDeclaredFields.map(_.getName)
     val length = product.productArity
@@ -506,7 +507,7 @@ object Monix3MdcAdapterSpec extends Properties {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  def testSetMdcAdapter: Property = for {
+  def testSetMdcAdapterForMDC: Property = for {
     mdcAdapterName1 <- Gen.string(Gen.ascii, Range.linear(5, 5)).log("mdcAdapterName1")
     mdcAdapterName2 <- Gen.string(Gen.ascii, Range.linear(5, 5)).log("mdcAdapterName2")
     mdcAdapterName  <- Gen.constant(mdcAdapterName1 + mdcAdapterName2).log("mdcAdapterName")
@@ -526,8 +527,37 @@ object Monix3MdcAdapterSpec extends Properties {
     )
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def testLoggerContextSetMdcAdapter: Property = for {
+    mdcAdapterName1 <- Gen.string(Gen.ascii, Range.linear(5, 5)).log("mdcAdapterName1")
+    mdcAdapterName2 <- Gen.string(Gen.ascii, Range.linear(5, 5)).log("mdcAdapterName2")
+    mdcAdapterName  <- Gen.constant(mdcAdapterName1 + mdcAdapterName2).log("mdcAdapterName")
+  } yield {
+    val mdcAdapter    = TestMdcAdapter(mdcAdapterName)
+    @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
+    val loggerContext =
+      LoggerFactory
+        .getILoggerFactory
+        .asInstanceOf[ch.qos.logback.classic.LoggerContext] // scalafix:ok DisableSyntax.asInstanceOf
+
+    val before = loggerContext.getMDCAdapter()
+
+    val _ = Monix3MdcAdapter.initializeWithMonix3MdcAdapterAndLoggerContext(mdcAdapter, loggerContext)
+
+    val after = loggerContext.getMDCAdapter()
+
+    Result.all(
+      List(
+        Result.diffNamed("before should not be equal to the new MDCAdapter", before, mdcAdapter)(_ != _),
+        (after ==== mdcAdapter).log("after SetMdcAdapter should be equal to the new MDCAdapter"),
+      )
+    )
+  }
+}
+object Monix3MdcAdapterSpec extends Properties with Monix3MdcAdapterSpecsOnly {
+
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
-  final case class TestMdcAdapter(name: String) extends MDCAdapter {
+  final case class TestMdcAdapter(name: String) extends Monix3MdcAdapter {
 
     override def put(key: String, `val`: String): Unit = ???
 
@@ -539,7 +569,7 @@ object Monix3MdcAdapterSpec extends Properties {
 
     override def getCopyOfContextMap: util.Map[String, String] = ???
 
-    override def setContextMap(contextMap: util.Map[String, String]): Unit = ???
+    override def setContextMap0(contextMap: util.Map[String, String]): Unit = ???
 
     override def pushByKey(key: String, value: String): Unit = ???
 
