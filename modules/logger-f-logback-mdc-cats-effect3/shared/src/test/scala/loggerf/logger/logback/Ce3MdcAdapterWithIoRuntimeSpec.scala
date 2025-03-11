@@ -1,116 +1,95 @@
 package loggerf.logger.logback
 
+import cats.effect._
+import cats.effect.unsafe.IORuntime
 import cats.syntax.all._
 import hedgehog._
 import hedgehog.runner._
-import monix.eval.{Task, TaskLocal}
-import org.slf4j.{LoggerFactory, MDC, SetMdcAdapter}
+import org.slf4j.MDC
 
-import java.io.{PrintWriter, StringWriter}
 import java.time.Instant
-import java.util
 import scala.jdk.CollectionConverters._
-import scala.util.control.NonFatal
 
 /** @author Kevin Lee
-  * @since 2023-07-03
+  * @since 2023-07-07
   */
-trait Monix3MdcAdapterSpecsOnly {
-  import Monix3MdcAdapterSpec._
+object Ce3MdcAdapterWithIoRuntimeSpec extends Properties {
+  private val oldValue = sys.props.put("cats.effect.trackFiberContext", "true")
+  println(
+    s"${this.getClass.getSimpleName.stripSuffix("$")}[B] cats.effect.trackFiberContext=${oldValue.getOrElse("")}"
+  )
+  println(
+    s"${this.getClass.getSimpleName.stripSuffix("$")}[A] cats.effect.trackFiberContext=${sys.props.getOrElse("cats.effect.trackFiberContext", "")}"
+  )
 
-  /*
-   * Task.defaultOptions.enableLocalContextPropagation is the same as
-   *   sys.props.put("monix.environment.localContextPropagation", "1")
-   */
-  implicit val opts: Task.Options = Task.defaultOptions.enableLocalContextPropagation
+  implicit val ioRuntime: IORuntime = cats.effect.unsafe.implicits.global
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  private val monixMdcAdapter: Monix3MdcAdapter =
-    try {
-      Monix3MdcAdapter.initialize()
-    } catch {
-      case NonFatal(ex) =>
-        val writer = new StringWriter()
-        val out    = new PrintWriter(writer)
-        ex.printStackTrace(out)
-        System
-          .err
-          .println(
-            s"""Error when initializing Monix3MdcAdapter: ${writer.toString}
-               |""".stripMargin
-          )
-        throw ex // scalafix:ok DisableSyntax.throw
-    }
+  private val ce3MdcAdapter: Ce3MdcAdapterWithIoRuntime = Ce3MdcAdapterWithIoRuntime.initialize()
 
-  def tests: List[Test] = List(
-    property("Task - MDC should be able to put and get a value", testPutAndGet),
-    property("Task - MDC should be able to put and get multiple values concurrently", testPutAndGetMultiple),
+  override def tests: List[Test] = List(
+    property("IO - MDC should be able to put and get a value", testPutAndGet),
+    property("IO - MDC should be able to put and get multiple values concurrently", testPutAndGetMultiple),
     property(
-      "Task - MDC should be able to put and get with isolated nested modifications",
+      "IO - MDC should be able to put and get with isolated nested modifications",
       testPutAndGetMultipleIsolatedNestedModifications,
     ),
     property(
-      "Task - MDC should be able to put and get with isolated nested modifications - more complex case",
+      "IO - MDC should be able to put and get with isolated nested modifications - more complex case",
       testPutAndGetMultipleIsolatedNestedModifications2,
     ),
-    property("Task - MDC: It should be able to set a context map", testSetContextMap),
-    property("Task - MDC should be able to remove the value for the existing key", testRemove),
-    property("Task - MDC should be able to remove the multiple values for the existing keys", testRemoveMultiple),
+    property("IO - MDC: It should be able to set a context map", testSetContextMap),
+    property("IO - MDC should be able to remove the value for the existing key", testRemove),
+    property("IO - MDC should be able to remove the multiple values for the existing keys", testRemoveMultiple),
     property(
-      "Task - MDC should be able to remove with isolated nested modifications",
+      "IO - MDC should be able to remove with isolated nested modifications",
       testRemoveMultipleIsolatedNestedModifications,
     ),
-    property("Task - MDC: It should return context map for getCopyOfContextMap", testGetCopyOfContextMap),
-    property("Task - MDC: It should return context map for getPropertyMap", testGetPropertyMap),
-    property("Task - MDC: It should return context map for getKeys", testGetKeys),
-    property("test SetMdcAdapter for MDC", testSetMdcAdapterForMDC),
-    property("test LoggerContext.setMDCAdapter", testLoggerContextSetMdcAdapter),
+    property("IO - MDC: It should return context map for getCopyOfContextMap", testGetCopyOfContextMap),
+    property("IO - MDC: It should return context map for getPropertyMap", testGetPropertyMap),
+    property("IO - MDC: It should return context map for getKeys", testGetKeys),
   )
 
-  def before(): Unit =
-    MDC.clear()
+  def before(): Unit = MDC.clear()
 
-  def putAndGet(key: String, value: String): Task[String] =
+  def putAndGet(key: String, value: String): IO[String] =
     for {
-      _   <- Task(MDC.put(key, value))
-      got <- Task(MDC.get(key))
+      _   <- IO(MDC.put(key, value))
+      got <- IO(MDC.get(key))
     } yield got
 
   def testPutAndGet: Property =
     for {
       keyValuePair <- Gens.genKeyValuePair.log("keyValuePair")
     } yield {
-      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
       before()
 
-      val task = putAndGet(keyValuePair.key, keyValuePair.value)
-      task
-        .map(_ ==== keyValuePair.value)
-        .runSyncUnsafe()
+      val io = putAndGet(keyValuePair.key, keyValuePair.value)
+      io.map(_ ==== keyValuePair.value)
+        .unsafeRunSync()
     }
 
   def testPutAndGetMultiple: Property = for {
     keyValuePairs <- Gens.genKeyValuePairs.log("keyValuePairs")
 
   } yield {
-    implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
     before()
 
-    val tasks = keyValuePairs.keyValuePairs.map { keyValue =>
-      TaskLocal.isolate(putAndGet(keyValue.key, keyValue.value).executeAsync)
+    val ios = keyValuePairs.keyValuePairs.traverse { keyValue =>
+      putAndGet(keyValue.key, keyValue.value).start
     }
 
-    val task = Task.parSequence(tasks)
-    task
-      .map { retrievedKeyValues =>
-        Result.all(
-          List(
-            retrievedKeyValues.length ==== keyValuePairs.keyValuePairs.length,
-            retrievedKeyValues ==== keyValuePairs.keyValuePairs.map(_.value),
-          )
+    (for {
+      fibers             <- ios
+      retrievedKeyValues <- fibers.traverse(_.joinWithNever)
+    } yield {
+      Result.all(
+        List(
+          retrievedKeyValues.length ==== keyValuePairs.keyValuePairs.length,
+          retrievedKeyValues ==== keyValuePairs.keyValuePairs.map(_.value),
         )
-      }
-      .runSyncUnsafe()
+      )
+    })
+      .unsafeRunSync()
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
@@ -120,76 +99,89 @@ trait Monix3MdcAdapterSpecsOnly {
       b <- Gen.string(Gen.alpha, Range.linear(1, 10)).map("2:" + _).log("b")
       c <- Gen.string(Gen.alpha, Range.linear(1, 10)).map("3:" + _).log("c")
     } yield {
-      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+
       before()
 
       val beforeSet = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
-      MDC.put("key-1", a)
+//      MDC.put("key-1", a)
 
       val test = for {
-        before         <- Task(MDC.get("key-1") ==== a)
-        beforeIsolated <- TaskLocal.isolate(Task(MDC.get("key-1") ==== a))
+        _              <- IO(MDC.put("key-1", a))
+        before         <- IO((MDC.get("key-1") ==== a).log("before"))
+        beforeIsolated <- IO((MDC.get("key-1") ==== a).log("beforeIsolated"))
+                            .start
+                            .flatMap(_.joinWithNever)
 
-        isolated1 <- TaskLocal.isolate {
-                       Task(MDC.get("key-1") ==== a)
-                         .flatMap { isolated1Before =>
-                           Task(MDC.put("key-1", b)) *> Task(
-                             (isolated1Before, MDC.get("key-1") ==== b)
-                           )
-                         }
-                     }
-        (isolated1Before, isolated1After) = isolated1
-        isolated2 <- TaskLocal.isolate {
-                       Task(MDC.get("key-1") ==== a)
-                         .flatMap { isolated2Before =>
-                           Task(MDC.put("key-2", c)) *> Task(
-                             (isolated2Before, MDC.get("key-2") ==== c)
-                           )
-                         }
-                     }
-        (isolated2Before, isolated2After) = isolated2
+        isolated1 <- (
+                       IO((MDC.get("key-1") ==== a).log("isolated1Before")).flatMap { isolated1Before =>
+                         IO(MDC.put("key-1", b)) *> IO(
+                           (isolated1Before, (MDC.get("key-1") ==== b).log("isolated1After"))
+                         )
+                       }
+                     ).start
+        isolated2 <- (
+                       IO((MDC.get("key-1") ==== a).log("isolated2Before")).flatMap { isolated2Before =>
+                         IO(MDC.put("key-2", c)) *> IO(
+                           (isolated2Before, (MDC.get("key-2") ==== c).log("isolated2After"))
+                         )
+                       }
+                     ).start
+
+        joinedIsolated1 <- isolated1.joinWithNever
+        joinedIsolated2 <- isolated2.joinWithNever
+        (isolated1Before, isolated1After) = joinedIsolated1
+        (isolated2Before, isolated2After) = joinedIsolated2
+        key1Result <- IO((MDC.get("key-1") ==== a).log(s"""After: MDC.get("key-1") is not $a"""))
+        key2Result <- IO(
+                        (MDC.get("key-2") ==== null).log("""After: MDC.get("key-2") is not null""")
+                      ) // scalafix:ok DisableSyntax.null
       } yield Result.all(
         List(
           beforeSet,
-          before.log("before"),
-          beforeIsolated.log("beforeIsolated"),
-          isolated1Before.log("isolated1Before"),
-          isolated1After.log("isolated1After"),
-          isolated2Before.log("isolated2Before"),
-          isolated2After.log("isolated2After"),
-          (MDC.get("key-1") ==== a).log(s"""After: MDC.get("key-1") is not $a"""),
-          (MDC.get("key-2") ==== null).log("""After: MDC.get("key-2") is not null"""), // scalafix:ok DisableSyntax.null
+          before,
+          beforeIsolated,
+          isolated1Before,
+          isolated1After,
+          isolated2Before,
+          isolated2After,
+          key1Result,
+          key2Result,
+          //          (MDC.get("key-1") ==== a).log(s"""${Thread.currentThread().getName}:After: MDC.get("key-1") is not $a"""),
+          //          (MDC.get("key-2") ==== null).log("""After: MDC.get("key-2") is not null"""), // scalafix:ok DisableSyntax.null
         )
       )
 
-      test.runSyncUnsafe()
+      test.unsafeRunSync()
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   def testPutAndGetMultipleIsolatedNestedModifications2: Property =
     for {
       a  <- Gen.string(Gen.alpha, Range.linear(1, 2)).map("a:" + _).log("a")
-      a2 <- Gen.string(Gen.alpha, Range.linear(1, 2)).map("a2:" + a + _).log("a2")
+//      a2 <- Gen.string(Gen.alpha, Range.linear(1, 2)).map("a2:" + a + _).log("a2")
       b1 <- Gen.string(Gen.alpha, Range.linear(3, 4)).map("b1:" + _).log("b1")
       c2 <- Gen.string(Gen.alpha, Range.linear(5, 6)).map("c1:" + _).log("c1")
       a3 <- Gen.string(Gen.alpha, Range.linear(7, 8)).map("a3:" + _).log("a3")
       b3 <- Gen.string(Gen.alpha, Range.linear(9, 10)).map("b3:" + _).log("b3")
       c3 <- Gen.string(Gen.alpha, Range.linear(11, 12)).map("c3:" + _).log("c3")
     } yield {
-      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
 
       before()
 
-      val beforeSet         = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
-      MDC.put("key-1", a2)
-      val beforeAndAfterSet =
-        (MDC.get("key-1") ==== a2).log(s"""before: MDC.get("key-1") should be $a2""") // scalafix:ok DisableSyntax.null
+      val beforeSet = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
+//      MDC.put("key-1", a2)
+//      val beforeAndAfterSet =
+//        (MDC.get("key-1") ==== a2).log(s"""before: MDC.get("key-1") should be $a2""") // scalafix:ok DisableSyntax.null
 
       val test = for {
-        beforeSet2     <- Task((MDC.get("key-1") ==== a2).log("before set2")) // scalafix:ok DisableSyntax.null
-        _              <- Task(MDC.put("key-1", a))
+//        beforeSet2     <- IO((MDC.get("key-1") ==== a2).log("before set2")) // scalafix:ok DisableSyntax.null
+        _              <- IO(MDC.put("key-1", a))
+        beforeSet2     <- IO(
+                            (MDC.get("key-1") ==== a).log(s"""before set2: MDC.get("key-1") should be $a""")
+                          ) // scalafix:ok DisableSyntax.null
+        _              <- IO(MDC.put("key-1", a))
         before         <-
-          Task {
+          IO {
             val actual1 = MDC.get("key-1")
             val actual2 = MDC.get("key-2")
             val actual3 = MDC.get("key-3")
@@ -203,20 +195,22 @@ trait Monix3MdcAdapterSpecsOnly {
               ), // scalafix:ok DisableSyntax.null
             )
           }
-        beforeIsolated <- TaskLocal.isolate(Task {
+        beforeIsolated <- IO {
                             val actual = MDC.get("key-1")
                             (actual ==== a).log(s"""beforeIsolated: MDC.get("key-1") should be $a, but it is $actual""")
-                          })
+                          }
+                            .start
+                            .flatMap(_.joinWithNever)
 
         isolated1 <-
-          TaskLocal.isolate(
-            Task {
+          (
+            IO {
               val actual = MDC.get("key-1")
               (actual ==== a).log(s"""isolated1Before: MDC.get("key-1") should be $a, but it is $actual""")
             }.flatMap { isolated1Before =>
-              Task(
+              IO(
                 MDC.put("key-1", b1)
-              ) *> Task {
+              ) *> IO {
                 val actual = MDC.get("key-1")
                 List(
                   isolated1Before,
@@ -224,10 +218,10 @@ trait Monix3MdcAdapterSpecsOnly {
                 )
               }
             }
-          )
+          ).start
         isolated2 <-
-          TaskLocal.isolate(
-            Task {
+          (
+            IO {
               val actual1 = MDC.get("key-1")
               val actual2 = MDC.get("key-2")
               val actual3 = MDC.get("key-3")
@@ -241,9 +235,9 @@ trait Monix3MdcAdapterSpecsOnly {
                 ), // scalafix:ok DisableSyntax.null
               )
             }.flatMap { isolated2Before =>
-              Task(
+              IO(
                 MDC.put("key-2", c2)
-              ) *> Task {
+              ) *> IO {
                 val actual1 = MDC.get("key-1")
                 val actual2 = MDC.get("key-2")
                 val actual3 = MDC.get("key-3")
@@ -259,10 +253,10 @@ trait Monix3MdcAdapterSpecsOnly {
                   )
               }
             }
-          )
+          ).start
         isolated3 <-
-          TaskLocal.isolate(
-            Task {
+          (
+            IO {
               val actual1 = MDC.get("key-1")
               val actual2 = MDC.get("key-2")
               val actual3 = MDC.get("key-3")
@@ -276,13 +270,13 @@ trait Monix3MdcAdapterSpecsOnly {
                 ), // scalafix:ok DisableSyntax.null
               )
             }.flatMap { isolated3Before =>
-              Task(
+              IO(
                 MDC.put("key-1", b3)
-              ) *> Task(
+              ) *> IO(
                 MDC.put("key-2", c3)
-              ) *> Task(
+              ) *> IO(
                 MDC.put("key-3", a3)
-              ) *> Task {
+              ) *> IO {
                 val actual1 = MDC.get("key-1")
                 val actual2 = MDC.get("key-2")
                 val actual3 = MDC.get("key-3")
@@ -293,22 +287,22 @@ trait Monix3MdcAdapterSpecsOnly {
                 )
               }
             }
-          )
+          ).start
 
-        joinedIsolated1 = isolated1
-        joinedIsolated2 = isolated2
-        joinedIsolated3 = isolated3
+        joinedIsolated1 <- isolated1.joinWithNever
+        joinedIsolated2 <- isolated2.joinWithNever
+        joinedIsolated3 <- isolated3.joinWithNever
 
-        key1Result <- Task((MDC.get("key-1") ==== a).log(s"""After: MDC.get("key-1") is not $a"""))
-        key2Result <- Task(
+        key1Result <- IO((MDC.get("key-1") ==== a).log(s"""After: MDC.get("key-1") is not $a"""))
+        key2Result <- IO(
                         (MDC.get("key-2") ==== null).log("""After: MDC.get("key-2") is not null""")
                       ) // scalafix:ok DisableSyntax.null
-        key3Result <- Task(
+        key3Result <- IO(
                         (MDC.get("key-3") ==== null).log("""After: MDC.get("key-3") is not null""")
                       ) // scalafix:ok DisableSyntax.null
       } yield List(
         beforeSet,
-        beforeAndAfterSet,
+//        beforeAndAfterSet,
         beforeSet2,
       ) ++ before ++ List(
         beforeIsolated
@@ -319,15 +313,15 @@ trait Monix3MdcAdapterSpecsOnly {
           key1Result,
           key2Result,
           key3Result,
-          //          (MDC.get("key-1") ==== a).log(s"""${Thread.currentThread().getName}:After: MDC.get("key-1") is not $a"""),
-          //          (MDC.get("key-2") ==== null).log("""After: MDC.get("key-2") is not null"""), // scalafix:ok DisableSyntax.null
+//          (MDC.get("key-1") ==== a).log(s"""${Thread.currentThread().getName}:After: MDC.get("key-1") is not $a"""),
+//          (MDC.get("key-2") ==== null).log("""After: MDC.get("key-2") is not null"""), // scalafix:ok DisableSyntax.null
         )
 
-      val afterIo = MDC.get("key-1") ==== a2
+//      val afterIo = (MDC.get("key-1") ==== a2).log(s"""after IO: MDC.get("key-1") should be $a2""")
       Result.all(
-        test.runSyncUnsafe() ++
+        test.unsafeRunSync() ++
           List(
-            afterIo
+//            afterIo
           )
       )
     }
@@ -336,7 +330,7 @@ trait Monix3MdcAdapterSpecsOnly {
     for {
       someContext <- Gens.genSomeContext.log("someContext")
     } yield {
-      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+
       before()
 
       val staticFieldName = "staticFieldName"
@@ -345,8 +339,8 @@ trait Monix3MdcAdapterSpecsOnly {
       @SuppressWarnings(Array("org.wartremover.warts.ToString"))
       val result = {
         for {
-          _      <- Task(MDC.put(staticFieldName, staticValueName))
-          before <- Task {
+          _      <- IO(MDC.put(staticFieldName, staticValueName))
+          before <- IO {
                       Result.all(
                         List(
                           (Option(MDC.get("uuid")) ==== none).log("uuid should not be found"),
@@ -359,11 +353,11 @@ trait Monix3MdcAdapterSpecsOnly {
                         )
                       )
                     }
-          _      <- Task(MDC.setContextMap(productToMap(someContext).asJava))
+          _      <- IO(MDC.setContextMap(productToMap(someContext).asJava))
           now = Instant.now().toString
-          _      <- Task(MDC.put("timestamp", now))
-          _      <- TaskLocal.isolate(Task(MDC.put("idNum", "ABC")))
-          result <- Task {
+          _      <- IO(MDC.put("timestamp", now))
+          _      <- IO(MDC.put("idNum", "ABC")).start.flatMap(_.joinWithNever)
+          result <- IO {
                       Result.all(
                         List(
                           before,
@@ -378,7 +372,7 @@ trait Monix3MdcAdapterSpecsOnly {
                     }
         } yield result
       }
-      result.runSyncUnsafe()
+      result.unsafeRunSync()
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
@@ -386,14 +380,13 @@ trait Monix3MdcAdapterSpecsOnly {
     for {
       keyValuePair <- Gens.genKeyValuePair.log("keyValuePair")
     } yield {
-      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
       before()
 
       (for {
         valueBefore <- putAndGet(keyValuePair.key, keyValuePair.value)
 
-        _          <- Task(MDC.remove(keyValuePair.key))
-        valueAfter <- Task(MDC.get(keyValuePair.key))
+        _          <- IO(MDC.remove(keyValuePair.key))
+        valueAfter <- IO(MDC.get(keyValuePair.key))
       } yield Result
         .all(
           List(
@@ -401,30 +394,32 @@ trait Monix3MdcAdapterSpecsOnly {
             valueAfter ==== null, // scalafix:ok DisableSyntax.null
           )
         ))
-        .runSyncUnsafe()
+        .unsafeRunSync()
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   def testRemoveMultiple: Property = for {
     keyValuePairs <- Gens.genKeyValuePairs.log("keyValuePairs")
   } yield {
-    implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+
     before()
 
-    val tasks = keyValuePairs.keyValuePairs.map { keyValue =>
-      TaskLocal.isolate(putAndGet(keyValue.key, keyValue.value).executeAsync)
+    val ios = keyValuePairs.keyValuePairs.traverse { keyValue =>
+      putAndGet(keyValue.key, keyValue.value).start
     }
 
     (for {
-      retrievedKeyValues             <- Task.parSequence(tasks)
+      fibers                         <- ios
+      retrievedKeyValues             <- fibers.traverse(_.joinWithNever)
       retrievedKeyValuesBeforeRemove <- keyValuePairs.keyValuePairs.traverse { keyValue =>
-                                          Task(MDC.get(keyValue.key))
+                                          IO(MDC.get(keyValue.key))
                                         }
-      _                              <- Task.parSequence(keyValuePairs.keyValuePairs.map { keyValue =>
-                                          TaskLocal.isolate(Task(MDC.remove(keyValue.key)))
-                                        })
+      fibers4Removal                 <- keyValuePairs.keyValuePairs.traverse { keyValue =>
+                                          IO(MDC.remove(keyValue.key)).start
+                                        }
+      _                              <- fibers4Removal.traverse_(_.joinWithNever)
       retrievedKeyValuesAfterRemove  <- keyValuePairs.keyValuePairs.traverse { keyValue =>
-                                          Task(MDC.get(keyValue.key))
+                                          IO(MDC.get(keyValue.key))
                                         }
     } yield {
       Result.all(
@@ -442,76 +437,75 @@ trait Monix3MdcAdapterSpecsOnly {
         )
       )
     })
-      .runSyncUnsafe()
+      .unsafeRunSync()
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Null", "scalafix:DisableSyntax.null"))
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
   def testRemoveMultipleIsolatedNestedModifications: Property =
     for {
       a <- Gen.string(Gen.alpha, Range.linear(1, 10)).map("1:" + _).log("a")
       b <- Gen.string(Gen.alpha, Range.linear(1, 10)).map("2:" + _).log("b")
       c <- Gen.string(Gen.alpha, Range.linear(1, 10)).map("3:" + _).log("c")
     } yield {
-      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+
       before()
 
       val test = for {
-        _              <- Task(MDC.put("key-1", a))
-        before         <- Task(MDC.get("key-1") ==== a)
-        beforeIsolated <- TaskLocal.isolate(Task(MDC.get("key-1") ==== a))
+        _              <- IO(MDC.put("key-1", a))
+        before         <- IO((MDC.get("key-1") ==== a).log("before"))
+        beforeIsolated <- IO((MDC.get("key-1") ==== a).log("beforeIsolated")).start.flatMap(_.joinWithNever)
 
-        isolated1 <- TaskLocal.isolate {
-                       Task(MDC.get("key-1") ==== a)
-                         .flatMap { isolated1Before =>
-                           Task(MDC.put("key-1", b)) *> Task(
-                             (isolated1Before, MDC.get("key-1") ==== b)
-                           )
-                         }
-                     }
+        isolated1 <- (IO((MDC.get("key-1") ==== a).log("isolated1Before"))
+                       .flatMap { isolated1Before =>
+                         IO(MDC.put("key-1", b)) *> IO(
+                           (isolated1Before, (MDC.get("key-1") ==== b).log("isolated1After"))
+                         )
+                       })
+                       .start
+                       .flatMap(_.joinWithNever)
         (isolated1Before, isolated1After) = isolated1
-        isolated2 <- TaskLocal.isolate {
-                       Task(MDC.get("key-1") ==== a)
-                         .flatMap { isolated2Before =>
-                           Task(MDC.put("key-2", c)) *> Task(
-                             (isolated2Before, MDC.get("key-2") ==== c)
-                           )
-                         }
-                     }
+        isolated2 <- (IO((MDC.get("key-1") ==== a).log("isolated2Before"))
+                       .flatMap { isolated2Before =>
+                         IO(MDC.put("key-2", c)) *> IO(
+                           (isolated2Before, (MDC.get("key-2") ==== c).log("isolated2After"))
+                         )
+                       })
+                       .start
+                       .flatMap(_.joinWithNever)
         (isolated2Before, isolated2After) = isolated2
-        isolated3 <- TaskLocal.isolate {
-                       for {
-                         isolated2Key1Before      <- Task(MDC.get("key-1")).map(_ ==== a)
-                         isolated2Key2Before      <-
-                           Task(MDC.get("key-2")).map(_ ==== null)
-                         _                        <- Task(MDC.put("key-2", c))
-                         isolated2Key2After       <- Task(MDC.get("key-2")).map(_ ==== c)
-                         _                        <- Task(MDC.remove("key-2"))
-                         isolated2Key2AfterRemove <-
-                           Task(MDC.get("key-2")).map(_ ==== null)
-                       } yield (
-                         isolated2Key1Before,
-                         isolated2Key2Before,
-                         isolated2Key2After,
-                         isolated2Key2AfterRemove,
-                       )
-
-                     }
+        isolated3 <- (for {
+                       isolated2Key1Before      <- IO(MDC.get("key-1")).map(_ ==== a)
+                       isolated2Key2Before      <-
+                         IO(MDC.get("key-2")).map(_ ==== null) // scalafix:ok DisableSyntax.null
+                       _                        <- IO(MDC.put("key-2", c))
+                       isolated2Key2After       <- IO(MDC.get("key-2")).map(_ ==== c)
+                       _                        <- IO(MDC.remove("key-2"))
+                       isolated2Key2AfterRemove <-
+                         IO(MDC.get("key-2")).map(_ ==== null) // scalafix:ok DisableSyntax.null
+                     } yield (
+                       isolated2Key1Before,
+                       isolated2Key2Before,
+                       isolated2Key2After,
+                       isolated2Key2AfterRemove,
+                     )).start.flatMap(_.joinWithNever)
         (isolated2Key1Before, isolated2Key2Before, isolated2Key2After, isolated2Key2AfterRemove) = isolated3
-        key1After = (MDC.get("key-1") ==== a).log(s"""After: MDC.get("key-1") is not $a""")
-        key2After =
-          (MDC.get("key-2") ==== null).log("""After: MDC.get("key-2") is not null""")
+        key1After <- IO((MDC.get("key-1") ==== a).log(s"""After: MDC.get("key-1") is not $a"""))
+        key2After <- IO(
+                       (MDC.get("key-2") ==== null) // scalafix:ok DisableSyntax.null
+                         .log("""After: MDC.get("key-2") is not null""")
+                     )
 
-        _ <- Task(MDC.remove("key-1"))
+        _ <- IO(MDC.remove("key-1"))
         key1AfterRemove = (MDC.get("key-1") ==== null)
-                            .log("""After Remove: MDC.get("key-1") is not null""")
+                            .log("""After Remove: MDC.get("key-1") is not null""") // scalafix:ok DisableSyntax.null
       } yield Result.all(
         List(
-          before.log("before"),
-          beforeIsolated.log("beforeIsolated"),
-          isolated1Before.log("isolated1Before"),
-          isolated1After.log("isolated1After"),
-          isolated2Before.log("isolated2Before"),
-          isolated2After.log("isolated2After"),
+          before,
+          beforeIsolated,
+          isolated1Before,
+          isolated1After,
+          isolated2Before,
+          isolated2After,
           isolated2Key1Before,
           isolated2Key2Before,
           isolated2Key2After,
@@ -522,14 +516,14 @@ trait Monix3MdcAdapterSpecsOnly {
         )
       )
 
-      test.runSyncUnsafe()
+      test.unsafeRunSync()
     }
 
   def testGetCopyOfContextMap: Property =
     for {
       someContext <- Gens.genSomeContext.log("someContext")
     } yield {
-      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+
       before()
 
       val staticFieldName = "staticFieldName"
@@ -538,22 +532,22 @@ trait Monix3MdcAdapterSpecsOnly {
       @SuppressWarnings(Array("org.wartremover.warts.ToString"))
       val result = {
         for {
-          _         <- Task(MDC.put(staticFieldName, staticValueName))
-          mapBefore <- Task(MDC.getCopyOfContextMap)
+          _         <- IO(MDC.put(staticFieldName, staticValueName))
+          mapBefore <- IO(MDC.getCopyOfContextMap)
                          .map { propertyMap =>
                            (propertyMap.asScala.toMap ==== Map(staticFieldName -> staticValueName))
                              .log("propertyMap Before")
                          }
           expectedPropertyMap = productToMap(someContext)
-          _         <- Task(MDC.setContextMap(expectedPropertyMap.asJava))
-          mapAfter  <- Task(MDC.getCopyOfContextMap)
+          _         <- IO(MDC.setContextMap(expectedPropertyMap.asJava))
+          mapAfter  <- IO(MDC.getCopyOfContextMap)
                          .map { propertyMap =>
                            (propertyMap.asScala.toMap ==== expectedPropertyMap).log("propertyMap After")
                          }
           now = Instant.now().toString
-          _         <- Task(MDC.put("timestamp", now))
-          _         <- TaskLocal.isolate(Task(MDC.put("idNum", "ABC")))
-          mapAfter2 <- Task(MDC.getCopyOfContextMap)
+          _         <- IO(MDC.put("timestamp", now))
+          _         <- IO(MDC.put("idNum", "ABC")).start.flatMap(_.joinWithNever)
+          mapAfter2 <- IO(MDC.getCopyOfContextMap)
                          .map(propertyMap =>
                            (propertyMap.asScala.toMap ==== expectedPropertyMap.updated("timestamp", now))
                              .log("propertyMap After 2")
@@ -566,14 +560,14 @@ trait Monix3MdcAdapterSpecsOnly {
           )
         )
       }
-      result.runSyncUnsafe()
+      result.unsafeRunSync()
     }
 
   def testGetPropertyMap: Property =
     for {
       someContext <- Gens.genSomeContext.log("someContext")
     } yield {
-      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+
       before()
 
       val staticFieldName = "staticFieldName"
@@ -582,22 +576,22 @@ trait Monix3MdcAdapterSpecsOnly {
       @SuppressWarnings(Array("org.wartremover.warts.ToString"))
       val result = {
         for {
-          _         <- Task(MDC.put(staticFieldName, staticValueName))
-          mapBefore <- Task(monixMdcAdapter.getPropertyMap)
+          _         <- IO(MDC.put(staticFieldName, staticValueName))
+          mapBefore <- IO(ce3MdcAdapter.getPropertyMap)
                          .map { propertyMap =>
                            (propertyMap.asScala.toMap ==== Map(staticFieldName -> staticValueName))
                              .log("propertyMap Before")
                          }
           expectedPropertyMap = productToMap(someContext)
-          _         <- Task(MDC.setContextMap(expectedPropertyMap.asJava))
-          mapAfter  <- Task(monixMdcAdapter.getPropertyMap)
+          _         <- IO(MDC.setContextMap(expectedPropertyMap.asJava))
+          mapAfter  <- IO(ce3MdcAdapter.getPropertyMap)
                          .map { propertyMap =>
                            (propertyMap.asScala.toMap ==== expectedPropertyMap).log("propertyMap After")
                          }
           now = Instant.now().toString
-          _         <- Task(MDC.put("timestamp", now))
-          _         <- TaskLocal.isolate(Task(MDC.put("idNum", "ABC")))
-          mapAfter2 <- Task(monixMdcAdapter.getPropertyMap)
+          _         <- IO(MDC.put("timestamp", now))
+          _         <- IO(MDC.put("idNum", "ABC")).start.flatMap(_.joinWithNever)
+          mapAfter2 <- IO(ce3MdcAdapter.getPropertyMap)
                          .map(propertyMap =>
                            (propertyMap.asScala.toMap ==== expectedPropertyMap.updated("timestamp", now))
                              .log("propertyMap After 2")
@@ -610,14 +604,14 @@ trait Monix3MdcAdapterSpecsOnly {
           )
         )
       }
-      result.runSyncUnsafe()
+      result.unsafeRunSync()
     }
 
   def testGetKeys: Property =
     for {
       someContext <- Gens.genSomeContext.log("someContext")
     } yield {
-      implicit val scheduler: monix.execution.Scheduler = monix.execution.Scheduler.traced
+
       before()
 
       val staticFieldName = "staticFieldName"
@@ -626,43 +620,43 @@ trait Monix3MdcAdapterSpecsOnly {
       @SuppressWarnings(Array("org.wartremover.warts.ToString"))
       val result = {
         for {
-          _      <- Task(MDC.put(staticFieldName, staticValueName))
-          keySet <- Task(monixMdcAdapter.getKeys)
-                      .map { keySet =>
-                        (keySet.asScala.toSet ==== Set(staticFieldName))
-                          .log("keySet Before")
-                      }
+          _            <- IO(MDC.put(staticFieldName, staticValueName))
+          keySetBefore <- IO(ce3MdcAdapter.getKeys)
+                            .map { keySet =>
+                              (keySet.asScala.toSet ==== Set(staticFieldName))
+                                .log("keySet Before")
+                            }
           expectedPropertyMap = productToMap(someContext)
           expectedKeySet      = expectedPropertyMap.keySet
-          _           <- Task(MDC.setContextMap(expectedPropertyMap.asJava))
-          keySetAfter <- Task(monixMdcAdapter.getKeys)
+          _           <- IO(MDC.setContextMap(expectedPropertyMap.asJava))
+          keySetAfter <- IO(ce3MdcAdapter.getKeys)
                            .map { keySet =>
                              (keySet.asScala.toSet ==== expectedKeySet).log("keySet After")
                            }
           now = Instant.now().toString
-          _            <- Task(MDC.put("timestamp", now))
-          _            <- TaskLocal.isolate(Task(MDC.put("idNum", "ABC")))
-          keySetAfter2 <- Task(monixMdcAdapter.getKeys)
+          _            <- IO(MDC.put("timestamp", now))
+          _            <- IO(MDC.put("idNum", "ABC")).start.flatMap(_.joinWithNever)
+          keySetAfter2 <- IO(ce3MdcAdapter.getKeys)
                             .map(keySet =>
                               (keySet.asScala.toSet ==== expectedKeySet)
                                 .log("keySet After 2")
                             )
         } yield Result.all(
           List(
-            keySet,
+            keySetBefore,
             keySetAfter,
             keySetAfter,
             keySetAfter2,
           )
         )
       }
-      result.runSyncUnsafe()
+      result.unsafeRunSync()
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   private def productToMap[A <: Product](product: A): Map[String, String] = {
     // This doesn't work for Scala 2.12
-    //    val fields = product.productElementNames.toVector
+//    val fields = product.productElementNames.toVector
 
     val fields = product.getClass.getDeclaredFields.map(_.getName)
     val length = product.productArity
@@ -680,77 +674,4 @@ trait Monix3MdcAdapterSpecsOnly {
     }.toMap
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  def testSetMdcAdapterForMDC: Property = for {
-    mdcAdapterName1 <- Gen.string(Gen.ascii, Range.linear(5, 5)).log("mdcAdapterName1")
-    mdcAdapterName2 <- Gen.string(Gen.ascii, Range.linear(5, 5)).log("mdcAdapterName2")
-    mdcAdapterName  <- Gen.constant(mdcAdapterName1 + mdcAdapterName2).log("mdcAdapterName")
-  } yield {
-    val mdcAdapter = TestMdcAdapter(mdcAdapterName)
-    val before     = MDC.getMDCAdapter()
-
-    SetMdcAdapter(mdcAdapter)
-
-    val after = MDC.getMDCAdapter()
-
-    Result.all(
-      List(
-        Result.diffNamed("before should not be equal to the new MDCAdapter", before, mdcAdapter)(_ != _),
-        (after ==== mdcAdapter).log("after SetMdcAdapter should be equal to the new MDCAdapter"),
-      )
-    )
-  }
-
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  def testLoggerContextSetMdcAdapter: Property = for {
-    mdcAdapterName1 <- Gen.string(Gen.ascii, Range.linear(5, 5)).log("mdcAdapterName1")
-    mdcAdapterName2 <- Gen.string(Gen.ascii, Range.linear(5, 5)).log("mdcAdapterName2")
-    mdcAdapterName  <- Gen.constant(mdcAdapterName1 + mdcAdapterName2).log("mdcAdapterName")
-  } yield {
-    val mdcAdapter    = TestMdcAdapter(mdcAdapterName)
-    @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
-    val loggerContext =
-      LoggerFactory
-        .getILoggerFactory
-        .asInstanceOf[ch.qos.logback.classic.LoggerContext] // scalafix:ok DisableSyntax.asInstanceOf
-
-    val before = loggerContext.getMDCAdapter()
-
-    val _ = Monix3MdcAdapter.initializeWithMonix3MdcAdapterAndLoggerContext(mdcAdapter, loggerContext)
-
-    val after = loggerContext.getMDCAdapter()
-
-    Result.all(
-      List(
-        Result.diffNamed("before should not be equal to the new MDCAdapter", before, mdcAdapter)(_ != _),
-        (after ==== mdcAdapter).log("after SetMdcAdapter should be equal to the new MDCAdapter"),
-      )
-    )
-  }
-}
-object Monix3MdcAdapterSpec extends Properties with Monix3MdcAdapterSpecsOnly {
-
-  @SuppressWarnings(Array("org.wartremover.warts.Var"))
-  final case class TestMdcAdapter(name: String) extends Monix3MdcAdapter {
-
-    override def put(key: String, `val`: String): Unit = ???
-
-    override def get(key: String): String = ???
-
-    override def remove(key: String): Unit = ???
-
-    override def clear(): Unit = ???
-
-    override def getCopyOfContextMap: util.Map[String, String] = ???
-
-    override def setContextMap0(contextMap: util.Map[String, String]): Unit = ???
-
-    override def pushByKey(key: String, value: String): Unit = ???
-
-    override def popByKey(key: String): String = ???
-
-    override def getCopyOfDequeByKey(key: String): util.Deque[String] = ???
-
-    override def clearDequeByKey(key: String): Unit = ???
-  }
 }
