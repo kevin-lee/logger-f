@@ -24,7 +24,7 @@ trait Monix3MdcAdapterSpecsOnly {
    */
   implicit val opts: Task.Options = Task.defaultOptions.enableLocalContextPropagation
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.ToString"))
   private val monixMdcAdapter: Monix3MdcAdapter =
     try {
       Monix3MdcAdapter.initialize()
@@ -271,7 +271,7 @@ trait Monix3MdcAdapterSpecsOnly {
       .runSyncUnsafe()
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  @SuppressWarnings(Array("org.wartremover.warts.Null", "scalafix:DisableSyntax.null"))
   def testRemoveMultipleIsolatedNestedModifications: Property =
     for {
       a <- Gen.string(Gen.alpha, Range.linear(1, 10)).map("1:" + _).log("a")
@@ -308,12 +308,12 @@ trait Monix3MdcAdapterSpecsOnly {
                        for {
                          isolated2Key1Before      <- Task(MDC.get("key-1")).map(_ ==== a)
                          isolated2Key2Before      <-
-                           Task(MDC.get("key-2")).map(_ ==== null) // scalafix:ok DisableSyntax.null
+                           Task(MDC.get("key-2")).map(_ ==== null)
                          _                        <- Task(MDC.put("key-2", c))
                          isolated2Key2After       <- Task(MDC.get("key-2")).map(_ ==== c)
                          _                        <- Task(MDC.remove("key-2"))
                          isolated2Key2AfterRemove <-
-                           Task(MDC.get("key-2")).map(_ ==== null) // scalafix:ok DisableSyntax.null
+                           Task(MDC.get("key-2")).map(_ ==== null)
                        } yield (
                          isolated2Key1Before,
                          isolated2Key2Before,
@@ -325,11 +325,11 @@ trait Monix3MdcAdapterSpecsOnly {
         (isolated2Key1Before, isolated2Key2Before, isolated2Key2After, isolated2Key2AfterRemove) = isolated3
         key1After = (MDC.get("key-1") ==== a).log(s"""After: MDC.get("key-1") is not $a""")
         key2After =
-          (MDC.get("key-2") ==== null).log("""After: MDC.get("key-2") is not null""") // scalafix:ok DisableSyntax.null
+          (MDC.get("key-2") ==== null).log("""After: MDC.get("key-2") is not null""")
 
         _ <- Task(MDC.remove("key-1"))
         key1AfterRemove = (MDC.get("key-1") ==== null)
-                            .log("""After Remove: MDC.get("key-1") is not null""") // scalafix:ok DisableSyntax.null
+                            .log("""After Remove: MDC.get("key-1") is not null""")
       } yield Result.all(
         List(
           before.log("before"),
@@ -559,24 +559,34 @@ object Monix3MdcAdapterSpec extends Properties with Monix3MdcAdapterSpecsOnly {
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   final case class TestMdcAdapter(name: String) extends Monix3MdcAdapter {
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def put(key: String, `val`: String): Unit = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def get(key: String): String = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def remove(key: String): Unit = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def clear(): Unit = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def getCopyOfContextMap: util.Map[String, String] = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def setContextMap0(contextMap: util.Map[String, String]): Unit = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def pushByKey(key: String, value: String): Unit = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def popByKey(key: String): String = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def getCopyOfDequeByKey(key: String): util.Deque[String] = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def clearDequeByKey(key: String): Unit = ???
   }
 }
