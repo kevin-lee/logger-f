@@ -25,8 +25,6 @@ ThisBuild / scmInfo :=
 
 ThisBuild / licenses := props.licenses
 
-ThisBuild / resolvers += "sonatype-snapshots" at s"https://${props.SonatypeCredentialHost}/content/repositories/snapshots"
-
 //ThisBuild / semanticdbEnabled := true
 //ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
@@ -66,7 +64,6 @@ lazy val loggerF = (project in file("."))
     devOopsPackagedArtifacts := List(s"*/*/*/target/scala-*/${devOopsArtifactNamePrefix.value}*.jar"),
     /* } GitHub Release */
   )
-  .settings(mavenCentralPublishSettings)
   .settings(noPublish)
   .aggregate(
     coreJvm,
@@ -559,15 +556,12 @@ lazy val props =
     final val RepoName       = "logger-f"
 
     final val Scala3Versions = List("3.1.3")
-    final val Scala2Versions = List("2.13.11", "2.12.18")
+    final val Scala2Versions = List("2.13.14", "2.12.18")
 
 //    final val ProjectScalaVersion = Scala3Versions.head
     final val ProjectScalaVersion = Scala2Versions.head
 
     lazy val licenses = List("MIT" -> url("http://opensource.org/licenses/MIT"))
-
-    val SonatypeCredentialHost = "s01.oss.sonatype.org"
-    val SonatypeRepository     = s"https://$SonatypeCredentialHost/service/local"
 
     val removeDottyIncompatible: ModuleID => Boolean =
       m =>
@@ -581,9 +575,9 @@ lazy val props =
 
     final val IncludeTest = "compile->compile;test->test"
 
-    final val HedgehogVersion = "0.8.0"
+    final val HedgehogVersion = "0.10.1"
 
-    final val HedgehogExtraVersion = "0.3.0"
+    final val HedgehogExtraVersion = "0.10.0"
 
     final val EffectieVersion = "2.0.0"
 
@@ -686,13 +680,6 @@ def libraryDependenciesRemoveScala3Incompatible(
       libraries
   )
 
-lazy val mavenCentralPublishSettings: SettingsDefinition = List(
-  /* Publish to Maven Central { */
-  sonatypeCredentialHost := props.SonatypeCredentialHost,
-  sonatypeRepository := props.SonatypeRepository,
-  /* } Publish to Maven Central */
-)
-
 def module(projectName: ProjectName, crossProject: CrossProject.Builder): CrossProject = {
   val prefixedName = prefixedProjectName(projectName.projectName)
   projectCommonSettings(prefixedName, crossProject)
@@ -754,7 +741,4 @@ def projectCommonSettings(projectName: String, crossProject: CrossProject.Builde
           true
       }),
       /* } Coveralls */
-    )
-    .settings(
-      mavenCentralPublishSettings
     )
