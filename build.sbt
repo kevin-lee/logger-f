@@ -558,7 +558,7 @@ lazy val props =
     final val GitHubUsername = "Kevin-Lee"
     final val RepoName       = "logger-f"
 
-    final val Scala3Versions = List("3.0.2")
+    final val Scala3Versions = List("3.1.3")
     final val Scala2Versions = List("2.13.11", "2.12.18")
 
 //    final val ProjectScalaVersion = Scala3Versions.head
@@ -571,7 +571,6 @@ lazy val props =
 
     val removeDottyIncompatible: ModuleID => Boolean =
       m =>
-        m.name == "wartremover" ||
           m.name == "ammonite" ||
           m.name == "kind-projector" ||
           m.name == "better-monadic-for" ||
