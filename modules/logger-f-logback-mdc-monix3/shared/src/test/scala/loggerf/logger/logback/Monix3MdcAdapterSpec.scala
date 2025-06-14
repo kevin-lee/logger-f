@@ -559,24 +559,34 @@ object Monix3MdcAdapterSpec extends Properties with Monix3MdcAdapterSpecsOnly {
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   final case class TestMdcAdapter(name: String) extends Monix3MdcAdapter {
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def put(key: String, `val`: String): Unit = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def get(key: String): String = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def remove(key: String): Unit = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def clear(): Unit = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def getCopyOfContextMap: util.Map[String, String] = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def setContextMap0(contextMap: util.Map[String, String]): Unit = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def pushByKey(key: String, value: String): Unit = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def popByKey(key: String): String = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def getCopyOfDequeByKey(key: String): util.Deque[String] = ???
 
+    @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
     override def clearDequeByKey(key: String): Unit = ???
   }
 }
