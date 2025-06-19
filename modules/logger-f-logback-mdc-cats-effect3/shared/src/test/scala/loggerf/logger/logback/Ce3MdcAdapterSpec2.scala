@@ -37,6 +37,7 @@ object Ce3MdcAdapterSpec2 extends Properties {
     property("IO - MDC: It should return context map for getCopyOfContextMap", testGetCopyOfContextMap),
     property("IO - MDC: It should return context map for getPropertyMap", testGetPropertyMap),
     property("IO - MDC: It should return context map for getKeys", testGetKeys),
+    property("IO - MDC: NonFatal exceptions should not break the MDC", testNonFatalExceptions),
   )
 
   def before(): Unit = MDC.clear()
@@ -415,7 +416,7 @@ object Ce3MdcAdapterSpec2 extends Properties {
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.ToString"))
-  def testGetKeys: Property =
+  def testGetKeys: Property            =
     for {
       someContext <- Gens.genSomeContext.log("someContext")
     } yield runIO {
@@ -456,6 +457,14 @@ object Ce3MdcAdapterSpec2 extends Properties {
         )
       )
 
+    }
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  def testNonFatalExceptions: Property =
+    for {
+      _ <- Gens.genKeyValuePair.log("keyValuePair")
+    } yield runIO {
+      IO(Ce3MdcAdapter.initializeWithLoggerContext(null)) // scalafix:ok DisableSyntax.null
+        .map(mdca => mdca.clear ==== (()))
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.ToString"))
