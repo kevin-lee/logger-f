@@ -103,10 +103,12 @@ object Ce3MdcAdapterSpec extends Properties {
       before()
 
       val beforeSet = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
-//      MDC.put("key-1", a)
+      MDC.put("key-1", a)
+
+      val afterBeforeSetBeforeBefore = (MDC.get("key-1") ==== a).log("after beforeSet and before before")
 
       val test = for {
-        _              <- IO(MDC.put("key-1", a))
+//        _              <- IO(MDC.put("key-1", a))
         before         <- IO((MDC.get("key-1") ==== a).log("before"))
         beforeIsolated <- IO((MDC.get("key-1") ==== a).log("beforeIsolated"))
                             .start
@@ -138,6 +140,7 @@ object Ce3MdcAdapterSpec extends Properties {
       } yield Result.all(
         List(
           beforeSet,
+          afterBeforeSetBeforeBefore,
           before,
           beforeIsolated,
           isolated1Before,
@@ -158,7 +161,7 @@ object Ce3MdcAdapterSpec extends Properties {
   def testPutAndGetMultipleIsolatedNestedModifications2: Property =
     for {
       a  <- Gen.string(Gen.alpha, Range.linear(1, 2)).map("a:" + _).log("a")
-//      a2 <- Gen.string(Gen.alpha, Range.linear(1, 2)).map("a2:" + a + _).log("a2")
+      a2 <- Gen.string(Gen.alpha, Range.linear(1, 2)).map("a2:" + a + _).log("a2")
       b1 <- Gen.string(Gen.alpha, Range.linear(3, 4)).map("b1:" + _).log("b1")
       c2 <- Gen.string(Gen.alpha, Range.linear(5, 6)).map("c1:" + _).log("c1")
       a3 <- Gen.string(Gen.alpha, Range.linear(7, 8)).map("a3:" + _).log("a3")
@@ -168,14 +171,15 @@ object Ce3MdcAdapterSpec extends Properties {
 
       before()
 
-      val beforeSet = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
-//      MDC.put("key-1", a2)
-//      val beforeAndAfterSet =
-//        (MDC.get("key-1") ==== a2).log(s"""before: MDC.get("key-1") should be $a2""") // scalafix:ok DisableSyntax.null
+      val beforeSet      = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
+      MDC.put("key-1", a2)
+      val afterBeforeSet =
+        (MDC.get("key-1") ==== a2)
+          .log(s"""after beforeSet: MDC.get("key-1") should be $a2""") // scalafix:ok DisableSyntax.null
 
       val test = for {
 //        beforeSet2     <- IO((MDC.get("key-1") ==== a2).log(s"""before set2: MDC.get("key-1") should be $a2""")) // scalafix:ok DisableSyntax.null
-        _              <- IO(MDC.put("key-1", a))
+//        _              <- IO(MDC.put("key-1", a))
         beforeSet2     <- IO(
                             (MDC.get("key-1") ==== a).log(s"""before set2: MDC.get("key-1") should be $a""")
                           ) // scalafix:ok DisableSyntax.null
@@ -301,7 +305,7 @@ object Ce3MdcAdapterSpec extends Properties {
                       ) // scalafix:ok DisableSyntax.null
       } yield List(
         beforeSet,
-//        beforeAndAfterSet,
+        afterBeforeSet,
         beforeSet2,
       ) ++ before ++ List(
         beforeIsolated

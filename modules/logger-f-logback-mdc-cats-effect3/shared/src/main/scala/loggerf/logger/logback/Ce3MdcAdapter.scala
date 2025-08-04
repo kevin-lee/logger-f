@@ -4,11 +4,10 @@ import cats.effect.{IOLocal, SyncIO}
 import cats.syntax.all._
 import ch.qos.logback.classic.LoggerContext
 import logback_scala_interop.JLoggerFMdcAdapter
-import org.slf4j.{LoggerFactory, MDC}
+import org.slf4j.LoggerFactory
 
 import java.util.{Map => JMap, Set => JSet}
 import scala.jdk.CollectionConverters._
-import scala.util.control.NonFatal
 
 /** @author Kevin Lee
   * @since 2023-07-07
@@ -55,35 +54,51 @@ class Ce3MdcAdapter extends JLoggerFMdcAdapter {
   override def getKeys: JSet[String] = localContext.unsafeThreadLocal().get.keySet.asJava
 
 }
-object Ce3MdcAdapter {
+object Ce3MdcAdapter extends Ce3MdcAdapterOps
+
+trait Ce3MdcAdapterOps {
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
-  private def initialize0(): Ce3MdcAdapter = {
-    val field   = classOf[MDC].getDeclaredField("mdcAdapter")
-    field.setAccessible(true)
-    val adapter = new Ce3MdcAdapter
-    field.set(null, adapter) // scalafix:ok DisableSyntax.null
-    field.setAccessible(false)
-    adapter
+  protected def initialize0(ce3MdcAdapter: Ce3MdcAdapter): Ce3MdcAdapter = {
+    org.slf4j.SetMdcAdapter(ce3MdcAdapter)
+    ce3MdcAdapter
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf", "scalafix:DisableSyntax.asInstanceOf"))
-  def initialize(): Ce3MdcAdapter = {
-    val loggerContext =
-      LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
-    initializeWithLoggerContext(loggerContext)
-  }
+  protected def getLoggerContext(): LoggerContext =
+    LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
 
-  def initializeWithLoggerContext(loggerContext: LoggerContext): Ce3MdcAdapter = {
-    val adapter = initialize0()
-    try {
-      val field = classOf[LoggerContext].getDeclaredField("mdcAdapter")
+  def initialize(): Ce3MdcAdapter =
+    initializeWithCe3MdcAdapterAndLoggerContext(new Ce3MdcAdapter, getLoggerContext())
+
+  def initializeWithCe3MdcAdapter(ce3MdcAdapter: Ce3MdcAdapter): Ce3MdcAdapter =
+    initializeWithCe3MdcAdapterAndLoggerContext(ce3MdcAdapter, getLoggerContext())
+
+  def initializeWithLoggerContext(loggerContext: LoggerContext): Ce3MdcAdapter =
+    initializeWithCe3MdcAdapterAndLoggerContext(new Ce3MdcAdapter, loggerContext)
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def initializeWithCe3MdcAdapterAndLoggerContext(
+    ce3MdcAdapter: Ce3MdcAdapter,
+    loggerContext: LoggerContext,
+  ): Ce3MdcAdapter = {
+    val adapter = initialize0(ce3MdcAdapter)
+
+    loggerContext.setMDCAdapter(adapter)
+    if (loggerContext.getMDCAdapter == adapter) {
+      //      println("[LoggerContext] It's set by setMDCAdapter.")
+      adapter
+    } else {
+      //      println(
+      //        "[LoggerContext] The old setMDCAdapter doesn't replace `mdcAdapter` if it has already been set, " +
+      //          "so it will use reflection to set it in the `mdcAdapter` field."
+      //      )
+      val loggerContextClass = classOf[LoggerContext]
+      val field              = loggerContextClass.getDeclaredField("mdcAdapter")
       field.setAccessible(true)
       field.set(loggerContext, adapter)
       field.setAccessible(false)
       adapter
-    } catch {
-      case NonFatal(_) => adapter
     }
   }
 }

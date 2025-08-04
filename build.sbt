@@ -338,6 +338,7 @@ lazy val logbackMdcCatsEffect3    = module(ProjectName("logback-mdc-cats-effect3
   )
   .dependsOn(
     core,
+    slf4jMdc,
     monix       % Test,
     slf4jLogger % Test,
   )
@@ -626,7 +627,7 @@ lazy val props =
     final val RepoName       = "logger-f"
 
     final val Scala3Versions = List("3.3.0")
-    final val Scala2Versions = List("2.13.14", "2.12.18")
+    final val Scala2Versions = List("2.13.15", "2.12.18")
 
 //    final val ProjectScalaVersion = Scala3Versions.head
     final val ProjectScalaVersion = Scala2Versions.head
@@ -653,7 +654,7 @@ lazy val props =
 
     final val CatsVersion = "2.7.0"
 
-    val CatsEffect3Version = "3.6.0-RC1"
+    val CatsEffect3Version = "3.6.3"
 
     val Monix3Version = "3.4.0"
 
