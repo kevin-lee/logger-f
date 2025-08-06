@@ -55,7 +55,7 @@ object instancesSpec extends Properties {
       )
 
       import effectie.instances.ce3.fx.ioFx
-      import loggerf.instances.cats.logF
+
       val _ = runLog[IO].completeAs(())
       logger ==== expected
     }
@@ -95,7 +95,7 @@ object instancesSpec extends Properties {
       }
 
       import effectie.instances.ce3.fx.ioFx
-      import loggerf.instances.cats.logF
+
       runLog[IO](logMsg).completeThen { _ =>
         logger ==== expected
       }
@@ -135,7 +135,7 @@ object instancesSpec extends Properties {
       }
 
       import effectie.instances.ce3.fx.ioFx
-      import loggerf.instances.cats.logF
+
       runLog[IO](logMsg).completeThen { _ =>
         logger ==== expected
       }
@@ -176,7 +176,7 @@ object instancesSpec extends Properties {
       }
 
       import effectie.instances.ce3.fx.ioFx
-      import loggerf.instances.cats.logF
+
       runLog[IO](logMsg).completeThen { _ =>
         logger ==== expected
       }
@@ -222,7 +222,7 @@ object instancesSpec extends Properties {
         }
 
         import effectie.instances.ce3.fx.ioFx
-        import loggerf.instances.cats.logF
+
         runLog[IO](eab).completeThen { _ =>
           logger ==== expected
         }
@@ -269,7 +269,7 @@ object instancesSpec extends Properties {
         }
 
         import effectie.instances.ce3.fx.ioFx
-        import loggerf.instances.cats.logF
+
         runLog[IO](eab).completeThen { _ =>
           logger ==== expected
         }
@@ -316,7 +316,7 @@ object instancesSpec extends Properties {
         }
 
         import effectie.instances.ce3.fx.ioFx
-        import loggerf.instances.cats.logF
+
         runLog[IO](eab).completeThen { _ =>
           logger ==== expected
         }

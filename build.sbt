@@ -97,9 +97,11 @@ lazy val core    =
       description := "Logger for F[_] - Core",
       libraryDependencies ++= List(
         libs.effectieCore,
-        libs.cats % Test,
+        libs.cats      % Test,
         libs.tests.extrasConcurrent,
         libs.tests.extrasConcurrentTesting,
+        "io.kevinlee" %% "orphan-cats" % "0.1.0",
+        libs.cats      % Optional,
       ) ++ libs.tests.hedgehogLibs,
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
@@ -383,6 +385,50 @@ lazy val monix    =
 lazy val monixJvm = monix.jvm
 lazy val monixJs  = monix.js
 
+lazy val testCore    =
+  testProject(
+    ProjectName("core"),
+    crossProject(JVMPlatform, JSPlatform),
+  )
+    .settings(
+      description := "Test Logger for F[_] - Core module",
+      libraryDependencies ++= Seq(
+        libs.slf4jApi,
+        libs.logbackClassic,
+        libs.tests.extrasTestingTools
+      ),
+      libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+        scalaVersion.value,
+        libraryDependencies.value,
+      ),
+    )
+    .settings(noPublish)
+    .dependsOn(core, slf4jLogger)
+lazy val testCoreJvm = testCore.jvm
+lazy val testCoreJs  = testCore.js
+
+lazy val testCoreWithCats =
+  testProject(
+    ProjectName("core-with-cats"),
+    crossProject(JVMPlatform, JSPlatform),
+  )
+    .settings(
+      description := "Test Logger for F[_] - Core module",
+      libraryDependencies ++= Seq(
+        libs.slf4jApi,
+        libs.logbackClassic,
+        libs.cats,
+      ),
+      libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+        scalaVersion.value,
+        libraryDependencies.value,
+      ),
+    )
+    .settings(noPublish)
+    .dependsOn(core, slf4jLogger)
+lazy val testCoreWithCatsJvm      = testCoreWithCats.jvm
+lazy val testCoreWithCatsJs       = testCoreWithCats.js
+
 lazy val testCatsEffectWithSlf4jLogger    =
   testProject(
     ProjectName("cats-effect-slf4j"),
@@ -565,7 +611,7 @@ lazy val props =
 
     val removeDottyIncompatible: ModuleID => Boolean =
       m =>
-          m.name == "ammonite" ||
+        m.name == "ammonite" ||
           m.name == "kind-projector" ||
           m.name == "better-monadic-for" ||
           m.name == "mdoc"
@@ -589,7 +635,7 @@ lazy val props =
 
     final val LoggerF1Version = "1.20.0"
 
-    final val ExtrasVersion = "0.25.0"
+    final val ExtrasVersion = "0.47.0"
 
     val Slf4JVersion       = "2.0.12"
     val Slf4JLatestVersion = "2.0.17"
@@ -656,6 +702,8 @@ lazy val libs =
       ).map(_ % Test)
 
       lazy val extrasCats = "io.kevinlee" %% "extras-cats" % props.ExtrasVersion % Test
+
+      lazy val extrasTestingTools = "io.kevinlee" %% "extras-testing-tools" % props.ExtrasVersion % Test
 
       lazy val extrasConcurrent        = "io.kevinlee" %% "extras-concurrent"         % props.ExtrasVersion % Test
       lazy val extrasConcurrentTesting = "io.kevinlee" %% "extras-concurrent-testing" % props.ExtrasVersion % Test

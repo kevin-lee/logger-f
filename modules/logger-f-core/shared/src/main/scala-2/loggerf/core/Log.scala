@@ -13,22 +13,42 @@ import scala.annotation.implicitNotFound
 @implicitNotFound(
   """
   Could not find an implicit Log[${F}].
-  You can probably find it from the loggerf.instances package from logger-f-cats module.
+  If you add [cats](https://typelevel.org/cats) library to your project,
+  you can automatically get `Log[${F}]` instance provided by logger-f.
+
+  Add
   ---
-    import loggerf.instances.cats._
+    "org.typelevel" %% "cats-core" % CATS_VERSION
   ---
+  to build.sbt.
+
+  Or you can use your own instance of `Log[${F}]` by importing yours.
   -----
-  If this doesn't solve, you probably need a CanLog instance.
+  If it doesn't solve, it's probably because of missing an Fx[${F}] instance.
+
+  You can simply import the Fx[${F}] instance of your effect library.
+  Please check out the message of @implicitNotFound annotation on `effectie.core.Fx`.
+  Or please check out the following document.
+
+    https://logger-f.kevinly.dev/docs/cats/import/#instances-for-effectie
+
+    NOTE: You only need it once in the main method. In all other places,
+    you can simply use the context bound with `Fx`.
+
+    e.g.)
+      def foo[F[*]: Fx: Log]: F[A] =
+        ...
+        fa.log(a => info(s"The result is $a)"))
+        ...
+  -----
+  If this doesn't solve, you probably need a `CanLog` instance.
   To create it, please check out the following document.
 
-  https://logger-f.kevinly.dev/docs/cats/import#canlog-logger
+    https://logger-f.kevinly.dev/docs/cats/import#canlog-logger
 
+    NOTE: You only need it once in the main method. In all other places,
+    you should not see it unless you want to use a different logger per each type.
   -----
-  If it doesn't solve, it's probably because of missing an Fx[F] instance.
-
-  You can simply import the Fx[F] instance of your effect library.
-  Please check out the message of @implicitNotFound annotation on effectie.core.Fx.
-
   """
 )
 trait Log[F[*]] {
@@ -137,9 +157,21 @@ trait Log[F[*]] {
     map0(log(feab)(leftToMessage, rightToMessage))(_ => ())
 
 }
-
-object Log {
+object Log extends orphan.OrphanCats {
 
   def apply[F[*]: Log]: Log[F] = implicitly[Log[F]]
+
+  implicit def logF[F[*], M[*[*]]: CatsMonad](implicit EF0: FxCtor[F], canLog0: CanLog, MF0: M[F]): Log[F] =
+    new Log[F] {
+      override val EF: FxCtor[F]  = EF0
+      override val canLog: CanLog = canLog0
+
+      @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
+      private val MF: cats.Monad[F] = MF0.asInstanceOf[cats.Monad[F]] // scalafix:ok DisableSyntax.asInstanceOf
+
+      @inline override def map0[A, B](fa: F[A])(f: A => B): F[B] = MF.map(fa)(f)
+
+      @inline override def flatMap0[A, B](fa: F[A])(f: A => F[B]): F[B] = MF.flatMap(fa)(f)
+    }
 
 }
