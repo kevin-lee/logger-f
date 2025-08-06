@@ -136,7 +136,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future]
       }
 
@@ -182,7 +182,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -227,7 +227,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -273,7 +273,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -319,7 +319,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -367,7 +367,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -415,7 +415,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -463,7 +463,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -511,7 +511,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -559,7 +559,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -604,7 +604,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -648,7 +648,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -693,7 +693,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -741,7 +741,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -789,7 +789,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -837,7 +837,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -885,7 +885,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -933,7 +933,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -971,7 +971,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future]
       }
 
@@ -1017,7 +1017,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -1062,7 +1062,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -1108,7 +1108,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -1154,7 +1154,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -1202,7 +1202,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -1250,7 +1250,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -1298,7 +1298,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -1346,7 +1346,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -1394,7 +1394,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -1439,7 +1439,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -1483,7 +1483,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -1528,7 +1528,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -1576,7 +1576,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -1624,7 +1624,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -1672,7 +1672,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -1720,7 +1720,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -1768,7 +1768,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -1810,7 +1810,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future]
       }
 
@@ -1856,7 +1856,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -1901,7 +1901,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -1947,7 +1947,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -1995,7 +1995,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -2043,7 +2043,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -2091,7 +2091,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -2139,7 +2139,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -2187,7 +2187,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -2232,7 +2232,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -2276,7 +2276,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -2321,7 +2321,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -2369,7 +2369,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -2417,7 +2417,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -2465,7 +2465,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -2513,7 +2513,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -2561,7 +2561,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -2598,7 +2598,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future]
       }
 
@@ -2644,7 +2644,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -2689,7 +2689,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -2735,7 +2735,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -2783,7 +2783,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -2831,7 +2831,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -2879,7 +2879,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -2927,7 +2927,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -2975,7 +2975,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -3020,7 +3020,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -3064,7 +3064,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -3109,7 +3109,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](logMsg)
       }
 
@@ -3157,7 +3157,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -3205,7 +3205,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -3253,7 +3253,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -3301,7 +3301,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
@@ -3349,7 +3349,7 @@ object loggingSyntaxSpec extends Properties {
 
       val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor300Millis) {
         import effectie.instances.future.fxCtor._
-        import loggerf.instances.cats.logF
+
         runLog[Future](eab)
       }
 
