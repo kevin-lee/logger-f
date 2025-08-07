@@ -52,6 +52,12 @@ jobs:
           echo "SBT_OPTS=${SBT_OPTS}"
           java -version
           .github/workflows/sbt-build-all.sh ${{ matrix.scala.version }}
+          
+          sbt \
+            ++${{ matrix.scala.version }} \
+            -v \
+            clean \
+            "testCoreJVM/test; testCoreJS/test; testCoreWithCatsJVM/test; testCoreWithCatsJS/test"
 
       - name: "[PR] Build All for ${{ matrix.scala.name }}: ${{ matrix.scala.version }} - PR-#${{ github.event.pull_request.number }} - ${{ github.run_number }}"
         if: github.event_name == 'pull_request'
@@ -68,3 +74,9 @@ jobs:
           echo "PR #${PR_NUMBER}"
           java -version
           .github/workflows/sbt-build-all.sh ${{ matrix.scala.version }} ${{ matrix.scala.report }}
+          
+          sbt \
+            ++${{ matrix.scala.version }} \
+            -v \
+            clean \
+            "testCoreJVM/test; testCoreJS/test; testCoreWithCatsJVM/test; testCoreWithCatsJS/test"

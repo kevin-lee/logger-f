@@ -395,8 +395,8 @@ lazy val testCore    =
       libraryDependencies ++= Seq(
         libs.slf4jApi,
         libs.logbackClassic,
-        libs.tests.extrasTestingTools
-      ),
+        libs.tests.extrasTestingTools,
+      ) ++ libs.tests.hedgehogLibs,
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value,
@@ -407,7 +407,7 @@ lazy val testCore    =
 lazy val testCoreJvm = testCore.jvm
 lazy val testCoreJs  = testCore.js
 
-lazy val testCoreWithCats =
+lazy val testCoreWithCats    =
   testProject(
     ProjectName("core-with-cats"),
     crossProject(JVMPlatform, JSPlatform),
@@ -418,16 +418,16 @@ lazy val testCoreWithCats =
         libs.slf4jApi,
         libs.logbackClassic,
         libs.cats,
-      ),
+      ) ++ libs.tests.hedgehogLibs,
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value,
       ),
     )
     .settings(noPublish)
-    .dependsOn(core, slf4jLogger)
-lazy val testCoreWithCatsJvm      = testCoreWithCats.jvm
-lazy val testCoreWithCatsJs       = testCoreWithCats.js
+    .dependsOn(core, slf4jLogger, testCore % props.IncludeTest)
+lazy val testCoreWithCatsJvm = testCoreWithCats.jvm
+lazy val testCoreWithCatsJs  = testCoreWithCats.js
 
 lazy val testCatsEffectWithSlf4jLogger    =
   testProject(
