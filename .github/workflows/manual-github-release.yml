@@ -19,7 +19,7 @@ on:
         required: true
 
 env:
-  GH_SBT_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=2G -Xmx4G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
+  GH_SBT_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=2G -Xmx8G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions"
 
 jobs:
   github-release:
@@ -51,7 +51,7 @@ jobs:
           SBT_OPTS: ${{ env.GH_SBT_OPTS }}
         run: |
           echo "Run] sbt GitHub release"
-          echo 'sbt -J-Xmx4G devOopsGitHubRelease'
+          echo 'sbt -J-Xmx8G devOopsGitHubRelease'
           sbt \
-            -J-Xmx4G \
+            -J-Xmx8G \
             devOopsGitHubRelease
