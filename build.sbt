@@ -97,11 +97,11 @@ lazy val core    =
       description := "Logger for F[_] - Core",
       libraryDependencies ++= List(
         libs.effectieCore,
-        libs.cats      % Test,
+        libs.orphanCats,
+        libs.cats % Test,
         libs.tests.extrasConcurrent,
         libs.tests.extrasConcurrentTesting,
-        "io.kevinlee" %% "orphan-cats" % "0.1.0",
-        libs.cats      % Optional,
+        libs.cats % Optional,
       ) ++ libs.tests.hedgehogLibs,
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
@@ -649,6 +649,8 @@ lazy val props =
 
     val LogbackScalaInteropVersion       = "1.0.0"
     val LogbackScalaInteropLatestVersion = "1.17.0"
+
+    val OrphanVersion = "0.1.0"
   }
 
 lazy val libs =
@@ -684,6 +686,8 @@ lazy val libs =
     lazy val logbackScalaInterop       = "io.kevinlee" % "logback-scala-interop" % props.LogbackScalaInteropVersion
     lazy val logbackScalaInteropLatest =
       "io.kevinlee" % "logback-scala-interop" % props.LogbackScalaInteropLatestVersion
+
+    lazy val orphanCats = "io.kevinlee" %% "orphan-cats" % props.OrphanVersion
 
     lazy val tests = new {
 

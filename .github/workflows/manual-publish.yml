@@ -19,7 +19,7 @@ on:
         required: true
 
 env:
-  GH_SBT_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=2G -Xmx4G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
+  GH_SBT_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=2G -Xmx8G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions"
 
 jobs:
 
@@ -57,9 +57,9 @@ jobs:
           mkdir -p dotty-docs
           export SOURCE_DATE_EPOCH=$(date +%s)
           echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
-          echo 'sbt -J-Xmx4G ++${{ matrix.scala.version }}! -v clean test packagedArtifacts devOopsGitHubReleaseUploadArtifacts publish'
+          echo 'sbt -J-Xmx8G ++${{ matrix.scala.version }}! -v clean test packagedArtifacts devOopsGitHubReleaseUploadArtifacts publish'
           sbt \
-            -J-Xmx4G \
+            -J-Xmx8G \
             ++${{ matrix.scala.version }}! \
             -v \
             clean \

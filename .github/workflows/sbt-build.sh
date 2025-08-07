@@ -21,12 +21,11 @@ else
 
   if [[ "$CURRENT_BRANCH_NAME" == "main" || "$CURRENT_BRANCH_NAME" == "logger-f-1" || "$CURRENT_BRANCH_NAME" == "release" ]]
   then
-#    sbt -J-Xmx4G "project ${project_name}" ++${scala_version}! -v clean coverage test coverageReport coverageAggregate
-#    sbt -J-Xmx4G "project ${project_name}" ++${scala_version}! -v coveralls
-#    sbt -J-Xmx4G "project ${project_name}" ++${scala_version}! -v clean packagedArtifacts
+#    sbt -J-Xmx8G "project ${project_name}" ++${scala_version}! -v clean coverage test coverageReport coverageAggregate
+#    sbt -J-Xmx8G "project ${project_name}" ++${scala_version}! -v coveralls
+#    sbt -J-Xmx8G "project ${project_name}" ++${scala_version}! -v clean packagedArtifacts
     mkdir -p dotty-docs
     sbt \
-      -J-Xmx4G \
       "project ${project_name}" \
       ++${scala_version}! \
       -v \
@@ -34,10 +33,9 @@ else
       test \
       packagedArtifacts
   else
-#    sbt -J-Xmx4G "project ${project_name}" ++${scala_version}! -v clean coverage test coverageReport coverageAggregate package
-#    sbt -J-Xmx4G "project ${project_name}" ++${scala_version}! -v coveralls
+#    sbt -J-Xmx8G "project ${project_name}" ++${scala_version}! -v clean coverage test coverageReport coverageAggregate package
+#    sbt -J-Xmx8G "project ${project_name}" ++${scala_version}! -v coveralls
     sbt \
-      -J-Xmx4G \
       "project ${project_name}" \
       ++${scala_version}! \
       -v \
