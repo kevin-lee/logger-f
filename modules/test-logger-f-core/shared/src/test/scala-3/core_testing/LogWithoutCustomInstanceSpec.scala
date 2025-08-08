@@ -1,11 +1,7 @@
 package core_testing
 
-import effectie.core._
 import hedgehog._
 import hedgehog.runner._
-import loggerf.core._
-import loggerf.core.syntax.all._
-import loggerf.logger.{CanLog, Slf4JLogger}
 
 /** @author Kevin Lee
   * @since 2025-08-05
@@ -15,10 +11,6 @@ object LogWithoutCustomInstanceSpec extends Properties {
   override def tests: List[Test] = List(
     example("test compile time error", testCompileTimeError)
   )
-
-  implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("test-can-log")
-
-  def foo[F[*]: Fx: Log](n: Int): F[Int] = Log[F].log(Fx[F].effectOf(n * 2))(n => info(n.toString))
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def testCompileTimeError: Result = {
@@ -66,8 +58,18 @@ object LogWithoutCustomInstanceSpec extends Properties {
 
     val actual = typeCheckErrors(
       """
-      import effectie.instances.tries.fx._
+      import effectie.core.*
+      import loggerf.core.*
+      import loggerf.core.syntax.all.*
+      import loggerf.logger.{CanLog, Slf4JLogger}
+
+      import effectie.instances.tries.fx.given
       import scala.util.Try
+
+      given canLog: CanLog = Slf4JLogger.slf4JCanLog("test-can-log")
+
+      def foo[F[*]: Fx: Log](n: Int): F[Int] = Log[F].log(Fx[F].effectOf(n * 2))(n => info(n.toString))
+
 
       foo[Try](1)
       """
