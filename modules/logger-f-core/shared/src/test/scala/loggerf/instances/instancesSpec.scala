@@ -16,9 +16,8 @@ import loggerf.logger._
 import java.util.concurrent.ExecutorService
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
-
 import loggerf.test_data
-import loggerf.test_data.TestCases
+import loggerf.test_data.{Gens, TestCases}
 
 /** @author Kevin Lee
   * @since 2022-02-09
@@ -26,21 +25,29 @@ import loggerf.test_data.TestCases
 object instancesSpec extends Properties {
   override def tests: List[Test] = List(
     property("test Log.log(F[A])", testLogFA),
+    property("test Log.log(F[A] with Throwable)", testLogFAWithThrowable),
     property("test Log.log(F[A]) with matching cases", testLogFAWithMatchingCases),
     property("test Log.log_(F[A])", testLog_FA),
+    property("test Log.log_(F[A]) with Throwable", testLog_FAWithThrowable),
     property("test Log.log_(F[A]) with matching cases", testLog_FAWithMatchingCases),
     property("test Log.logS(String)", testLogS),
+    property("test Log.logS(String) with Throwable", testLogSWithThrowable),
     property("test Log.logS_(String)", testLogS_()),
+    property("test Log.logS_(String) with Throwable", testLogS_WithThrowable()),
     property("test Log.log(F[Option[A]])", testLogFOptionA),
+    property("test Log.log(F[Option[A]]) with Throwable", testLogFOptionAWithThrowable),
     property("test Log.log(F[Option[A]])(ignore, message)", testLogFOptionAIgnoreEmpty),
     property("test Log.log(F[Option[A]])(message, ignore)", testLogFOptionAIgnoreSome),
     property("test Log.log_(F[Option[A]])", testLog_FOptionA),
+    property("test Log.log_(F[Option[A]]) with Throwable", testLog_FOptionAWithThrowable),
     property("test Log.log_(F[Option[A]])(ignore, message)", testLog_FOptionAIgnoreEmpty),
     property("test Log.log_(F[Option[A]])(message, ignore)", testLog_FOptionAIgnoreSome),
     property("test Log.log(F[Either[A, B]])", testLogFEitherAB),
+    property("test Log.log(F[Either[A, B]]) with Throwable", testLogFEitherABWithThrowable),
     property("test Log.log(F[Either[A, B]])(ignore, message)", testLogFEitherABIgnoreLeft),
     property("test Log.log(F[Either[A, B]])(ignore, message)", testLogFEitherABIgnoreRight),
     property("test Log.log_(F[Either[A, B]])", testLog_FEitherAB),
+    property("test Log.log_(F[Either[A, B]]) with Throwable", testLog_FEitherABWithThrowable),
     property("test Log.log_(F[Either[A, B]])(ignore, message)", testLog_FEitherABIgnoreLeft),
     property("test Log.log_(F[Either[A, B]])(ignore, message)", testLog_FEitherABIgnoreRight),
   )
@@ -75,6 +82,74 @@ object instancesSpec extends Properties {
       infoMessages = Vector(infoMsg),
       warnMessages = Vector(warnMsg),
       errorMessages = Vector(errorMsg),
+    )
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+
+      runLog[Future]
+
+    }
+    logger ==== expected
+
+  }
+
+  def testLogFAWithThrowable: Property = for {
+    debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+    infoMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+    warnMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+    errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+
+    throwables <- Gens.genThrowable.log("throwables")
+    (debugThrowable, infoThrowable, warnThrowable, errorThrowable) = throwables
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: Fx: Log: Monad]: F[Unit] =
+      (for {
+        _ <- Log[F].log(Fx[F].effectOf(debugMsg))(debug)
+        _ <- Log[F].log(Fx[F].effectOf(debugMsg))(debug(debugThrowable))
+        _ <- Log[F].log(Fx[F].effectOf(debugMsg))(a => debug(debugThrowable)(s"DEBUG message: $a"))
+        _ <- Log[F].log(Fx[F].effectOf(debugMsg))(ignoreA)
+        _ <- Log[F].log(Fx[F].effectOf(infoMsg))(info)
+        _ <- Log[F].log(Fx[F].effectOf(infoMsg))(info(infoThrowable))
+        _ <- Log[F].log(Fx[F].effectOf(infoMsg))(a => info(infoThrowable)(s"INFO message: $a"))
+        _ <- Log[F].log(Fx[F].effectOf(infoMsg))(ignoreA)
+        _ <- Log[F].log(Fx[F].effectOf(warnMsg))(warn)
+        _ <- Log[F].log(Fx[F].effectOf(warnMsg))(warn(warnThrowable))
+        _ <- Log[F].log(Fx[F].effectOf(warnMsg))(a => warn(warnThrowable)(s"WARN message: $a"))
+        _ <- Log[F].log(Fx[F].effectOf(warnMsg))(ignoreA)
+        _ <- Log[F].log(Fx[F].effectOf(errorMsg))(error)
+        _ <- Log[F].log(Fx[F].effectOf(errorMsg))(error(errorThrowable))
+        _ <- Log[F].log(Fx[F].effectOf(errorMsg))(a => error(errorThrowable)(s"ERROR message: $a"))
+        _ <- Log[F].log(Fx[F].effectOf(errorMsg))(ignoreA)
+      } yield ())
+
+    val expected = LoggerForTesting(
+      debugMessages = Vector(
+        debugMsg,
+        s"$debugMsg\n${debugThrowable.toString}",
+        s"DEBUG message: $debugMsg\n${debugThrowable.toString}",
+      ),
+      infoMessages = Vector(
+        infoMsg,
+        s"$infoMsg\n${infoThrowable.toString}",
+        s"INFO message: $infoMsg\n${infoThrowable.toString}",
+      ),
+      warnMessages = Vector(
+        warnMsg,
+        s"$warnMsg\n${warnThrowable.toString}",
+        s"WARN message: $warnMsg\n${warnThrowable.toString}",
+      ),
+      errorMessages = Vector(
+        errorMsg,
+        s"$errorMsg\n${errorThrowable.toString}",
+        s"ERROR message: $errorMsg\n${errorThrowable.toString}",
+      ),
     )
 
     implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
@@ -193,6 +268,74 @@ object instancesSpec extends Properties {
 
   }
 
+  def testLog_FAWithThrowable: Property = for {
+    debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+    infoMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+    warnMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+    errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+
+    throwables <- Gens.genThrowable.log("throwables")
+    (debugThrowable, infoThrowable, warnThrowable, errorThrowable) = throwables
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: Fx: Log: Monad]: F[Unit] =
+      (for {
+        _ <- Log[F].log_(Fx[F].effectOf(debugMsg))(debug)
+        _ <- Log[F].log_(Fx[F].effectOf(debugMsg))(debug(debugThrowable))
+        _ <- Log[F].log_(Fx[F].effectOf(debugMsg))(a => debug(debugThrowable)(s"DEBUG message: $a"))
+        _ <- Log[F].log_(Fx[F].effectOf(debugMsg))(ignoreA)
+        _ <- Log[F].log_(Fx[F].effectOf(infoMsg))(info)
+        _ <- Log[F].log_(Fx[F].effectOf(infoMsg))(info(infoThrowable))
+        _ <- Log[F].log_(Fx[F].effectOf(infoMsg))(a => info(infoThrowable)(s"INFO message: $a"))
+        _ <- Log[F].log_(Fx[F].effectOf(infoMsg))(ignoreA)
+        _ <- Log[F].log_(Fx[F].effectOf(warnMsg))(warn)
+        _ <- Log[F].log_(Fx[F].effectOf(warnMsg))(warn(warnThrowable))
+        _ <- Log[F].log_(Fx[F].effectOf(warnMsg))(a => warn(warnThrowable)(s"WARN message: $a"))
+        _ <- Log[F].log_(Fx[F].effectOf(warnMsg))(ignoreA)
+        _ <- Log[F].log_(Fx[F].effectOf(errorMsg))(error)
+        _ <- Log[F].log_(Fx[F].effectOf(errorMsg))(error(errorThrowable))
+        _ <- Log[F].log_(Fx[F].effectOf(errorMsg))(a => error(errorThrowable)(s"ERROR message: $a"))
+        _ <- Log[F].log_(Fx[F].effectOf(errorMsg))(ignoreA)
+      } yield ())
+
+    val expected = LoggerForTesting(
+      debugMessages = Vector(
+        debugMsg,
+        s"$debugMsg\n${debugThrowable.toString}",
+        s"DEBUG message: $debugMsg\n${debugThrowable.toString}",
+      ),
+      infoMessages = Vector(
+        infoMsg,
+        s"$infoMsg\n${infoThrowable.toString}",
+        s"INFO message: $infoMsg\n${infoThrowable.toString}",
+      ),
+      warnMessages = Vector(
+        warnMsg,
+        s"$warnMsg\n${warnThrowable.toString}",
+        s"WARN message: $warnMsg\n${warnThrowable.toString}",
+      ),
+      errorMessages = Vector(
+        errorMsg,
+        s"$errorMsg\n${errorThrowable.toString}",
+        s"ERROR message: $errorMsg\n${errorThrowable.toString}",
+      ),
+    )
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+
+      runLog[Future]
+
+    }
+    logger ==== expected
+
+  }
+
   def testLog_FAWithMatchingCases: Property = for {
     debugMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
     infoMsg   <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
@@ -288,6 +431,61 @@ object instancesSpec extends Properties {
 
   }
 
+  def testLogSWithThrowable: Property = for {
+    debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+    infoMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+    warnMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+    errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+
+    throwables <- Gens.genThrowable.log("throwables")
+    (debugThrowable, infoThrowable, warnThrowable, errorThrowable) = throwables
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: Log: Monad]: F[(String, String, String, String, String, String, String, String)] =
+      for {
+        msg1a <- Log[F].logS(debugMsg)(debug)
+        msg1b <- Log[F].logS(debugMsg)(debug(debugThrowable))
+        msg2a <- Log[F].logS(infoMsg)(info)
+        msg2b <- Log[F].logS(infoMsg)(info(infoThrowable))
+        msg3a <- Log[F].logS(warnMsg)(warn)
+        msg3b <- Log[F].logS(warnMsg)(warn(warnThrowable))
+        msg4a <- Log[F].logS(errorMsg)(error)
+        msg4b <- Log[F].logS(errorMsg)(error(errorThrowable))
+      } yield (msg1a, msg1b, msg2a, msg2b, msg3a, msg3b, msg4a, msg4b)
+
+    val expectedLogger = LoggerForTesting(
+      debugMessages = Vector(
+        debugMsg,
+        s"$debugMsg\n${debugThrowable.toString}",
+      ),
+      infoMessages = Vector(
+        infoMsg,
+        s"$infoMsg\n${infoThrowable.toString}",
+      ),
+      warnMessages = Vector(
+        warnMsg,
+        s"$warnMsg\n${warnThrowable.toString}",
+      ),
+      errorMessages = Vector(
+        errorMsg,
+        s"$errorMsg\n${errorThrowable.toString}",
+      ),
+    )
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    val expected = (debugMsg, debugMsg, infoMsg, infoMsg, warnMsg, warnMsg, errorMsg, errorMsg)
+    val actual   = ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+      runLog[Future]
+    }
+    actual ==== expected and logger ==== expectedLogger
+
+  }
+
   def testLogS_(): Property = for {
     debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
     infoMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
@@ -309,6 +507,61 @@ object instancesSpec extends Properties {
       infoMessages = Vector(infoMsg),
       warnMessages = Vector(warnMsg),
       errorMessages = Vector(errorMsg),
+    )
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+
+      runLog[Future]
+
+    }
+    logger ==== expected
+
+  }
+
+  def testLogS_WithThrowable(): Property = for {
+    debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")
+    infoMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("infoMsg")
+    warnMsg  <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("warnMsg")
+    errorMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("errorMsg")
+
+    throwables <- Gens.genThrowable.log("throwables")
+    (debugThrowable, infoThrowable, warnThrowable, errorThrowable) = throwables
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: Log: Monad]: F[Unit] =
+      Log[F]
+        .logS_(debugMsg)(debug)
+        .flatMap { _ => Log[F].logS_(debugMsg)(debug(debugThrowable)) }
+        .flatMap { _ => Log[F].logS_(infoMsg)(info) }
+        .flatMap { _ => Log[F].logS_(infoMsg)(info(infoThrowable)) }
+        .flatMap { _ => Log[F].logS_(warnMsg)(warn) }
+        .flatMap { _ => Log[F].logS_(warnMsg)(warn(warnThrowable)) }
+        .flatMap { _ => Log[F].logS_(errorMsg)(error) }
+        .flatMap { _ => Log[F].logS_(errorMsg)(error(errorThrowable)) }
+
+    val expected = LoggerForTesting(
+      debugMessages = Vector(
+        debugMsg,
+        s"$debugMsg\n${debugThrowable.toString}",
+      ),
+      infoMessages = Vector(
+        infoMsg,
+        s"$infoMsg\n${infoThrowable.toString}",
+      ),
+      warnMessages = Vector(
+        warnMsg,
+        s"$warnMsg\n${warnThrowable.toString}",
+      ),
+      errorMessages = Vector(
+        errorMsg,
+        s"$errorMsg\n${errorThrowable.toString}",
+      ),
     )
 
     implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
@@ -354,6 +607,53 @@ object instancesSpec extends Properties {
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
           errorMessages = Vector.fill(4)(ifEmptyMsg),
+        )
+    }
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+      runLog[Future](logMsg)
+    }
+
+    logger ==== expected
+  }
+
+  def testLogFOptionAWithThrowable: Property = for {
+    logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+    ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+
+    throwables <- Gens.genThrowable.log("throwables")
+    (debugThrowable, infoThrowable, warnThrowable, errorThrowable) = throwables
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: Fx: Log: Monad](oa: Option[String]): F[Option[Unit]] =
+      (for {
+        _ <- Log[F].log(Fx[F].effectOf(oa))(error(errorThrowable)(ifEmptyMsg), debug(debugThrowable))
+        _ <- Log[F].log(Fx[F].effectOf(oa))(error(errorThrowable)(ifEmptyMsg), info(infoThrowable))
+        _ <- Log[F].log(Fx[F].effectOf(oa))(error(errorThrowable)(ifEmptyMsg), warn(warnThrowable))
+        _ <- Log[F].log(Fx[F].effectOf(oa))(error(errorThrowable)(ifEmptyMsg), error(errorThrowable))
+      } yield ().some)
+
+    val expected = logMsg match {
+      case Some(logMsg) =>
+        LoggerForTesting(
+          debugMessages = Vector(s"$logMsg\n${debugThrowable.toString}"),
+          infoMessages = Vector(s"$logMsg\n${infoThrowable.toString}"),
+          warnMessages = Vector(s"$logMsg\n${warnThrowable.toString}"),
+          errorMessages = Vector(s"$logMsg\n${errorThrowable.toString}"),
+        )
+
+      case None =>
+        LoggerForTesting(
+          debugMessages = Vector.empty,
+          infoMessages = Vector.empty,
+          warnMessages = Vector.empty,
+          errorMessages = Vector.fill(4)(s"$ifEmptyMsg\n${errorThrowable.toString}"),
         )
     }
 
@@ -498,6 +798,53 @@ object instancesSpec extends Properties {
     logger ==== expected
   }
 
+  def testLog_FOptionAWithThrowable: Property = for {
+    logMsg     <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
+    ifEmptyMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).map("[Empty] " + _).log("ifEmptyMsg")
+
+    throwables <- Gens.genThrowable.log("throwables")
+    (debugThrowable, infoThrowable, warnThrowable, errorThrowable) = throwables
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: Fx: Log: Monad](oa: Option[String]): F[Option[Unit]] =
+      (for {
+        _ <- Log[F].log_(Fx[F].effectOf(oa))(error(errorThrowable)(ifEmptyMsg), debug(debugThrowable))
+        _ <- Log[F].log_(Fx[F].effectOf(oa))(error(errorThrowable)(ifEmptyMsg), info(infoThrowable))
+        _ <- Log[F].log_(Fx[F].effectOf(oa))(error(errorThrowable)(ifEmptyMsg), warn(warnThrowable))
+        _ <- Log[F].log_(Fx[F].effectOf(oa))(error(errorThrowable)(ifEmptyMsg), error(errorThrowable))
+      } yield ().some)
+
+    val expected = logMsg match {
+      case Some(logMsg) =>
+        LoggerForTesting(
+          debugMessages = Vector(s"$logMsg\n${debugThrowable.toString}"),
+          infoMessages = Vector(s"$logMsg\n${infoThrowable.toString}"),
+          warnMessages = Vector(s"$logMsg\n${warnThrowable.toString}"),
+          errorMessages = Vector(s"$logMsg\n${errorThrowable.toString}"),
+        )
+
+      case None =>
+        LoggerForTesting(
+          debugMessages = Vector.empty,
+          infoMessages = Vector.empty,
+          warnMessages = Vector.empty,
+          errorMessages = Vector.fill(4)(s"$ifEmptyMsg\n${errorThrowable.toString}"),
+        )
+    }
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+      runLog[Future](logMsg)
+    }
+
+    logger ==== expected
+  }
+
   def testLog_FOptionAIgnoreEmpty: Property = for {
     logMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).option.log("logMsg")
   } yield {
@@ -615,6 +962,67 @@ object instancesSpec extends Properties {
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
           errorMessages = Vector.fill(4)(msg),
+        )
+    }
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+      runLog[Future](eab)
+    }
+
+    logger ==== expected
+  }
+
+  def testLogFEitherABWithThrowable: Property = for {
+    rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+    leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+    isRight    <- Gen.boolean.log("isRight")
+
+    throwables <- Gens.genThrowable.log("throwables")
+    (debugThrowable, infoThrowable, warnThrowable, errorThrowable) = throwables
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: Fx: Log: Monad](eab: Either[Throwable, Int]): F[Either[Throwable, Unit]] = for {
+      _ <- Log[F].log(Fx[F].effectOf(eab))(
+             err => error(err)(s"$leftString\n${err.getMessage}"),
+             b => debug(debugThrowable)(b.toString),
+           )
+      _ <- Log[F].log(Fx[F].effectOf(eab))(
+             err => error(err)(s"$leftString\n${err.getMessage}"),
+             b => info(infoThrowable)(b.toString),
+           )
+      _ <- Log[F].log(Fx[F].effectOf(eab))(
+             err => error(err)(s"$leftString\n${err.getMessage}"),
+             b => warn(warnThrowable)(b.toString),
+           )
+      _ <- Log[F].log(Fx[F].effectOf(eab))(
+             err => error(err)(s"$leftString\n${err.getMessage}"),
+             b => error(errorThrowable)(b.toString),
+           )
+    } yield ().asRight[Throwable]
+
+    val eab = if (isRight) rightInt.asRight[Throwable] else errorThrowable.asLeft[Int]
+
+    val expected = eab match {
+      case Right(n) =>
+        LoggerForTesting(
+          debugMessages = Vector(s"${n.toString}\n${debugThrowable.toString}"),
+          infoMessages = Vector(s"${n.toString}\n${infoThrowable.toString}"),
+          warnMessages = Vector(s"${n.toString}\n${warnThrowable.toString}"),
+          errorMessages = Vector(s"${n.toString}\n${errorThrowable.toString}"),
+        )
+
+      case Left(err) =>
+        LoggerForTesting(
+          debugMessages = Vector.empty,
+          infoMessages = Vector.empty,
+          warnMessages = Vector.empty,
+          errorMessages = Vector.fill(4)(s"$leftString\n${err.getMessage}\n${err.toString}"),
         )
     }
 
@@ -761,6 +1169,67 @@ object instancesSpec extends Properties {
       ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
 
     ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
+      runLog[Future](eab)
+    }
+
+    logger ==== expected
+  }
+
+  def testLog_FEitherABWithThrowable: Property = for {
+    rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+    leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+    isRight    <- Gen.boolean.log("isRight")
+
+    throwables <- Gens.genThrowable.log("throwables")
+    (debugThrowable, infoThrowable, warnThrowable, errorThrowable) = throwables
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: Fx: Log: Monad](eab: Either[Throwable, Int]): F[Either[Throwable, Unit]] = for {
+      _ <- Log[F].log_(Fx[F].effectOf(eab))(
+             err => error(err)(s"$leftString\n${err.getMessage}"),
+             b => debug(debugThrowable)(b.toString),
+           )
+      _ <- Log[F].log_(Fx[F].effectOf(eab))(
+             err => error(err)(s"$leftString\n${err.getMessage}"),
+             b => info(infoThrowable)(b.toString),
+           )
+      _ <- Log[F].log_(Fx[F].effectOf(eab))(
+             err => error(err)(s"$leftString\n${err.getMessage}"),
+             b => warn(warnThrowable)(b.toString),
+           )
+      _ <- Log[F].log_(Fx[F].effectOf(eab))(
+             err => error(err)(s"$leftString\n${err.getMessage}"),
+             b => error(errorThrowable)(b.toString),
+           )
+    } yield ().asRight[Throwable]
+
+    val eab = if (isRight) rightInt.asRight[Throwable] else errorThrowable.asLeft[Int]
+
+    val expected = eab match {
+      case Right(n) =>
+        LoggerForTesting(
+          debugMessages = Vector(s"${n.toString}\n${debugThrowable.toString}"),
+          infoMessages = Vector(s"${n.toString}\n${infoThrowable.toString}"),
+          warnMessages = Vector(s"${n.toString}\n${warnThrowable.toString}"),
+          errorMessages = Vector(s"${n.toString}\n${errorThrowable.toString}"),
+        )
+
+      case Left(err) =>
+        LoggerForTesting(
+          debugMessages = Vector.empty,
+          infoMessages = Vector.empty,
+          warnMessages = Vector.empty,
+          errorMessages = Vector.fill(4)(s"$leftString\n${err.getMessage}\n${err.toString}"),
+        )
+    }
+
+    implicit val es: ExecutorService  = ConcurrentSupport.newExecutorService(2)
+    implicit val ec: ExecutionContext =
+      ConcurrentSupport.newExecutionContextWithLogger(es, ErrorLogger.printlnExecutionContextErrorLogger)
+
+    val _ = ConcurrentSupport.futureToValueAndTerminate(es, waitFor400Millis) {
       runLog[Future](eab)
     }
 

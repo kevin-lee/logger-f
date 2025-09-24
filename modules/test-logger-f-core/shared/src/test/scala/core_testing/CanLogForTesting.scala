@@ -10,13 +10,30 @@ final case class CanLogForTesting private (private var _logs: Vector[String]) ex
 
   def logs: List[String] = _logs.toList
 
-  override def debug(message: => String): Unit = _logs = _logs :+ s"[DEBUG] $message"
+  override def debug(message: => String): Unit =
+    _logs = _logs :+ s"[DEBUG] $message"
 
-  override def info(message: => String): Unit = _logs = _logs :+ s"[INFO] $message"
+  override def debug(throwable: Throwable)(message: => String): Unit =
+    _logs = _logs :+ s"[DEBUG] $message\n${throwable.toString}"
 
-  override def warn(message: => String): Unit = _logs = _logs :+ s"[WARN] $message"
+  override def info(message: => String): Unit =
+    _logs = _logs :+ s"[INFO] $message"
 
-  override def error(message: => String): Unit = _logs = _logs :+ s"[ERROR] $message"
+  override def info(throwable: Throwable)(message: => String): Unit =
+    _logs = _logs :+ s"[INFO] $message\n${throwable.toString}"
+
+  override def warn(message: => String): Unit =
+    _logs = _logs :+ s"[WARN] $message"
+
+  override def warn(throwable: Throwable)(message: => String): Unit =
+    _logs = _logs :+ s"[WARN] $message\n${throwable.toString}"
+
+  override def error(message: => String): Unit =
+    _logs = _logs :+ s"[ERROR] $message"
+
+  override def error(throwable: Throwable)(message: => String): Unit =
+    _logs = _logs :+ s"[ERROR] $message\n${throwable.toString}"
+
 }
 object CanLogForTesting {
   def apply(): CanLogForTesting = new CanLogForTesting(Vector.empty)

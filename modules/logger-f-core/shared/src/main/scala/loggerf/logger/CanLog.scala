@@ -59,14 +59,25 @@ import scala.annotation.implicitNotFound
 )
 trait CanLog {
   def debug(message: => String): Unit
+  def debug(throwable: Throwable)(message: => String): Unit
   def info(message: => String): Unit
+  def info(throwable: Throwable)(message: => String): Unit
   def warn(message: => String): Unit
+  def warn(throwable: Throwable)(message: => String): Unit
   def error(message: => String): Unit
+  def error(throwable: Throwable)(message: => String): Unit
 }
 
 object CanLog {
   implicit class GetLogger(private val canLog: CanLog) extends AnyVal {
     @inline def getLogger(level: Level): (=> String) => Unit = level match {
+      case Level.Debug => canLog.debug
+      case Level.Info => canLog.info
+      case Level.Warn => canLog.warn
+      case Level.Error => canLog.error
+    }
+
+    @inline def getLoggerWithThrowable(level: Level): (Throwable) => (=> String) => Unit = level match {
       case Level.Debug => canLog.debug
       case Level.Info => canLog.info
       case Level.Warn => canLog.warn

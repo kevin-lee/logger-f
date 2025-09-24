@@ -11,14 +11,27 @@ final class Log4jLogger(
   override def debug(message: => String): Unit =
     logger.debug(Log4jCompat.toStringSupplier(message))
 
+  override def debug(throwable: Throwable)(message: => String): Unit =
+    logger.debug(Log4jCompat.toStringSupplier(message), throwable)
+
   override def info(message: => String): Unit =
     logger.info(Log4jCompat.toStringSupplier(message))
+
+  override def info(throwable: Throwable)(message: => String): Unit =
+    logger.info(Log4jCompat.toStringSupplier(message), throwable)
 
   override def warn(message: => String): Unit =
     logger.warn(Log4jCompat.toStringSupplier(message))
 
+  override def warn(throwable: Throwable)(message: => String): Unit =
+    logger.warn(Log4jCompat.toStringSupplier(message), throwable)
+
   override def error(message: => String): Unit =
     logger.error(Log4jCompat.toStringSupplier(message))
+
+  override def error(throwable: Throwable)(message: => String): Unit =
+    logger.error(Log4jCompat.toStringSupplier(message), throwable)
+
 }
 
 object Log4jLogger {

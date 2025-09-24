@@ -11,14 +11,30 @@ final case class LoggerForTesting private (
   override def debug(message: => String): Unit =
     logger.debugMessages = logger.debugMessages :+ message
 
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+  override def debug(throwable: Throwable)(message: => String): Unit =
+    logger.debugMessages = logger.debugMessages :+ s"$message\n${throwable.toString}"
+
   override def info(message: => String): Unit =
     logger.infoMessages = logger.infoMessages :+ message
+
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+  override def info(throwable: Throwable)(message: => String): Unit =
+    logger.infoMessages = logger.infoMessages :+ s"$message\n${throwable.toString}"
 
   override def warn(message: => String): Unit =
     logger.warnMessages = logger.warnMessages :+ message
 
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+  override def warn(throwable: Throwable)(message: => String): Unit =
+    logger.warnMessages = logger.warnMessages :+ s"$message\n${throwable.toString}"
+
   override def error(message: => String): Unit =
     logger.errorMessages = logger.errorMessages :+ message
+
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+  override def error(throwable: Throwable)(message: => String): Unit =
+    logger.errorMessages = logger.errorMessages :+ s"$message\n${throwable.toString}"
 }
 
 object LoggerForTesting {

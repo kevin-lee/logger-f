@@ -23,14 +23,26 @@ final case class CanLog4Testing(
   override def debug(message: => String): Unit =
     _messages = _messages :+ ((index.addAndGet(1), Level.debug, message))
 
+  override def debug(throwable: Throwable)(message: => String): Unit =
+    _messages = _messages :+ ((index.addAndGet(1), Level.debug, s"$message\n${throwable.toString}"))
+
   override def info(message: => String): Unit =
     _messages = _messages :+ ((index.addAndGet(1), Level.info, message))
+
+  override def info(throwable: Throwable)(message: => String): Unit =
+    _messages = _messages :+ ((index.addAndGet(1), Level.info, s"$message\n${throwable.toString}"))
 
   override def warn(message: => String): Unit =
     _messages = _messages :+ ((index.addAndGet(1), Level.warn, message))
 
+  override def warn(throwable: Throwable)(message: => String): Unit =
+    _messages = _messages :+ ((index.addAndGet(1), Level.warn, s"$message\n${throwable.toString}"))
+
   override def error(message: => String): Unit =
     _messages = _messages :+ ((index.addAndGet(1), Level.error, message))
+
+  override def error(throwable: Throwable)(message: => String): Unit =
+    _messages = _messages :+ ((index.addAndGet(1), Level.error, s"$message\n${throwable.toString}"))
 
   override def hashCode(): Int = messages.hashCode()
 

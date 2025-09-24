@@ -12,18 +12,38 @@ final class Slf4JLogger(val logger: Logger) extends CanLog {
     else
       _ => ()
 
+  @inline private def constructLogWithThrowable(
+    isAvailable: Boolean,
+    logFunction: (String, Throwable) => Unit,
+  ): Throwable => (=> String) => Unit =
+    if (isAvailable)
+      throwable => message => logFunction(message, throwable)
+    else
+      _ => _ => ()
+
   @inline override def debug(message: => String): Unit =
     constructLog(logger.isDebugEnabled, logger.debug)(message)
+
+  @inline override def debug(throwable: Throwable)(message: => String): Unit =
+    constructLogWithThrowable(logger.isDebugEnabled, logger.debug)(throwable)(message)
 
   @inline override def info(message: => String): Unit =
     constructLog(logger.isInfoEnabled, logger.info)(message)
 
+  @inline override def info(throwable: Throwable)(message: => String): Unit =
+    constructLogWithThrowable(logger.isInfoEnabled, logger.info)(throwable)(message)
+
   @inline override def warn(message: => String): Unit =
     constructLog(logger.isWarnEnabled, logger.warn)(message)
+
+  @inline override def warn(throwable: Throwable)(message: => String): Unit =
+    constructLogWithThrowable(logger.isWarnEnabled, logger.warn)(throwable)(message)
 
   @inline override def error(message: => String): Unit =
     constructLog(logger.isErrorEnabled, logger.error)(message)
 
+  @inline override def error(throwable: Throwable)(message: => String): Unit =
+    constructLogWithThrowable(logger.isErrorEnabled, logger.error)(throwable)(message)
 }
 
 object Slf4JLogger {
