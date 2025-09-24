@@ -23,6 +23,7 @@ object syntaxSpec extends Properties {
     property("test log(F[Option[A]])(message, ignore)", testLogFOptionAIgnoreSome),
     property("test log(F[Option[A]])(message, ignoreA)", testLogFOptionAIgnoreASome),
     property("test log(F[Either[A, B]])", testLogFEitherAB),
+    property("test log(F[Either[Throwable, B]])", testLogFEitherThrowableB),
     property("test log(F[Either[A, B]])(ignore, message)", testLogFEitherABIgnoreLeft),
     property("test log(F[Either[A, B]])(ignoreA, message)", testLogFEitherABIgnoreALeft),
     property("test log(F[Either[A, B]])(ignore, message)", testLogFEitherABIgnoreRight),
@@ -285,6 +286,48 @@ object syntaxSpec extends Properties {
           infoMessages = Vector.empty,
           warnMessages = Vector.empty,
           errorMessages = Vector.fill(4)(msg),
+        )
+    }
+
+    logger ==== expected
+  }
+
+  private[syntaxSpec] def testLogFEitherThrowableB: Property = for {
+    rightInt   <- Gen.int(Range.linear(Int.MinValue, Int.MaxValue)).log("rightInt")
+    leftString <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("leftString")
+    isRight    <- Gen.boolean.log("isRight")
+  } yield {
+
+    implicit val logger: LoggerForTesting = LoggerForTesting()
+
+    def runLog[F[*]: FxCtor: Monad: Log](eab: Either[Throwable, Int]): F[Either[Throwable, Unit]] = for {
+      _ <- log(effectOf(eab))(err => error(err)(s"ERROR: ${err.getMessage}"), b => debug(b.toString))
+      _ <- log(effectOf(eab))(err => error(err)(s"ERROR: ${err.getMessage}"), b => info(b.toString))
+      _ <- log(effectOf(eab))(err => error(err)(s"ERROR: ${err.getMessage}"), b => warn(b.toString))
+      _ <- log(effectOf(eab))(err => error(err)(s"ERROR: ${err.getMessage}"), b => error(b.toString))
+    } yield ().asRight[Throwable]
+
+    val eab = if (isRight) rightInt.asRight[Throwable] else new RuntimeException(leftString).asLeft[Int]
+
+    import effectie.instances.ce2.fx.ioFx
+
+    val _ = runLog[IO](eab).unsafeRunSync()
+
+    val expected = eab match {
+      case Right(n) =>
+        LoggerForTesting(
+          debugMessages = Vector(n.toString),
+          infoMessages = Vector(n.toString),
+          warnMessages = Vector(n.toString),
+          errorMessages = Vector(n.toString),
+        )
+
+      case Left(err) =>
+        LoggerForTesting(
+          debugMessages = Vector.empty,
+          infoMessages = Vector.empty,
+          warnMessages = Vector.empty,
+          errorMessages = Vector.fill(4)(s"ERROR: ${err.getMessage}\n${err.toString}"),
         )
     }
 
