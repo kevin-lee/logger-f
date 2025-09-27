@@ -3,6 +3,8 @@ ignore:
   - "modules/logger-f-log4s"
   - "modules/logger-f-sbt-logging"
   - "modules/logger-f-slf4j"
+  - "modules/logger-f-cats/shared/src/main/scala-2/loggerf/instances/cats.scala"
+  - "modules/logger-f-cats/shared/src/main/scala-3/loggerf/instances/cats.scala"
 
 comment:
   layout: "reach, diff, flags, files"
