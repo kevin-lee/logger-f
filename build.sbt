@@ -529,7 +529,7 @@ lazy val docs = (project in file("docs-gen-tmp/docs"))
       scalaVersion.value,
       libraryDependencies.value,
     ),
-    mdocVariables := createMdocVariables(none),
+    mdocVariables := createMdocVariables(Right(docusaurDir.value)),
     docusaurDir := (ThisBuild / baseDirectory).value / "website",
     docusaurBuildDir := docusaurDir.value / "build",
   )
@@ -559,7 +559,7 @@ lazy val docsV1 = (project in file("docs-gen-tmp/docs-v1"))
       scalaVersion.value,
       libraryDependencies.value,
     ),
-    mdocVariables := createMdocVariables(props.LoggerF1Version.some),
+    mdocVariables := createMdocVariables(Left(props.LoggerF1Version)),
   )
   .settings(noPublish)
 
@@ -572,28 +572,38 @@ addCommandAlias(
   "; docs/mdoc; docsV1/mdoc",
 )
 
-def getTheLatestTaggedVersion(): String                               = {
+def getTheLatestTaggedVersion(): String                                                  = {
   import sys.process._
   "git fetch --tags".!
   val tag = "git rev-list --tags --max-count=1".!!.trim
   s"git describe --tags $tag".!!.trim.stripPrefix("v")
 }
-def createMdocVariables(version: Option[String]): Map[String, String] = Map(
-  "VERSION"                  -> (version match {
-    case Some(version) => version
-    case None => getTheLatestTaggedVersion()
-  }),
-  "SUPPORTED_SCALA_VERSIONS" -> {
-    val versions = props
-      .CrossScalaVersions
-      .map(CrossVersion.binaryScalaVersion)
-      .map(binVer => s"`$binVer`")
-    if (versions.length > 1)
-      s"${versions.init.mkString(", ")} and ${versions.last}"
-    else
-      versions.mkString
-  },
-)
+def createMdocVariables(versionOrDocusaurDir: Either[String, File]): Map[String, String] =
+  Map(
+    "VERSION"                  -> (versionOrDocusaurDir match {
+      case Left(version) => version
+      case Right(docusaurDir) => {
+        val latestVersion = getTheLatestTaggedVersion()
+        val websiteDir    = docusaurDir
+
+        val latestVersionFile = websiteDir / "latestVersion.json"
+        val latestVersionJson = s"""{"version":"$latestVersion"}"""
+        IO.write(latestVersionFile, latestVersionJson)
+
+        latestVersion
+      }
+    }),
+    "SUPPORTED_SCALA_VERSIONS" -> {
+      val versions = props
+        .CrossScalaVersions
+        .map(CrossVersion.binaryScalaVersion)
+        .map(binVer => s"`$binVer`")
+      if (versions.length > 1)
+        s"${versions.init.mkString(", ")} and ${versions.last}"
+      else
+        versions.mkString
+    },
+  )
 
 lazy val props =
   new {

@@ -1,4 +1,8 @@
 import {themes as prismThemes} from 'prism-react-renderer';
+import type {Config} from '@docusaurus/types';
+import type * as Preset from '@docusaurus/preset-classic';
+
+import LatestVersion from '@types/commonTypes';
 
 const algoliaConfig = require('./algolia.config.json');
 const googleAnalyticsConfig = require('./google-analytics.config.json');
@@ -6,10 +10,14 @@ const googleAnalyticsConfig = require('./google-analytics.config.json');
 const lightCodeTheme = prismThemes.nightOwlLight;
 const darkCodeTheme = prismThemes.nightOwl;
 
-const isEmptyObject = (obj) => Object.keys(obj).length === 0;
+const isEmptyObject = (obj: object) => Object.keys(obj).length === 0;
 
 const isSearchable = !isEmptyObject(algoliaConfig);
 const hasGoogleAnalytics = !isEmptyObject(googleAnalyticsConfig);
+
+import LatestVersionImported from './latestVersion.json';
+const latestVersionFound = LatestVersionImported as LatestVersion;
+
 const gtag = hasGoogleAnalytics ? { 'gtag': googleAnalyticsConfig } : null;
 
 const websiteConfig = {
@@ -120,7 +128,7 @@ const websiteConfig = {
               "path": "v1",
             },
             "current": {
-              "label": "2.3.0",
+              "label": `v${latestVersionFound.version}`,
             },
           }
         },

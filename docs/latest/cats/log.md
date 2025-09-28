@@ -106,7 +106,7 @@ def hello[F[_]: Fx: Log: Monad](name: String): F[Unit] = for {
 ```scala mdoc:nest
 import cats.effect._
 import effectie.instances.ce2.fx._
-import loggerf.instances.cats._
+
 import loggerf.logger._
 
 implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("test-logger")
@@ -140,7 +140,7 @@ def hello[F[_]: Fx: Log: Monad](name: String): F[Unit] = for {
 ```scala mdoc:nest
 import cats.effect._
 import effectie.instances.ce2.fx._
-import loggerf.instances.cats._
+
 import loggerf.logger._
 
 implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("test-logger")
@@ -173,7 +173,7 @@ def hello[F[_]: Fx: Log: Monad](name: String): F[Unit] = for {
 ```scala mdoc:nest
 import cats.effect._
 import effectie.instances.ce2.fx._
-import loggerf.instances.cats._
+
 import loggerf.logger._
 
 implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("test-logger")
@@ -204,7 +204,7 @@ def hello[F[_]: Fx: Log: Monad](name: String): F[Unit] = for {
 ```scala mdoc:nest
 import cats.effect._
 import effectie.instances.ce2.fx._
-import loggerf.instances.cats._
+
 import loggerf.logger._
 
 implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("test-logger")
@@ -314,7 +314,7 @@ object MyApp extends IOApp {
   implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp")
 
   import effectie.instances.ce2.fx._
-  import loggerf.instances.cats._
+  
   
   def run(args: List[String]): IO[ExitCode] = for {
     _ <- hello[IO]("World")
@@ -382,7 +382,7 @@ object MyApp extends IOApp {
   implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp")
 
   import effectie.instances.ce2.fx._
-  import loggerf.instances.cats._
+  
   
   def run(args: List[String]): IO[ExitCode] = for {
     greetingMessage <- Greeting[IO].greet(Person(GivenName("Kevin"), Surname("Lee")))
@@ -442,7 +442,7 @@ def hello[F[_]: Monad: Fx: Log](maybeName: Option[String]): F[Unit] =
 implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp- F[Option[A]]")
 
 import effectie.instances.ce2.fx._
-import loggerf.instances.cats._
+
 
 def run(): IO[Unit] = for {
   _ <- hello[IO](none)
@@ -510,7 +510,7 @@ def calculate[F[_]: Monad: Fx: CanHandleError: Log](n: Int): F[Unit] =
 implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp - F[Either[A, B]]")
 
 import effectie.instances.ce2.fx._
-import loggerf.instances.cats._
+
 
 def run(): IO[Unit] = for {
   _ <- calculate[IO](5)
@@ -575,7 +575,7 @@ def hello[F[_]: Monad: Fx: Log](maybeName: Option[String]): F[Unit] =
 implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp- OptionT[F, A]")
 
 import effectie.instances.ce2.fx._
-import loggerf.instances.cats._
+
 
 def run(): IO[Unit] = for {
   _ <- hello[IO](none)
@@ -650,7 +650,7 @@ def calculate[F[_]: Monad: Fx: CanHandleError: Log](n: Int): F[Unit] =
 implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog("MyApp - EitherT[F, A, B]")
 
 import effectie.instances.ce2.fx._
-import loggerf.instances.cats._
+
 
 def run(): IO[Unit] = for {
   _ <- calculate[IO](5)

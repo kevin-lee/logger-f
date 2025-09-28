@@ -30,10 +30,7 @@ It's usually only one place where you put the `main` method.
 
 ### `Log[F]` Instance
 
-For the instance of `Log[F]`,
-```scala
-import loggerf.instances.cats._
-```
+For the instance of `Log[F]`, you just need to add [cats](https://typelevel.org/cats/) as a dependency to your project.
 
 ### Instances for Effectie
 
@@ -173,7 +170,7 @@ object MyApp extends IOApp.Simple {
   implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog[this.type]
 
   import effectie.instances.ce2.fx._
-  import loggerf.instances.cats._
+  
   
   def run: IO[Unit] =
     Foo[IO].foo("Kevin")
