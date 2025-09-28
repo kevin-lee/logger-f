@@ -660,7 +660,7 @@ lazy val props =
     val LogbackScalaInteropVersion       = "1.0.0"
     val LogbackScalaInteropLatestVersion = "1.17.0"
 
-    val OrphanVersion = "0.1.0"
+    val OrphanVersion = "0.5.0"
   }
 
 lazy val libs =
