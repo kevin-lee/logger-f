@@ -631,9 +631,9 @@ lazy val props =
 
     final val IncludeTest = "compile->compile;test->test"
 
-    final val HedgehogVersion = "0.10.1"
+    final val HedgehogVersion = "0.13.0"
 
-    final val HedgehogExtraVersion = "0.10.0"
+    final val HedgehogExtraVersion = "0.15.0"
 
     final val EffectieVersion = "2.0.0"
 
@@ -645,7 +645,7 @@ lazy val props =
 
     final val LoggerF1Version = "1.20.0"
 
-    final val ExtrasVersion = "0.47.0"
+    final val ExtrasVersion = "0.49.0"
 
     val Slf4JVersion       = "2.0.12"
     val Slf4JLatestVersion = "2.0.17"
