@@ -20,7 +20,7 @@ const latestVersionFound = LatestVersionImported as LatestVersion;
 
 const gtag = hasGoogleAnalytics ? { 'gtag': googleAnalyticsConfig } : null;
 
-const websiteConfig = {
+const config: Config = {
   title: 'logger-f',
   tagline: 'Logger for <code class="kev-title-code">F[_]</code>',
   url: 'https://logger-f.kevinly.dev',
@@ -113,7 +113,7 @@ const websiteConfig = {
       ],
       copyright: `Copyright © 2020 logger-f is designed and developed by <a href="https://github.com/Kevin-Lee" target="_blank">Kevin Lee</a>.<br>The website built with Docusaurus.`,
     },
-  },
+  } satisfies Preset.ThemeConfig,
   presets: [
     [
       '@docusaurus/preset-classic',
@@ -139,13 +139,10 @@ const websiteConfig = {
       },
     ],
   ],
-  plugins: [
-    require.resolve('docusaurus-lunr-search'),
-  ],
 };
 
 if (isSearchable) {
-  websiteConfig['themeConfig']['algolia'] = algoliaConfig;
+  config['themeConfig']['algolia'] = algoliaConfig;
 }
 
-module.exports = websiteConfig;
+export default config;
