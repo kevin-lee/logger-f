@@ -651,7 +651,7 @@ lazy val props =
     val Slf4JLatestVersion = "2.0.17"
 
     val LogbackVersion       = "1.5.0"
-    val LogbackLatestVersion = "1.5.17"
+    val LogbackLatestVersion = "1.5.18"
 
     final val Log4sVersion = "1.10.0"
 
