@@ -16,9 +16,9 @@ object LogWithoutCustomInstanceSpec extends Properties {
   def testCompileTimeError: Result = {
     val expectedMessage =
       """
-        |  Could not find an implicit Log[util.Try].
+        |  Could not find an implicit Log[scala.util.Try].
         |  If you add [cats](https://typelevel.org/cats) library to your project,
-        |  you can automatically get `Log[util.Try]` instance provided by logger-f.
+        |  you can automatically get `Log[scala.util.Try]` instance provided by logger-f.
         |
         |  Add
         |  ---
@@ -26,11 +26,11 @@ object LogWithoutCustomInstanceSpec extends Properties {
         |  ---
         |  to build.sbt.
         |
-        |  Or you can use your own instance of `Log[util.Try]` by importing yours.
+        |  Or you can use your own instance of `Log[scala.util.Try]` by importing yours.
         |  -----
-        |  If it doesn't solve, it's probably because of missing an Fx[util.Try] instance.
+        |  If it doesn't solve, it's probably because of missing an Fx[scala.util.Try] instance.
         |
-        |  You can simply import the Fx[util.Try] instance of your effect library.
+        |  You can simply import the Fx[scala.util.Try] instance of your effect library.
         |  Please check out the message of @implicitNotFound annotation on `effectie.core.Fx`.
         |  Or please check out the following document.
         |

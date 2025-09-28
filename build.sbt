@@ -611,8 +611,8 @@ lazy val props =
     final val GitHubUsername = "Kevin-Lee"
     final val RepoName       = "logger-f"
 
-    final val Scala3Versions = List("3.1.3")
-    final val Scala2Versions = List("2.13.14", "2.12.18")
+    final val Scala3Versions = List("3.3.5")
+    final val Scala2Versions = List("2.13.16", "2.12.18")
 
 //    final val ProjectScalaVersion = Scala3Versions.head
     final val ProjectScalaVersion = Scala2Versions.head

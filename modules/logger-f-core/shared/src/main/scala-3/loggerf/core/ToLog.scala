@@ -15,5 +15,7 @@ object ToLog {
   @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   def fromToString[A]: ToLog[A] = _.toString
 
-  inline given stringToLog: ToLog[String] = identity(_)
+  inline given stringToLog: ToLog[String] with {
+    def toLogMessage(a: String): String = a
+  }
 }
