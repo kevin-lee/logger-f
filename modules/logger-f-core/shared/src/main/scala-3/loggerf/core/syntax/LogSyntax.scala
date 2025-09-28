@@ -3,9 +3,6 @@ package loggerf.core.syntax
 import loggerf.LeveledMessage
 import loggerf.Ignore
 import loggerf.core.Log
-import loggerf.instances.future.given
-
-import scala.concurrent.Future
 
 /** @author Kevin Lee
   * @since 2022-02-09
