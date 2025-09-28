@@ -9,23 +9,32 @@ import React from 'react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
+import Heading from '@theme/Heading';
 
 import {
   useVersions,
   useLatestVersion,
+  type Version,
 } from '@docusaurus/plugin-content-docs/client';
+
+import { ArchivedVersion, LatestVersion } from '@types/commonTypes';
 
 import VersionsArchived from './versionsArchived.json';
 
-function Version() {
+import LatestVersionImported from '../../latestVersion.json';
+const latestVersionFound = LatestVersionImported as LatestVersion;
+
+export default function Version(): React.JSX.Element {
+
   const {siteConfig} = useDocusaurusContext();
   const versions = useVersions();
   const latestVersion = useLatestVersion();
+  console.log(`latestVersion: ${JSON.stringify(latestVersion)}`);
   const currentVersion = versions.find((version) => version.name === 'current');
   const pastVersions = versions.filter(
     (version) => version !== latestVersion && version.name !== 'current',
   )
-  .concat(VersionsArchived)
+  .concat(VersionsArchived as ArchivedVersion[])
   .sort((a, b) => {
     // console.log(`a: ${JSON.stringify(a)}, b: ${JSON.stringify(b)}`);
     if (!a.name.includes(".") || !b.name.includes(".")) {
@@ -82,16 +91,18 @@ function Version() {
       return 1;
     }
   });
-  console.log(JSON.stringify(pastVersions));
+  console.log(`pastVersions: ${JSON.stringify(pastVersions)}`);
   // const stableVersion = pastVersions.shift();
   const stableVersion = currentVersion;
   const repoUrl = `https://github.com/${siteConfig.organizationName}/${siteConfig.projectName}`;
 
-  const docLink = path => path ? <Link to={path}>Documentation</Link> : <span>&nbsp;</span>;
+  const docLink = (path?: string) => path ? <Link to={path}>Documentation</Link> : <span>&nbsp;</span>;
 
-  const releaseLink = version => version.label !== "v1" ? <a href={`${repoUrl}/releases/tag/v${version.name}`}>Release Notes</a> : <span>&nbsp;</span>;
+  const releaseLink = (version: Version | ArchivedVersion) => version.label !== "v0.x.0" ?
+      <a href={`${repoUrl}/releases/tag/v${version.name}`}>Release Notes</a> :
+      <a href={`${repoUrl}/releases/tag/v0.19.0`}>Release Notes</a>;
 
-  const spaces = howMany => <span dangerouslySetInnerHTML={{__html: "&nbsp;".repeat(howMany)}} />;
+  const spaces = (howMany: number) => <span dangerouslySetInnerHTML={{__html: "&nbsp;".repeat(howMany)}} />;
 
   return (
     <Layout
@@ -109,12 +120,12 @@ function Version() {
             <table>
               <tbody>
               <tr>
-                <th>{stableVersion.label}</th>
+                <th>{latestVersionFound.version}</th>
                 <td>
                   <Link to={stableVersion.path}>Documentation</Link>
                 </td>
                 <td>
-                  <a href={`${repoUrl}/releases/tag/v${stableVersion.label}`}>
+                  <a href={`${repoUrl}/releases/tag/v${latestVersionFound.version}`}>
                     Release Notes
                   </a>
                 </td>
@@ -167,30 +178,6 @@ function Version() {
             </table>
           </div>
         )}
-        {
-        //   <div className="margin-bottom--lg">
-        //   <h3 id="archive">Past versions without documentation (Not maintained anymore)</h3>
-        //   <p>
-        //     Here you can find documentation for previous versions of
-        //     Effectie.
-        //   </p>
-        //   <table>
-        //     <tbody>
-        //       <tr key="1.15.0">
-        //         <th>1.15.0</th>
-        //         <td>
-        //           {spaces(27)}
-        //         </td>
-        //         <td>
-        //           <a href={`${repoUrl}/releases/tag/v1.15.0`}>
-        //             Release Notes
-        //           </a>
-        //         </td>
-        //       </tr>
-        //     </tbody>
-        //   </table>
-        // </div>
-        }
 
       </main>
     </Layout>
