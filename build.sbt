@@ -81,6 +81,7 @@ lazy val loggerF = (project in file("."))
     slf4jMdcJvm,
     logbackMdcMonix3Jvm,
     testLogbackMdcMonix3Jvm,
+    doobie1Jvm,
     testKitJvm,
 //    testKitJs,
     catsEffectJvm,
@@ -318,6 +319,27 @@ lazy val testLogbackMdcMonix3    = testProject(ProjectName("logback-mdc-monix3")
     slf4jLogger      % Test,
   )
 lazy val testLogbackMdcMonix3Jvm = testLogbackMdcMonix3.jvm
+
+lazy val doobie1    = module(ProjectName("doobie1"), crossProject(JVMPlatform, JSPlatform))
+  .settings(
+    description := "Logger for F[_] - for Doobie v1",
+    libraryDependencies ++= Seq(
+      libs.doobieFree,
+      libs.tests.effectieCatsEffect3,
+      libs.tests.extrasHedgehogCatsEffect3,
+    ) ++ libs.tests.hedgehogLibs,
+    libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+      scalaVersion.value,
+      libraryDependencies.value,
+    ),
+  )
+  .dependsOn(
+    core,
+    cats,
+    testKit     % Test,
+    slf4jLogger % Test,
+  )
+lazy val doobie1Jvm = doobie1.jvm
 
 lazy val testKit    =
   module(ProjectName("test-kit"), crossProject(JVMPlatform, JSPlatform))
@@ -643,6 +665,8 @@ lazy val props =
 
     val Monix3Version = "3.4.0"
 
+    val Doobie1Version = "1.0.0-RC10"
+
     final val LoggerF1Version = "1.20.0"
 
     final val ExtrasVersion = "0.49.0"
@@ -699,9 +723,13 @@ lazy val libs =
 
     lazy val orphanCats = "io.kevinlee" %% "orphan-cats" % props.OrphanVersion
 
+    lazy val doobieFree = "org.tpolecat" %% "doobie-free" % props.Doobie1Version
+
     lazy val tests = new {
 
       lazy val monix = "io.monix" %% "monix" % props.Monix3Version % Test
+
+      lazy val effectieCatsEffect3 = "io.kevinlee" %% "effectie-cats-effect3" % props.EffectieVersion % Test
 
       lazy val effectieMonix3 = "io.kevinlee" %% "effectie-monix3" % props.EffectieVersion % Test
 
