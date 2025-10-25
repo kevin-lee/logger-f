@@ -1,4 +1,5 @@
 package loggerf.core
+
 import effectie.core.FxCtor
 import loggerf.core.LogForTesting.Identity
 import loggerf.logger.{CanLog, LoggerForTesting}

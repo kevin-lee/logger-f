@@ -49,7 +49,7 @@ object loggingSyntaxSpec extends Properties {
     property("test log_(F[Option[A]])(ignore, message)", LogFASpec.testLog_FOptionAIgnoreEmpty),
     property("test log_(F[Option[A]])(message, ignore)", LogFASpec.testLog_FOptionAIgnoreSome),
     property("test log_(F[Option[A]])(message, ignoreA)", LogFASpec.testLog_FOptionAIgnoreASome),
-    property("test log_(F[Either[A, B]])", LogFASpec.testLogFEitherAB),
+    property("test log_(F[Either[A, B]])", LogFASpec.testLog_FEitherAB),
     property("test log_(F[Either[A, B]])(ignore, message)", LogFASpec.testLog_FEitherABIgnoreLeft),
     property("test log_(F[Either[A, B]])(ignoreA, message)", LogFASpec.testLog_FEitherABIgnoreALeft),
     property("test log_(F[Either[A, B]])(message, ignore)", LogFASpec.testLog_FEitherABIgnoreRight),

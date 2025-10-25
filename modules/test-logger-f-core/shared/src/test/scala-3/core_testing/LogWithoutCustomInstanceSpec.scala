@@ -61,12 +61,12 @@ object LogWithoutCustomInstanceSpec extends Properties {
       import effectie.core.*
       import loggerf.core.*
       import loggerf.core.syntax.all.*
-      import loggerf.logger.{CanLog, Slf4JLogger}
+      import loggerf.logger.{CanLog, Log4sLogger}
 
       import effectie.instances.tries.fx.given
       import scala.util.Try
 
-      given canLog: CanLog = Slf4JLogger.slf4JCanLog("test-can-log")
+      given canLog: CanLog = Log4sLogger.log4sCanLog("test-can-log")
 
       def foo[F[*]: Fx: Log](n: Int): F[Int] = Log[F].log(Fx[F].effectOf(n * 2))(n => info(n.toString))
 
