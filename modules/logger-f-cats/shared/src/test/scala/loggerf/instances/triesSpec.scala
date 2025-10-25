@@ -7,7 +7,6 @@ import _root_.cats.syntax.flatMap._
 import _root_.cats.syntax.functor._
 import _root_.cats.syntax.option._
 import effectie.core.Fx
-import extras.concurrent.testing.types.ErrorLogger
 import hedgehog._
 import hedgehog.runner._
 import loggerf.core._
@@ -49,8 +48,6 @@ object triesSpec extends Properties {
     property("test log_(EitherT[F, A, B]])(ignore, message)", testLog_EitherTFABIgnoreLeft),
     property("test log_(EitherT[F, A, B]])(message, ignore)", testLog_EitherTFABIgnoreRight),
   )
-
-  implicit val errorLogger: ErrorLogger[Throwable] = ErrorLogger.printlnDefaultErrorLogger
 
   def testLogFA: Property = for {
     debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")

@@ -11,7 +11,7 @@ addSbtPlugin("org.scoverage"   % "sbt-coveralls"   % "1.3.2")
 addSbtPlugin("org.scalameta"   % "sbt-mdoc"        % "2.3.7")
 addSbtPlugin("io.kevinlee"     % "sbt-docusaur"    % "0.17.0")
 
-addSbtPlugin("org.scala-js"       % "sbt-scalajs"              % "1.16.0")
+addSbtPlugin("org.scala-js"       % "sbt-scalajs"              % "1.18.2")
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
 
 val sbtDevOopsVersion = "3.2.1"
