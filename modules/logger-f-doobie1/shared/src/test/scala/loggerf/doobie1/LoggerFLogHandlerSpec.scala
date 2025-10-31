@@ -20,12 +20,13 @@ object LoggerFLogHandlerSpec extends Properties {
   val F: IO.type = IO
 
   override def tests: List[Test] = List(
-    property("testSuccess", testSuccess),
-    property("testExecFailure", testExecFailure),
-    property("testProcessingFailure", testProcessingFailure),
+    property("test Success log - with batch param rendering", testSuccessWithBatchParamRendering),
+    property("test Success log - without batch param rendering", testSuccessWithoutBatchParamRendering),
+    property("test ExecFailure", testExecFailure),
+    property("test ProcessingFailure", testProcessingFailure),
   )
 
-  def testSuccess: Property =
+  def testSuccessWithBatchParamRendering: Property =
     for {
       columns <- Gen.string(Gen.alpha, Range.linear(3, 10)).list(Range.linear(1, 5)).log("columns")
       table   <- Gen.string(Gen.alpha, Range.linear(3, 10)).log("table")
@@ -46,15 +47,61 @@ object LoggerFLogHandlerSpec extends Properties {
                  |
                  |  SELECT ${columns.mkString(", ")} FROM $table
                  |
-                 | arguments = ${args.map(_.mkString("[", ", ", "]")).mkString("[\n   ", ",\n   ", "\n ]")}
-                 | label     = $label
-                 |   elapsed = ${exec.toString} ms exec + ${processing.toString} ms processing (${(exec + processing).toString} ms total)
+                 | parameters = ${args.map(_.mkString("[", ", ", "]")).mkString("[\n   ", ",\n   ", "\n ]")}
+                 |      label = $label
+                 |    elapsed = ${exec.toString} ms exec + ${processing.toString} ms processing (${(exec + processing).toString} ms total)
                  |""".stripMargin,
             )
           )
         )
 
-      LoggerFLogHandler[F]
+      LoggerFLogHandler
+        .withBatchParamRenderingWhenSuccessful[F]
+        .run(
+          Success(
+            s"SELECT ${columns.mkString(", ")} FROM $table",
+            Parameters.Batch(() => args),
+            label,
+            exec.milliseconds,
+            processing.milliseconds,
+          )
+        ) *> F {
+        val actual = canLog.getOrderedMessages
+        actual ==== expected
+      }
+    }
+
+  def testSuccessWithoutBatchParamRendering: Property =
+    for {
+      columns <- Gen.string(Gen.alpha, Range.linear(3, 10)).list(Range.linear(1, 5)).log("columns")
+      table   <- Gen.string(Gen.alpha, Range.linear(3, 10)).log("table")
+      args  <- Gen.string(Gen.alpha, Range.linear(3, 10)).list(Range.linear(0, 5)).list(Range.linear(0, 5)).log("args")
+      label <- Gen.string(Gen.alpha, Range.linear(3, 10)).log("label")
+      exec  <- Gen.int(Range.linear(10, 3000)).log("exec")
+      processing <- Gen.int(Range.linear(10, 3000)).log("processing")
+    } yield runIO {
+      implicit val canLog: CanLog4Testing = CanLog4Testing()
+
+      val expected =
+        OrderedMessages(
+          Vector(
+            (
+              0,
+              loggerf.Level.info,
+              s"""Successful Statement Execution:
+                 |
+                 |  SELECT ${columns.mkString(", ")} FROM $table
+                 |
+                 | parameters = <batch arguments not rendered>
+                 |      label = $label
+                 |    elapsed = ${exec.toString} ms exec + ${processing.toString} ms processing (${(exec + processing).toString} ms total)
+                 |""".stripMargin,
+            )
+          )
+        )
+
+      LoggerFLogHandler
+        .withoutBatchParamRenderingWhenSuccessful[F]
         .run(
           Success(
             s"SELECT ${columns.mkString(", ")} FROM $table",
@@ -92,16 +139,17 @@ object LoggerFLogHandlerSpec extends Properties {
                  |
                  |  SELECT ${columns.mkString(", ")} FROM $table
                  |
-                 | arguments = ${args.map(_.mkString("[", ", ", "]")).mkString("[\n   ", ",\n   ", "\n ]")}
-                 | label     = $label
-                 |   elapsed = ${exec.toString} ms exec (failed)
-                 |   failure = ${expectedException.getMessage}
+                 | parameters = ${args.map(_.mkString("[", ", ", "]")).mkString("[\n   ", ",\n   ", "\n ]")}
+                 |      label = $label
+                 |    elapsed = ${exec.toString} ms exec (failed)
+                 |    failure = ${expectedException.getMessage}
                  |""".stripMargin,
             )
           )
         )
 
-      LoggerFLogHandler[F]
+      LoggerFLogHandler
+        .withBatchParamRenderingWhenSuccessful[F]
         .run(
           ExecFailure(
             s"SELECT ${columns.mkString(", ")} FROM $table",
@@ -140,16 +188,17 @@ object LoggerFLogHandlerSpec extends Properties {
                  |
                  |  SELECT ${columns.mkString(", ")} FROM $table
                  |
-                 | arguments = ${args.map(_.mkString("[", ", ", "]")).mkString("[\n   ", ",\n   ", "\n ]")}
-                 | label     = $label
-                 |   elapsed = ${exec.toString} ms exec + ${processing.toString} ms processing (failed) (${(exec + processing).toString} ms total)
-                 |   failure = ${expectedException.getMessage}
+                 | parameters = ${args.map(_.mkString("[", ", ", "]")).mkString("[\n   ", ",\n   ", "\n ]")}
+                 |      label = $label
+                 |    elapsed = ${exec.toString} ms exec + ${processing.toString} ms processing (failed) (${(exec + processing).toString} ms total)
+                 |    failure = ${expectedException.getMessage}
                  |""".stripMargin,
             )
           )
         )
 
-      LoggerFLogHandler[F]
+      LoggerFLogHandler
+        .withBatchParamRenderingWhenSuccessful[F]
         .run(
           ProcessingFailure(
             s"SELECT ${columns.mkString(", ")} FROM $table",
