@@ -58,10 +58,10 @@ jobs:
           mkdir -p dotty-docs
           export SOURCE_DATE_EPOCH=$(date +%s)
           echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
-          echo 'sbt -J-Xmx8G ++${{ matrix.scala.version }}! -v clean test packagedArtifacts devOopsGitHubReleaseUploadArtifacts publish'
+          echo 'sbt -J-Xmx8G ++${{ matrix.scala.version }} -v clean test packagedArtifacts devOopsGitHubReleaseUploadArtifacts publish'
           sbt \
             -J-Xmx8G \
-            ++${{ matrix.scala.version }}! \
+            ++${{ matrix.scala.version }} \
             -v \
             clean \
             test \
