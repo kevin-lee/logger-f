@@ -86,10 +86,9 @@ jobs:
             devOopsGitHubRelease
           
           sbt \
-            ++${{ matrix.scala.version }} \
             -v \
             clean \
-            "testCoreJVM/test; testCoreJS/test; testCoreWithCatsJVM/test; testCoreWithCatsJS/test"
+            "+testCoreJVM/test; +testCoreJS/test; +testCoreWithCatsJVM/test; +testCoreWithCatsJS/test"
 
   publish:
     needs: gh-release
