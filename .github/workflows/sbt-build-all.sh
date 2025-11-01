@@ -28,10 +28,10 @@ else
 #    echo "report build but it does nothing for now."
   fi
 
-#  echo "sbt -J-Xmx8G ++${scala_version}! -v clean ${test_task}"
+#  echo "sbt -J-Xmx8G ++${scala_version} -v clean ${test_task}"
 #  sbt \
 #    -J-Xmx8G \
-#    ++${scala_version}! \
+#    ++${scala_version} \
 #    -v \
 #    clean \
 #    ${test_task}
@@ -42,14 +42,14 @@ else
   if [[ "$CURRENT_BRANCH_NAME" == "main" || "$CURRENT_BRANCH_NAME" == "logger-f-1" || "$CURRENT_BRANCH_NAME" == "release" ]]
   then
     sbt \
-      ++${scala_version}! \
+      ++${scala_version} \
       -v \
       clean \
       ${test_task} \
       packagedArtifacts
   else
     sbt \
-      ++${scala_version}! \
+      ++${scala_version} \
       -v \
       clean \
       ${test_task} \

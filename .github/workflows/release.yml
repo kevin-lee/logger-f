@@ -52,7 +52,7 @@ jobs:
           echo "SBT_OPTS=${SBT_OPTS}"
           java -version
           sbt \
-            ++${{ matrix.scala.version }}! \
+            ++${{ matrix.scala.version }} \
             -v \
             clean \
             test
