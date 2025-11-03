@@ -84,6 +84,7 @@ lazy val loggerF = (project in file("."))
     slf4jMdcNative,
     logbackMdcMonix3Jvm,
     testLogbackMdcMonix3Jvm,
+    logbackMdcCatsEffect3Jvm,
     doobie1Jvm,
     testKitJvm,
     testKitJs,
@@ -341,6 +342,30 @@ lazy val testLogbackMdcMonix3    = testProject(ProjectName("logback-mdc-monix3")
     slf4jLogger      % Test,
   )
 lazy val testLogbackMdcMonix3Jvm = testLogbackMdcMonix3.jvm
+
+lazy val logbackMdcCatsEffect3    = module(ProjectName("logback-mdc-cats-effect3"), crossProject(JVMPlatform))
+  .settings(
+    description := "Logger for F[_] - logback MDC context map support for Cats Effect 3",
+    libraryDependencies ++= Seq(
+      libs.logbackClassic,
+      libs.logbackScalaInterop,
+      libs.catsEffect3,
+      libs.tests.effectieCatsEffect3,
+      libs.tests.extrasHedgehogCatsEffect3,
+    ) ++ libs.tests.hedgehogLibs,
+    libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+      scalaVersion.value,
+      libraryDependencies.value,
+    ),
+    javaOptions += "-Dcats.effect.trackFiberContext=true",
+  )
+  .dependsOn(
+    core,
+    slf4jMdc,
+    monix       % Test,
+    slf4jLogger % Test,
+  )
+lazy val logbackMdcCatsEffect3Jvm = logbackMdcCatsEffect3.jvm
 
 lazy val doobie1    = module(ProjectName("doobie1"), crossProject(JVMPlatform))
   .settings(
@@ -890,6 +915,7 @@ def projectCommonSettings(projectName: String, crossProject: CrossProject.Builde
       //      , Compile / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       //      , Test / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value),
+      fork := true,
       Compile / console / wartremoverErrors := List.empty,
       Compile / console / wartremoverWarnings := List.empty,
       Compile / console / scalacOptions :=
