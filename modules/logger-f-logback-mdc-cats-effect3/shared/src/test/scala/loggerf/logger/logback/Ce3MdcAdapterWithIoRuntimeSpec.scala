@@ -102,12 +102,13 @@ object Ce3MdcAdapterWithIoRuntimeSpec extends Properties {
 
       before()
 
-      val beforeSet      = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
-      MDC.put("key-1", a)
-      val afterBeforeSet = (MDC.get("key-1") ==== a).log("""after beforeSet: `MDC.get("key-1") ==== a` failed""")
+//      val beforeSet      = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
+//      MDC.put("key-1", a)
+//      val afterBeforeSet = (MDC.get("key-1") ==== a).log("""after beforeSet: `MDC.get("key-1") ==== a` failed""")
 
       val test = for {
-//        _              <- IO(MDC.put("key-1", a))
+        beforeSet      <- IO((MDC.get("key-1") ==== null).log("before set")) // scalafix:ok DisableSyntax.null
+        _              <- IO(MDC.put("key-1", a))
         before         <- IO((MDC.get("key-1") ==== a).log("before"))
         beforeIsolated <- IO((MDC.get("key-1") ==== a).log("beforeIsolated"))
                             .start
@@ -130,8 +131,11 @@ object Ce3MdcAdapterWithIoRuntimeSpec extends Properties {
 
         joinedIsolated1 <- isolated1.joinWithNever
         joinedIsolated2 <- isolated2.joinWithNever
+
         (isolated1Before, isolated1After) = joinedIsolated1
+
         (isolated2Before, isolated2After) = joinedIsolated2
+
         key1Result <- IO((MDC.get("key-1") ==== a).log(s"""After: MDC.get("key-1") is not $a"""))
         key2Result <- IO(
                         (MDC.get("key-2") ==== null).log("""After: MDC.get("key-2") is not null""")
@@ -139,7 +143,7 @@ object Ce3MdcAdapterWithIoRuntimeSpec extends Properties {
       } yield Result.all(
         List(
           beforeSet,
-          afterBeforeSet,
+//          afterBeforeSet,
           before,
           beforeIsolated,
           isolated1Before,
@@ -170,13 +174,15 @@ object Ce3MdcAdapterWithIoRuntimeSpec extends Properties {
 
       before()
 
-      val beforeSet      = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
-      MDC.put("key-1", a2)
-      val afterBeforeSet =
-        (MDC.get("key-1") ==== a2)
-          .log(s"""after beforeSet: MDC.get("key-1") should be $a2""") // scalafix:ok DisableSyntax.null
+//      val beforeSet      = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
+//      MDC.put("key-1", a2)
+//      val afterBeforeSet =
+//        (MDC.get("key-1") ==== a2)
+//          .log(s"""after beforeSet: MDC.get("key-1") should be $a2""") // scalafix:ok DisableSyntax.null
 
       val test = for {
+        beforeSet      <- IO((MDC.get("key-1") ==== null).log("before set")) // scalafix:ok DisableSyntax.null
+        _              <- IO(MDC.put("key-1", a2))
         beforeSet1     <- IO((MDC.get("key-1") ==== a2).log("before set2")) // scalafix:ok DisableSyntax.null
         _              <- IO(MDC.put("key-1", a))
         beforeSet2     <- IO(
@@ -305,7 +311,7 @@ object Ce3MdcAdapterWithIoRuntimeSpec extends Properties {
                       ) // scalafix:ok DisableSyntax.null
       } yield List(
         beforeSet,
-        afterBeforeSet,
+//        afterBeforeSet,
         beforeSet1,
         beforeSet2,
       ) ++ before ++ List(

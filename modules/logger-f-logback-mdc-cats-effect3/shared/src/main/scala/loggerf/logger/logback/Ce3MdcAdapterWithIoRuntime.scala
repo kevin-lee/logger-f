@@ -17,32 +17,34 @@ class Ce3MdcAdapterWithIoRuntime(private val ioRuntime: unsafe.IORuntime) extend
     IOLocal[Map[String, String]](Map.empty[String, String])
       .unsafeRunSync()(ioRuntime)
 
+  private lazy val threadLocalContext: ThreadLocal[Map[String, String]] = localContext.unsafeThreadLocal()
+
   override def put(key: String, `val`: String): Unit = {
-    val unsafeThreadLocal = localContext.unsafeThreadLocal()
+    val unsafeThreadLocal = threadLocalContext
     unsafeThreadLocal.set(unsafeThreadLocal.get + (key -> `val`))
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Null", "org.wartremover.warts.StringPlusAny"))
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
   override def get(key: String): String =
-    localContext.unsafeThreadLocal().get.getOrElse(key, null) // scalafix:ok DisableSyntax.null
+    threadLocalContext.get.getOrElse(key, null) // scalafix:ok DisableSyntax.null
 
   override def remove(key: String): Unit = {
-    val unsafeThreadLocal = localContext.unsafeThreadLocal()
+    val unsafeThreadLocal = threadLocalContext
     unsafeThreadLocal.set(unsafeThreadLocal.get - key)
   }
 
-  override def clear(): Unit = localContext.unsafeThreadLocal().set(Map.empty[String, String])
+  override def clear(): Unit = threadLocalContext.set(Map.empty[String, String])
 
   override def getCopyOfContextMap: JMap[String, String] = getPropertyMap0
 
   override def setContextMap0(contextMap: JMap[String, String]): Unit =
-    localContext.unsafeThreadLocal().set(contextMap.asScala.toMap)
+    threadLocalContext.set(contextMap.asScala.toMap)
 
-  private def getPropertyMap0: JMap[String, String] = localContext.unsafeThreadLocal().get.asJava
+  private def getPropertyMap0: JMap[String, String] = threadLocalContext.get.asJava
 
   override def getPropertyMap: JMap[String, String] = getPropertyMap0
 
-  override def getKeys: JSet[String] = localContext.unsafeThreadLocal().get.keySet.asJava
+  override def getKeys: JSet[String] = threadLocalContext.get.keySet.asJava
 
 }
 object Ce3MdcAdapterWithIoRuntime extends Ce3MdcAdapterWithIoRuntimeOps
@@ -82,13 +84,13 @@ trait Ce3MdcAdapterWithIoRuntimeOps {
 
     loggerContext.setMDCAdapter(adapter)
     if (loggerContext.getMDCAdapter == adapter) {
-      //      println("[LoggerContext] It's set by setMDCAdapter.")
+      println("[LoggerContext] It's set by setMDCAdapter.")
       adapter
     } else {
-      //      println(
-      //        "[LoggerContext] The old setMDCAdapter doesn't replace `mdcAdapter` if it has already been set, " +
-      //          "so it will use reflection to set it in the `mdcAdapter` field."
-      //      )
+      println(
+        "[LoggerContext] The old setMDCAdapter doesn't replace `mdcAdapter` if it has already been set, " +
+          "so it will use reflection to set it in the `mdcAdapter` field."
+      )
       val loggerContextClass = classOf[LoggerContext]
       val field              = loggerContextClass.getDeclaredField("mdcAdapter")
       field.setAccessible(true)
