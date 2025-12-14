@@ -14,9 +14,12 @@ import scala.jdk.CollectionConverters._
   * @since 2023-07-07
   */
 object Ce3MdcAdapterSpec extends Properties {
+  println(
+    s"${this.getClass.getSimpleName.stripSuffix("$")}[B] cats.effect.trackFiberContext=${sys.props.getOrElse("cats.effect.trackFiberContext", "NOT SET")}"
+  )
   private val oldValue = sys.props.put("cats.effect.trackFiberContext", "true")
   println(
-    s"${this.getClass.getSimpleName.stripSuffix("$")}[B] cats.effect.trackFiberContext=${oldValue.getOrElse("")}"
+    s"${this.getClass.getSimpleName.stripSuffix("$")}[B] cats.effect.trackFiberContext=${oldValue.getOrElse("NOT SET")}"
   )
   println(
     s"${this.getClass.getSimpleName.stripSuffix("$")}[A] cats.effect.trackFiberContext=${sys.props.getOrElse("cats.effect.trackFiberContext", "")}"
@@ -102,13 +105,13 @@ object Ce3MdcAdapterSpec extends Properties {
 
       before()
 
-      val beforeSet = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
-      MDC.put("key-1", a)
+//      val beforeSet = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
+//      MDC.put("key-1", a)
 
-      val afterBeforeSetBeforeBefore = (MDC.get("key-1") ==== a).log("after beforeSet and before before")
+//      val afterBeforeSetBeforeBefore = (MDC.get("key-1") ==== a).log("after beforeSet and before before")
 
       val test = for {
-//        _              <- IO(MDC.put("key-1", a))
+        _              <- IO(MDC.put("key-1", a))
         before         <- IO((MDC.get("key-1") ==== a).log("before"))
         beforeIsolated <- IO((MDC.get("key-1") ==== a).log("beforeIsolated"))
                             .start
@@ -139,8 +142,8 @@ object Ce3MdcAdapterSpec extends Properties {
                       ) // scalafix:ok DisableSyntax.null
       } yield Result.all(
         List(
-          beforeSet,
-          afterBeforeSetBeforeBefore,
+//          beforeSet,
+//          afterBeforeSetBeforeBefore,
           before,
           beforeIsolated,
           isolated1Before,
@@ -178,12 +181,20 @@ object Ce3MdcAdapterSpec extends Properties {
           .log(s"""after beforeSet: MDC.get("key-1") should be $a2""") // scalafix:ok DisableSyntax.null
 
       val test = for {
-//        beforeSet2     <- IO((MDC.get("key-1") ==== a2).log(s"""before set2: MDC.get("key-1") should be $a2""")) // scalafix:ok DisableSyntax.null
-//        _              <- IO(MDC.put("key-1", a))
-        beforeSet2     <- IO(
-                            (MDC.get("key-1") ==== a).log(s"""before set2: MDC.get("key-1") should be $a""")
-                          ) // scalafix:ok DisableSyntax.null
-        before         <-
+        beforeBeforeSet1 <- IO(
+                              (MDC.get("key-1") ==== null)
+                                .log(s"""before `before set(key-1) with $a2`: MDC.get("key-1") should be null""")
+                            ) // scalafix:ok DisableSyntax.null
+        _                <- IO(MDC.put("key-1", a2))
+        beforeBeforeSet2 <-
+          IO(
+            (MDC.get("key-1") ==== a2).log(s"""before `before set(key-1) with $a`: MDC.get("key-1") should be $a2""")
+          ) // scalafix:ok DisableSyntax.null
+        _                <- IO(MDC.put("key-1", a))
+        beforeSet2       <- IO(
+                              (MDC.get("key-1") ==== a).log(s"""before set2: MDC.get("key-1") should be $a""")
+                            ) // scalafix:ok DisableSyntax.null
+        before           <-
           IO {
             val actual1 = MDC.get("key-1")
             val actual2 = MDC.get("key-2")
@@ -198,12 +209,12 @@ object Ce3MdcAdapterSpec extends Properties {
               ), // scalafix:ok DisableSyntax.null
             )
           }
-        beforeIsolated <- IO {
-                            val actual = MDC.get("key-1")
-                            (actual ==== a).log(s"""beforeIsolated: MDC.get("key-1") should be $a, but it is $actual""")
-                          }
-                            .start
-                            .flatMap(_.joinWithNever)
+        beforeIsolated   <- IO {
+                              val actual = MDC.get("key-1")
+                              (actual ==== a).log(s"""beforeIsolated: MDC.get("key-1") should be $a, but it is $actual""")
+                            }
+                              .start
+                              .flatMap(_.joinWithNever)
 
         isolated1 <-
           (
@@ -306,6 +317,8 @@ object Ce3MdcAdapterSpec extends Properties {
       } yield List(
         beforeSet,
         afterBeforeSet,
+        beforeBeforeSet1,
+        beforeBeforeSet2,
         beforeSet2,
       ) ++ before ++ List(
         beforeIsolated

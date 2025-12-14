@@ -347,9 +347,9 @@ lazy val logbackMdcCatsEffect3    = module(ProjectName("logback-mdc-cats-effect3
   .settings(
     description := "Logger for F[_] - logback MDC context map support for Cats Effect 3",
     libraryDependencies ++= Seq(
-      libs.logbackClassic,
+      libs.logbackClassicLatest,
       libs.logbackScalaInterop,
-      libs.catsEffect3,
+      libs.libCatsEffect(props.catsEffect3Version).value,
       libs.tests.effectieCatsEffect3.value,
       libs.tests.extrasHedgehogCatsEffect3.value,
     ) ++ libs.tests.hedgehogLibs.value,
@@ -358,6 +358,7 @@ lazy val logbackMdcCatsEffect3    = module(ProjectName("logback-mdc-cats-effect3
       libraryDependencies.value,
     ),
     javaOptions += "-Dcats.effect.trackFiberContext=true",
+    Test / fork := true,
   )
   .dependsOn(
     core,
@@ -639,7 +640,7 @@ lazy val props =
 
     final val CatsVersion = "2.12.0"
 
-    val catsEffect3Version          = "3.3.14"
+    val catsEffect3Version          = "3.6.3"
     val catsEffect3ForNativeVersion = "3.7.0-RC1"
 
     val Monix3Version = "3.4.0"
