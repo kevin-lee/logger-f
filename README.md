@@ -1,4 +1,4 @@
-![LoggerF Logo](https://raw.githubusercontent.com/Kevin-Lee/logger-f/main/website/static/img/logger-f-200x200.png)
+![LoggerF Logo](https://logger-f.kevinly.dev/img/logger-f-200x200.png)
 
 # logger-f
 
