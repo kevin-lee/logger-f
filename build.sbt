@@ -84,6 +84,7 @@ lazy val loggerF = (project in file("."))
     slf4jMdcNative,
     logbackMdcMonix3Jvm,
     testLogbackMdcMonix3Jvm,
+    logbackMdcCatsEffect3Jvm,
     doobie1Jvm,
     testKitJvm,
     testKitJs,
@@ -341,6 +342,29 @@ lazy val testLogbackMdcMonix3    = testProject(ProjectName("logback-mdc-monix3")
     slf4jLogger      % Test,
   )
 lazy val testLogbackMdcMonix3Jvm = testLogbackMdcMonix3.jvm
+
+lazy val logbackMdcCatsEffect3    = module(ProjectName("logback-mdc-cats-effect3"), crossProject(JVMPlatform))
+  .settings(
+    description := "Logger for F[_] - logback MDC context map support for Cats Effect 3",
+    libraryDependencies ++= Seq(
+      libs.logbackClassic,
+      libs.logbackScalaInterop,
+      libs.catsEffect3Eap,
+      libs.tests.effectieCatsEffect3.value,
+      libs.tests.extrasHedgehogCatsEffect3.value,
+    ) ++ libs.tests.hedgehogLibs.value,
+    libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+      scalaVersion.value,
+      libraryDependencies.value,
+    ),
+    javaOptions += "-Dcats.effect.ioLocalPropagation=true",
+  )
+  .dependsOn(
+    core,
+    monix       % Test,
+    slf4jLogger % Test,
+  )
+lazy val logbackMdcCatsEffect3Jvm = logbackMdcCatsEffect3.jvm
 
 lazy val doobie1    = module(ProjectName("doobie1"), crossProject(JVMPlatform))
   .settings(
@@ -669,6 +693,8 @@ lazy val libs =
     lazy val cats = Def.setting("org.typelevel" %%% "cats-core" % props.CatsVersion)
 
     def libCatsEffect(catsEffectVersion: String) = Def.setting("org.typelevel" %%% "cats-effect" % catsEffectVersion)
+
+    lazy val catsEffect3Eap = "org.typelevel" %% "cats-effect" % "3.6-02a43a6"
 
     lazy val monix3Execution = Def.setting("io.monix" %%% "monix-execution" % props.Monix3Version)
 
