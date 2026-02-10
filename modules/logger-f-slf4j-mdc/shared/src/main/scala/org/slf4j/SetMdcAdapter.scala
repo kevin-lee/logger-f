@@ -18,13 +18,13 @@ object SetMdcAdapter {
     try {
       val method = mdcClass.getDeclaredMethod("setMDCAdapter", classOf[MDCAdapter])
       val _      = method.invoke(null, mdcAdapter) // scalafix:ok DisableSyntax.null
-//      println("[MDC] A method named `setMDCAdapter` was found, so it was set using `setMDCAdapter` with reflection.")
+      println("[debug][MDC] A method named `setMDCAdapter` was found, so it was set using `setMDCAdapter` with reflection.")
       ()
     } catch {
       case NonFatal(_) =>
-//        println(
-//          "[MDC] No method named `setMDCAdapter` was found, so it will instead be set to the `mdcAdapter` field using reflection."
-//        )
+        println(
+          "[debug][MDC] No method named `setMDCAdapter` was found, so it will instead be set to the `mdcAdapter` field using reflection."
+        )
         val field = mdcClass.getDeclaredField("mdcAdapter")
         field.setAccessible(true)
         field.set(null, mdcAdapter) // scalafix:ok DisableSyntax.null

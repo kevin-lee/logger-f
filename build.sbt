@@ -84,6 +84,7 @@ lazy val loggerF = (project in file("."))
     slf4jMdcNative,
     logbackMdcMonix3Jvm,
     testLogbackMdcMonix3Jvm,
+    logbackMdcCatsEffect3Jvm,
     doobie1Jvm,
     testKitJvm,
     testKitJs,
@@ -341,6 +342,31 @@ lazy val testLogbackMdcMonix3    = testProject(ProjectName("logback-mdc-monix3")
     slf4jLogger      % Test,
   )
 lazy val testLogbackMdcMonix3Jvm = testLogbackMdcMonix3.jvm
+
+lazy val logbackMdcCatsEffect3    = module(ProjectName("logback-mdc-cats-effect3"), crossProject(JVMPlatform))
+  .settings(
+    description := "Logger for F[_] - logback MDC context map support for Cats Effect 3",
+    libraryDependencies ++= Seq(
+      libs.logbackClassicLatest,
+      libs.logbackScalaInterop,
+      libs.libCatsEffect(props.catsEffect3Version).value,
+      libs.tests.effectieCatsEffect3.value,
+      libs.tests.extrasHedgehogCatsEffect3.value,
+    ) ++ libs.tests.hedgehogLibs.value,
+    libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
+      scalaVersion.value,
+      libraryDependencies.value,
+    ),
+    javaOptions += "-Dcats.effect.trackFiberContext=true",
+    Test / fork := true,
+  )
+  .dependsOn(
+    core,
+    slf4jMdc,
+    monix       % Test,
+    slf4jLogger % Test,
+  )
+lazy val logbackMdcCatsEffect3Jvm = logbackMdcCatsEffect3.jvm
 
 lazy val doobie1    = module(ProjectName("doobie1"), crossProject(JVMPlatform))
   .settings(
@@ -614,7 +640,7 @@ lazy val props =
 
     final val CatsVersion = "2.12.0"
 
-    val catsEffect3Version          = "3.3.14"
+    val catsEffect3Version          = "3.6.3"
     val catsEffect3ForNativeVersion = "3.7.0-RC1"
 
     val Monix3Version = "3.4.0"
@@ -669,6 +695,8 @@ lazy val libs =
     lazy val cats = Def.setting("org.typelevel" %%% "cats-core" % props.CatsVersion)
 
     def libCatsEffect(catsEffectVersion: String) = Def.setting("org.typelevel" %%% "cats-effect" % catsEffectVersion)
+
+    lazy val catsEffect3Eap = "org.typelevel" %% "cats-effect" % "3.6-02a43a6"
 
     lazy val monix3Execution = Def.setting("io.monix" %%% "monix-execution" % props.Monix3Version)
 
@@ -787,6 +815,7 @@ def projectCommonSettings(projectName: String, crossProject: CrossProject.Builde
       //      , Compile / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       //      , Test / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value),
+      fork := true,
       Compile / console / wartremoverErrors := List.empty,
       Compile / console / wartremoverWarnings := List.empty,
       Compile / console / scalacOptions :=

@@ -49,9 +49,9 @@ trait Monix3MdcAdapterOps {
     monix3MdcAdapter
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
+  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf", "scalafix:DisableSyntax.asInstanceOf"))
   protected def getLoggerContext(): LoggerContext =
-    LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext] // scalafix:ok DisableSyntax.asInstanceOf
+    LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
 
   def initialize(): Monix3MdcAdapter =
     initializeWithMonix3MdcAdapterAndLoggerContext(new Monix3MdcAdapter, getLoggerContext())
