@@ -619,7 +619,7 @@ lazy val props =
 
     val Monix3Version = "3.4.0"
 
-    val Doobie1Version = "1.0.0-RC10"
+    val Doobie1Version = "1.0.0-RC11"
 
     final val LoggerF1Version = "1.20.0"
 
