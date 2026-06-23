@@ -638,7 +638,7 @@ lazy val props =
     val LogbackScalaInteropVersion       = "1.0.0"
     val LogbackScalaInteropLatestVersion = "1.17.0"
 
-    val OrphanVersion = "0.5.0"
+    val OrphanVersion = "0.7.0"
 
     val MunitVersion = "0.7.29"
 
