@@ -75,8 +75,6 @@ lazy val loggerF = (project in file("."))
     log4sLoggerJs,
     log4jLoggerJvm,
     log4jLoggerNative,
-    sbtLoggingJvm,
-    sbtLoggingNative,
     catsJvm,
     catsJs,
     catsNative,
@@ -217,37 +215,6 @@ lazy val log4jLogger       =
 lazy val log4jLoggerJvm    = log4jLogger.jvm
 lazy val log4jLoggerNative = log4jLogger.native.settings(nativeSettings)
 
-lazy val sbtLogging       =
-  module(ProjectName("sbt-logging"), crossProject(JVMPlatform, NativePlatform))
-    .settings(
-      description := "Logger for F[_] - Logger with sbt logging",
-      libraryDependencies ++= crossVersionProps(
-        List.empty,
-        SemVer.parseUnsafe(scalaVersion.value),
-      ) {
-        case (SemVer.Major(2), SemVer.Minor(11), _) =>
-          List(
-            libs.sbtLoggingLib("1.2.4")
-          )
-
-        case (SemVer.Major(2), SemVer.Minor(12), _) =>
-          List(
-            libs.sbtLoggingLib("1.5.8")
-          )
-
-        case (SemVer.Major(2), SemVer.Minor(13), _) | (SemVer.Major(3), SemVer.Minor(_), _) =>
-          List(
-            libs.sbtLoggingLib("1.5.8")
-          ).map(_.cross(CrossVersion.for3Use2_13))
-      },
-      libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
-        scalaVersion.value,
-        libraryDependencies.value,
-      ),
-    )
-    .dependsOn(core)
-lazy val sbtLoggingJvm    = sbtLogging.jvm
-lazy val sbtLoggingNative = sbtLogging.native.settings(nativeSettings)
 
 lazy val cats       =
   module(ProjectName("cats"), crossProject(JVMPlatform, JSPlatform, NativePlatform))
