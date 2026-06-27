@@ -590,7 +590,7 @@ lazy val props =
 
     final val LoggerF1Version = "1.20.0"
 
-    val ExtrasVersion = "0.53.0"
+    val ExtrasVersion = "0.54.0"
 
     val Slf4JVersion       = "2.0.12"
     val Slf4JLatestVersion = "2.0.17"
