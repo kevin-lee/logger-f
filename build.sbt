@@ -553,7 +553,7 @@ lazy val props =
     final val RepoName       = "logger-f"
 
     val Scala3Versions = List("3.3.5")
-    val Scala2Versions = List("2.13.17", "2.12.18")
+    val Scala2Versions = List("2.13.18", "2.12.18")
 
 //    final val ProjectScalaVersion = Scala3Versions.head
     final val ProjectScalaVersion = Scala2Versions.head
@@ -577,12 +577,12 @@ lazy val props =
 
     val HedgehogExtraVersion = "0.15.0"
 
-    val EffectieVersion = "2.3.0"
+    val EffectieVersion = "2.4.0"
 
     final val CatsVersion = "2.12.0"
 
-    val catsEffect3Version          = "3.3.14"
-    val catsEffect3ForNativeVersion = "3.7.0-RC1"
+    val catsEffect3Version          = "3.7.0"
+    val catsEffect3ForNativeVersion = "3.7.0"
 
     val Monix3Version = "3.4.0"
 
@@ -590,7 +590,7 @@ lazy val props =
 
     final val LoggerF1Version = "1.20.0"
 
-    final val ExtrasVersion = "0.49.0"
+    val ExtrasVersion = "0.53.0"
 
     val Slf4JVersion       = "2.0.12"
     val Slf4JLatestVersion = "2.0.17"
