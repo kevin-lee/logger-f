@@ -25,7 +25,10 @@ trait ConcurrentSupport {
           val stringWriter = new StringWriter()
           val printWriter  = new PrintWriter(stringWriter)
           th.printStackTrace(printWriter)
-          logger(s"⚠️ Error in Executor: ${stringWriter.toString}")
+
+          @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+          val message = stringWriter.toString
+          logger(s"⚠️ Error in Executor: $message")
         },
       )
 
