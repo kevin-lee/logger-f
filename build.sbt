@@ -35,6 +35,23 @@ ThisBuild / scalafixConfig := (
     ((ThisBuild / baseDirectory).value / ".scalafix-scala2.conf").some
 )
 
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+scalacOptions += (
+  if (scalaVersion.value.startsWith("3."))
+    "-Xsemanticdb"
+  else
+    "-Yrangepos"
+  )
+
+ThisBuild / scalafixDependencies ++= (
+  if (!scalaVersion.value.startsWith("3."))
+    List("com.github.xuwei-k" %% "scalafix-rules" % "0.6.28")
+  else
+    List.empty
+)
+
+
 //ThisBuild / scalafixScalaBinaryVersion                   := {
 //  val log        = sLog.value
 //  val newVersion = if (scalaVersion.value.startsWith("3")) {
@@ -586,7 +603,7 @@ lazy val props =
 
     val Monix3Version = "3.4.0"
 
-    val Doobie1Version = "1.0.0-RC12"
+    val Doobie1Version = "1.0.0-RC13"
 
     final val LoggerF1Version = "1.20.0"
 
@@ -653,7 +670,7 @@ lazy val libs =
 
     lazy val orphanCats = Def.setting("io.kevinlee" %%% "orphan-cats" % props.OrphanVersion)
 
-    lazy val doobieFree = "org.tpolecat" %% "doobie-free" % props.Doobie1Version
+    lazy val doobieFree = "org.typelevel" %% "doobie-free" % props.Doobie1Version
 
     lazy val tests = new {
 

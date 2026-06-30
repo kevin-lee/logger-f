@@ -2,8 +2,8 @@ package loggerf.doobie1
 
 import cats.syntax.all._
 import cats.{Eq, Show}
-import doobie.util.log
-import doobie.util.log.{LogHandler, Parameters}
+import org.typelevel.doobie.util.log
+import org.typelevel.doobie.util.log.{LogHandler, Parameters}
 import loggerf.core.Log
 import loggerf.syntax.all._
 

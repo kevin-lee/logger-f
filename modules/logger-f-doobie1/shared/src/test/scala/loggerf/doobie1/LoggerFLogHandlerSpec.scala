@@ -2,7 +2,7 @@ package loggerf.doobie1
 
 import cats.effect._
 import cats.syntax.all._
-import doobie.util.log.{ExecFailure, Parameters, ProcessingFailure, Success}
+import org.typelevel.doobie.util.log.{ExecFailure, Parameters, ProcessingFailure, Success}
 import effectie.instances.ce3.fx.ioFx
 import extras.hedgehog.ce3.syntax.runner._
 import hedgehog._
