@@ -331,9 +331,9 @@ lazy val logbackMdcCatsEffect3    = module(ProjectName("logback-mdc-cats-effect3
   .settings(
     description := "Logger for F[_] - logback MDC context map support for Cats Effect 3",
     libraryDependencies ++= Seq(
-      libs.logbackClassic,
+      libs.logbackClassicLatest,
       libs.logbackScalaInterop,
-      libs.catsEffect3Eap,
+      libs.libCatsEffect(props.catsEffect3Version).value,
       libs.tests.effectieCatsEffect3.value,
       libs.tests.extrasHedgehogCatsEffect3.value,
     ) ++ libs.tests.hedgehogLibs.value,
@@ -341,10 +341,16 @@ lazy val logbackMdcCatsEffect3    = module(ProjectName("logback-mdc-cats-effect3
       scalaVersion.value,
       libraryDependencies.value,
     ),
-    javaOptions += "-Dcats.effect.ioLocalPropagation=true",
+    javaOptions += "-Dcats.effect.trackFiberContext=true",
+    Test / fork := true,
+    /* Each spec installs its own MDC adapter into the global slf4j/logback slot at object init,
+     * so running suites concurrently in the same JVM would make MDC calls go through
+     * different adapters (thus different IOLocals) mid-test. */
+    Test / parallelExecution := false,
   )
   .dependsOn(
     core,
+    slf4jMdc,
     monix       % Test,
     slf4jLogger % Test,
   )
@@ -797,6 +803,7 @@ def projectCommonSettings(projectName: String, crossProject: CrossProject.Builde
       //      , Compile / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       //      , Test / compile / wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value)
       wartremoverErrors ++= commonWarts((update / scalaBinaryVersion).value),
+      fork := true,
       Compile / console / wartremoverErrors := List.empty,
       Compile / console / wartremoverWarnings := List.empty,
       Compile / console / scalacOptions :=

@@ -91,9 +91,10 @@ object Ce3MdcAdapterSpec2 extends Properties {
       before()
 
       val beforeSet = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
-      MDC.put("key-1", a)
+//      MDC.put("key-1", a)
 
       for {
+        _              <- IO(MDC.put("key-1", a))
         before         <- IO((MDC.get("key-1") ==== a).log("before"))
         beforeIsolated <- IO((MDC.get("key-1") ==== a).log("beforeIsolated"))
                             .start
@@ -450,7 +451,6 @@ object Ce3MdcAdapterSpec2 extends Properties {
       } yield Result.all(
         List(
           keySetBefore,
-          keySetAfter,
           keySetAfter,
           keySetAfter2,
         )
