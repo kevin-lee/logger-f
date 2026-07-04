@@ -15,48 +15,78 @@ import scala.jdk.CollectionConverters._
 class Ce3MdcAdapter extends JLoggerFMdcAdapter {
 
   private[this] val localContext: IOLocal[Map[String, String]] =
-    IOLocal[Map[String, String]](Map.empty[String, String])
-      .syncStep(100)
-      .flatMap(
-        _.leftMap(_ =>
-          new Error(
-            "Failed to initialize the local context of the Ce3MdcAdapter."
-          )
-        ).liftTo[SyncIO]
-      )
-      .unsafeRunSync()
+    unsafeCreateIOLocal(Map.empty[String, String], "local context")
 
   /* Not lazy so that constructing the adapter fails fast with CE's UnsupportedOperationException
    * when the JVM was started without -Dcats.effect.trackFiberContext=true,
    * instead of failing at the first MDC use deep inside logging. */
   private val threadLocalContext: ThreadLocal[Map[String, String]] = localContext.unsafeThreadLocal()
 
+  /* Probe used to detect whether a fiber is currently running on this thread:
+   * IOLocal#unsafeThreadLocal's set is a silent no-op without a fiber, so a write
+   * that can be read back means a fiber is present. This indirection is needed
+   * because IOFiber.currentIOFiber() is private to cats-effect. */
+  private[this] val probeLocal: IOLocal[Boolean]     = unsafeCreateIOLocal(false, "fiber probe")
+  private val probeThreadLocal: ThreadLocal[Boolean] = probeLocal.unsafeThreadLocal()
+
+  /* Classic per-thread MDC storage used only when no fiber is running on the current
+   * thread, so that fiber-unaware code (servlet filters, event-loop callbacks, etc.)
+   * keeps the stock LogbackMDCAdapter behaviour instead of having its writes dropped.
+   * Never merged with the fiber context: a thread can hold fallback values and also run
+   * fiber segments (e.g. via evalOn), and merging would leak values across the two. */
+  private val fallbackContext: ThreadLocal[Map[String, String]] =
+    ThreadLocal.withInitial(() => Map.empty[String, String])
+
+  private def unsafeCreateIOLocal[A](default: A, name: String): IOLocal[A] =
+    IOLocal[A](default)
+      .syncStep(100)
+      .flatMap(
+        _.leftMap(_ =>
+          new Error(
+            s"Failed to initialize the $name of the Ce3MdcAdapter."
+          )
+        ).liftTo[SyncIO]
+      )
+      .unsafeRunSync()
+
+  private def inFiber: Boolean = {
+    probeThreadLocal.set(true)
+    val present = probeThreadLocal.get()
+    if (present) probeThreadLocal.remove()
+    present
+  }
+
+  private def currentContext(): ThreadLocal[Map[String, String]] =
+    if (inFiber) threadLocalContext else fallbackContext
+
   override def put(key: String, `val`: String): Unit = {
-    val unsafeThreadLocal = threadLocalContext
-    unsafeThreadLocal.set(unsafeThreadLocal.get + (key -> `val`))
+    val context = currentContext()
+    context.set(context.get + (key -> `val`))
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Null", "org.wartremover.warts.StringPlusAny"))
   override def get(key: String): String =
-    threadLocalContext.get.getOrElse(key, null) // scalafix:ok DisableSyntax.null
+    currentContext().get.getOrElse(key, null) // scalafix:ok DisableSyntax.null
 
   override def remove(key: String): Unit = {
-    val unsafeThreadLocal = threadLocalContext
-    unsafeThreadLocal.set(unsafeThreadLocal.get - key)
+    val context = currentContext()
+    context.set(context.get - key)
   }
 
-  override def clear(): Unit = threadLocalContext.set(Map.empty[String, String])
+  override def clear(): Unit =
+    if (inFiber) threadLocalContext.set(Map.empty[String, String])
+    else fallbackContext.remove()
 
   override def getCopyOfContextMap: JMap[String, String] = getPropertyMap0
 
   override def setContextMap0(contextMap: JMap[String, String]): Unit =
-    threadLocalContext.set(contextMap.asScala.toMap)
+    currentContext().set(contextMap.asScala.toMap)
 
-  private def getPropertyMap0: JMap[String, String] = threadLocalContext.get.asJava
+  private def getPropertyMap0: JMap[String, String] = currentContext().get.asJava
 
   override def getPropertyMap: JMap[String, String] = getPropertyMap0
 
-  override def getKeys: JSet[String] = threadLocalContext.get.keySet.asJava
+  override def getKeys: JSet[String] = currentContext().get.keySet.asJava
 
 }
 object Ce3MdcAdapter extends Ce3MdcAdapterOps
