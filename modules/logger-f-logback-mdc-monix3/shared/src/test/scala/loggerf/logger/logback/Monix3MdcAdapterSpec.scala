@@ -24,7 +24,7 @@ trait Monix3MdcAdapterSpecsOnly {
    */
   implicit val opts: Task.Options = Task.defaultOptions.enableLocalContextPropagation
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.ToString"))
   private val monixMdcAdapter: Monix3MdcAdapter =
     try {
       Monix3MdcAdapter.initialize()
