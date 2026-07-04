@@ -1,15 +1,13 @@
 package loggerf.logger.logback
 
-import cats.effect.unsafe.IOLocals
 import cats.effect.{IOLocal, SyncIO}
 import cats.syntax.all._
 import ch.qos.logback.classic.LoggerContext
 import logback_scala_interop.JLoggerFMdcAdapter
-import org.slf4j.{LoggerFactory, MDC}
+import org.slf4j.LoggerFactory
 
 import java.util.{Map => JMap, Set => JSet}
 import scala.jdk.CollectionConverters._
-import scala.util.control.NonFatal
 
 /** @author Kevin Lee
   * @since 2023-07-07
@@ -18,7 +16,7 @@ class Ce3MdcAdapter extends JLoggerFMdcAdapter {
 
   private[this] val localContext: IOLocal[Map[String, String]] =
     IOLocal[Map[String, String]](Map.empty[String, String])
-      .syncStep(1)
+      .syncStep(100)
       .flatMap(
         _.leftMap(_ =>
           new Error(
@@ -28,58 +26,81 @@ class Ce3MdcAdapter extends JLoggerFMdcAdapter {
       )
       .unsafeRunSync()
 
-  override def put(key: String, `val`: String): Unit =
-    IOLocals.update(localContext)(_ + (key -> `val`))
+  /* Not lazy so that constructing the adapter fails fast with CE's UnsupportedOperationException
+   * when the JVM was started without -Dcats.effect.trackFiberContext=true,
+   * instead of failing at the first MDC use deep inside logging. */
+  private val threadLocalContext: ThreadLocal[Map[String, String]] = localContext.unsafeThreadLocal()
 
-  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  override def put(key: String, `val`: String): Unit = {
+    val unsafeThreadLocal = threadLocalContext
+    unsafeThreadLocal.set(unsafeThreadLocal.get + (key -> `val`))
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Null", "org.wartremover.warts.StringPlusAny"))
   override def get(key: String): String =
-    IOLocals.get(localContext).getOrElse(key, null) // scalafix:ok DisableSyntax.null
+    threadLocalContext.get.getOrElse(key, null) // scalafix:ok DisableSyntax.null
 
-  override def remove(key: String): Unit = IOLocals.update(localContext)(_ - key)
+  override def remove(key: String): Unit = {
+    val unsafeThreadLocal = threadLocalContext
+    unsafeThreadLocal.set(unsafeThreadLocal.get - key)
+  }
 
-  override def clear(): Unit = IOLocals.reset(localContext)
+  override def clear(): Unit = threadLocalContext.set(Map.empty[String, String])
 
   override def getCopyOfContextMap: JMap[String, String] = getPropertyMap0
 
   override def setContextMap0(contextMap: JMap[String, String]): Unit =
-    IOLocals.set(localContext, contextMap.asScala.toMap)
+    threadLocalContext.set(contextMap.asScala.toMap)
 
-  private def getPropertyMap0: JMap[String, String] = IOLocals.get(localContext).asJava
+  private def getPropertyMap0: JMap[String, String] = threadLocalContext.get.asJava
 
   override def getPropertyMap: JMap[String, String] = getPropertyMap0
 
-  override def getKeys: JSet[String] = IOLocals.get(localContext).keySet.asJava
+  override def getKeys: JSet[String] = threadLocalContext.get.keySet.asJava
 
 }
-object Ce3MdcAdapter {
+object Ce3MdcAdapter extends Ce3MdcAdapterOps
+
+trait Ce3MdcAdapterOps {
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
-  private def initialize0(): Ce3MdcAdapter = {
-    val field   = classOf[MDC].getDeclaredField("mdcAdapter")
-    field.setAccessible(true)
-    val adapter = new Ce3MdcAdapter
-    field.set(null, adapter) // scalafix:ok DisableSyntax.null
-    field.setAccessible(false)
-    adapter
+  protected def initialize0(ce3MdcAdapter: Ce3MdcAdapter): Ce3MdcAdapter = {
+    org.slf4j.SetMdcAdapter(ce3MdcAdapter)
+    ce3MdcAdapter
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf", "scalafix:DisableSyntax.asInstanceOf"))
-  def initialize(): Ce3MdcAdapter = {
-    val loggerContext =
-      LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
-    initializeWithLoggerContext(loggerContext)
-  }
+  protected def getLoggerContext(): LoggerContext =
+    LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
 
-  def initializeWithLoggerContext(loggerContext: LoggerContext): Ce3MdcAdapter = {
-    val adapter = initialize0()
-    try {
-      val field = classOf[LoggerContext].getDeclaredField("mdcAdapter")
+  def initialize(): Ce3MdcAdapter =
+    initializeWithCe3MdcAdapterAndLoggerContext(new Ce3MdcAdapter, getLoggerContext())
+
+  def initializeWithCe3MdcAdapter(ce3MdcAdapter: Ce3MdcAdapter): Ce3MdcAdapter =
+    initializeWithCe3MdcAdapterAndLoggerContext(ce3MdcAdapter, getLoggerContext())
+
+  def initializeWithLoggerContext(loggerContext: LoggerContext): Ce3MdcAdapter =
+    initializeWithCe3MdcAdapterAndLoggerContext(new Ce3MdcAdapter, loggerContext)
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def initializeWithCe3MdcAdapterAndLoggerContext(
+    ce3MdcAdapter: Ce3MdcAdapter,
+    loggerContext: LoggerContext,
+  ): Ce3MdcAdapter = {
+    val adapter = initialize0(ce3MdcAdapter)
+
+    loggerContext.setMDCAdapter(adapter)
+    if (loggerContext.getMDCAdapter == adapter) {
+      adapter
+    } else {
+      /* The old LoggerContext#setMDCAdapter doesn't replace `mdcAdapter` if it has already been set,
+       * so use reflection to set the `mdcAdapter` field. */
+      val loggerContextClass = classOf[LoggerContext]
+      val field              = loggerContextClass.getDeclaredField("mdcAdapter")
       field.setAccessible(true)
       field.set(loggerContext, adapter)
       field.setAccessible(false)
       adapter
-    } catch {
-      case NonFatal(_) => adapter
     }
   }
 }

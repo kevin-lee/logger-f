@@ -26,6 +26,10 @@ object Ce3MdcAdapterSpec extends Properties {
       "IO - MDC should be able to put and get with isolated nested modifications",
       testPutAndGetMultipleIsolatedNestedModifications,
     ),
+    property(
+      "IO - MDC should be able to put and get with isolated nested modifications - more complex case",
+      testPutAndGetMultipleIsolatedNestedModifications2,
+    ),
     property("IO - MDC: It should be able to set a context map", testSetContextMap),
     property("IO - MDC should be able to remove the value for the existing key", testRemove),
     property("IO - MDC should be able to remove the multiple values for the existing keys", testRemoveMultiple),
@@ -91,10 +95,13 @@ object Ce3MdcAdapterSpec extends Properties {
 
       before()
 
-      val beforeSet = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
-      MDC.put("key-1", a)
+//      val beforeSet = (MDC.get("key-1") ==== null).log("before set") // scalafix:ok DisableSyntax.null
+//      MDC.put("key-1", a)
+
+//      val afterBeforeSetBeforeBefore = (MDC.get("key-1") ==== a).log("after beforeSet and before before")
 
       val test = for {
+        _              <- IO(MDC.put("key-1", a))
         before         <- IO((MDC.get("key-1") ==== a).log("before"))
         beforeIsolated <- IO((MDC.get("key-1") ==== a).log("beforeIsolated"))
                             .start
@@ -125,7 +132,8 @@ object Ce3MdcAdapterSpec extends Properties {
                       ) // scalafix:ok DisableSyntax.null
       } yield Result.all(
         List(
-          beforeSet,
+//          beforeSet,
+//          afterBeforeSetBeforeBefore,
           before,
           beforeIsolated,
           isolated1Before,
@@ -134,12 +142,181 @@ object Ce3MdcAdapterSpec extends Properties {
           isolated2After,
           key1Result,
           key2Result,
-//          (MDC.get("key-1") ==== a).log(s"""${Thread.currentThread().getName}:After: MDC.get("key-1") is not $a"""),
-//          (MDC.get("key-2") ==== null).log("""After: MDC.get("key-2") is not null"""), // scalafix:ok DisableSyntax.null
+          //          (MDC.get("key-1") ==== a).log(s"""${Thread.currentThread().getName}:After: MDC.get("key-1") is not $a"""),
+          //          (MDC.get("key-2") ==== null).log("""After: MDC.get("key-2") is not null"""), // scalafix:ok DisableSyntax.null
         )
       )
 
       test.unsafeRunSync()
+    }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  def testPutAndGetMultipleIsolatedNestedModifications2: Property =
+    for {
+      a  <- Gen.string(Gen.alpha, Range.linear(1, 2)).map("a:" + _).log("a")
+      a2 <- Gen.string(Gen.alpha, Range.linear(1, 2)).map("a2:" + a + _).log("a2")
+      b1 <- Gen.string(Gen.alpha, Range.linear(3, 4)).map("b1:" + _).log("b1")
+      c2 <- Gen.string(Gen.alpha, Range.linear(5, 6)).map("c1:" + _).log("c1")
+      a3 <- Gen.string(Gen.alpha, Range.linear(7, 8)).map("a3:" + _).log("a3")
+      b3 <- Gen.string(Gen.alpha, Range.linear(9, 10)).map("b3:" + _).log("b3")
+      c3 <- Gen.string(Gen.alpha, Range.linear(11, 12)).map("c3:" + _).log("c3")
+    } yield {
+
+      before()
+
+      /* NOTE: Unlike Monix's Local, CE3's IOLocal-backed MDC is fiber-only:
+       * MDC.put on a thread with no running fiber (like this test thread) is a silent no-op,
+       * so everything must happen inside the IO run by unsafeRunSync. */
+      val test = for {
+        beforeBeforeSet1 <- IO(
+                              (MDC.get("key-1") ==== null)
+                                .log(s"""before `before set(key-1) with $a2`: MDC.get("key-1") should be null""")
+                            ) // scalafix:ok DisableSyntax.null
+        _                <- IO(MDC.put("key-1", a2))
+        beforeBeforeSet2 <-
+          IO(
+            (MDC.get("key-1") ==== a2).log(s"""before `before set(key-1) with $a`: MDC.get("key-1") should be $a2""")
+          ) // scalafix:ok DisableSyntax.null
+        _                <- IO(MDC.put("key-1", a))
+        beforeSet2       <- IO(
+                              (MDC.get("key-1") ==== a).log(s"""before set2: MDC.get("key-1") should be $a""")
+                            ) // scalafix:ok DisableSyntax.null
+        before           <-
+          IO {
+            val actual1 = MDC.get("key-1")
+            val actual2 = MDC.get("key-2")
+            val actual3 = MDC.get("key-3")
+            List(
+              (actual1 ==== a).log(s"""before: MDC.get("key-1") should be $a, but it is $actual1"""),
+              (actual2 ==== null).log(
+                s"""before: MDC.get("key-2") should be null, but it is $actual2"""
+              ), // scalafix:ok DisableSyntax.null
+              (actual3 ==== null).log(
+                s"""before: MDC.get("key-3") should be null, but it is $actual3"""
+              ), // scalafix:ok DisableSyntax.null
+            )
+          }
+        beforeIsolated   <- IO {
+                              val actual = MDC.get("key-1")
+                              (actual ==== a).log(s"""beforeIsolated: MDC.get("key-1") should be $a, but it is $actual""")
+                            }
+                              .start
+                              .flatMap(_.joinWithNever)
+
+        isolated1 <-
+          (
+            IO {
+              val actual = MDC.get("key-1")
+              (actual ==== a).log(s"""isolated1Before: MDC.get("key-1") should be $a, but it is $actual""")
+            }.flatMap { isolated1Before =>
+              IO(
+                MDC.put("key-1", b1)
+              ) *> IO {
+                val actual = MDC.get("key-1")
+                List(
+                  isolated1Before,
+                  (actual ==== b1).log(s"""isolated1After: MDC.get("key-1") should be $b1, but it is $actual"""),
+                )
+              }
+            }
+          ).start
+        isolated2 <-
+          (
+            IO {
+              val actual1 = MDC.get("key-1")
+              val actual2 = MDC.get("key-2")
+              val actual3 = MDC.get("key-3")
+              List(
+                (actual1 ==== a).log(s"""isolated2Before: MDC.get("key-1") should be $a, but it is $actual1"""),
+                (actual2 ==== null).log(
+                  s"""isolated2Before: MDC.get("key-2") should be null, but it is $actual2"""
+                ), // scalafix:ok DisableSyntax.null
+                (actual3 ==== null).log(
+                  s"""isolated2Before: MDC.get("key-3") should be null, but it is $actual3"""
+                ), // scalafix:ok DisableSyntax.null
+              )
+            }.flatMap { isolated2Before =>
+              IO(
+                MDC.put("key-2", c2)
+              ) *> IO {
+                val actual1 = MDC.get("key-1")
+                val actual2 = MDC.get("key-2")
+                val actual3 = MDC.get("key-3")
+                isolated2Before ++
+                  List(
+                    (actual1 ==== a).log(s"""isolated2After: MDC.get("key-1") should be $a, but it is $actual1"""),
+                    (actual2 ==== c2).log(
+                      s"""isolated2After: MDC.get("key-2") should be $c2, but it is $actual2"""
+                    ), // scalafix:ok DisableSyntax.null
+                    (actual3 ==== null).log(
+                      s"""isolated2After: MDC.get("key-3") should be null, but it is $actual3"""
+                    ), // scalafix:ok DisableSyntax.null
+                  )
+              }
+            }
+          ).start
+        isolated3 <-
+          (
+            IO {
+              val actual1 = MDC.get("key-1")
+              val actual2 = MDC.get("key-2")
+              val actual3 = MDC.get("key-3")
+              List(
+                (actual1 ==== a).log(s"""isolated3Before: MDC.get("key-1") should be $a, but it is $actual1"""),
+                (actual2 ==== null).log(
+                  s"""isolated3Before: MDC.get("key-2") should be null, but it is $actual2"""
+                ), // scalafix:ok DisableSyntax.null
+                (actual3 ==== null).log(
+                  s"""isolated3Before: MDC.get("key-3") should be null, but it is $actual3"""
+                ), // scalafix:ok DisableSyntax.null
+              )
+            }.flatMap { isolated3Before =>
+              IO(
+                MDC.put("key-1", b3)
+              ) *> IO(
+                MDC.put("key-2", c3)
+              ) *> IO(
+                MDC.put("key-3", a3)
+              ) *> IO {
+                val actual1 = MDC.get("key-1")
+                val actual2 = MDC.get("key-2")
+                val actual3 = MDC.get("key-3")
+                isolated3Before ++ List(
+                  (actual1 ==== b3).log(s"""isolated3After: MDC.get("key-1") should be $b3, but it is $actual1"""),
+                  (actual2 ==== c3).log(s"""isolated3After: MDC.get("key-2") should be $c3, but it is $actual2"""),
+                  (actual3 ==== a3).log(s"""isolated3After: MDC.get("key-3") should be $a3, but it is $actual3"""),
+                )
+              }
+            }
+          ).start
+
+        joinedIsolated1 <- isolated1.joinWithNever
+        joinedIsolated2 <- isolated2.joinWithNever
+        joinedIsolated3 <- isolated3.joinWithNever
+
+        key1Result <- IO((MDC.get("key-1") ==== a).log(s"""After: MDC.get("key-1") is not $a"""))
+        key2Result <- IO(
+                        (MDC.get("key-2") ==== null).log("""After: MDC.get("key-2") is not null""")
+                      ) // scalafix:ok DisableSyntax.null
+        key3Result <- IO(
+                        (MDC.get("key-3") ==== null).log("""After: MDC.get("key-3") is not null""")
+                      ) // scalafix:ok DisableSyntax.null
+      } yield List(
+        beforeBeforeSet1,
+        beforeBeforeSet2,
+        beforeSet2,
+      ) ++ before ++ List(
+        beforeIsolated
+      ) ++
+        joinedIsolated1 ++
+        joinedIsolated2 ++
+        joinedIsolated3 ++ List(
+          key1Result,
+          key2Result,
+          key3Result,
+        )
+
+      Result.all(test.unsafeRunSync())
     }
 
   def testSetContextMap: Property =
@@ -460,7 +637,6 @@ object Ce3MdcAdapterSpec extends Properties {
         } yield Result.all(
           List(
             keySetBefore,
-            keySetAfter,
             keySetAfter,
             keySetAfter2,
           )
