@@ -37,6 +37,7 @@ object Ce3MdcAdapterSpec extends Properties {
       "IO - MDC should be able to remove with isolated nested modifications",
       testRemoveMultipleIsolatedNestedModifications,
     ),
+    property("IO - MDC should be able to clear all the values", testClear),
     property("IO - MDC: It should return context map for getCopyOfContextMap", testGetCopyOfContextMap),
     property("IO - MDC: It should return context map for getPropertyMap", testGetPropertyMap),
     property("IO - MDC: It should return context map for getKeys", testGetKeys),
@@ -510,6 +511,38 @@ object Ce3MdcAdapterSpec extends Properties {
       )
 
       test.unsafeRunSync()
+    }
+
+  /* clear() while a fiber is running must wipe the fiber's context: this is the fiber
+   * branch of the adapter's clear(); the plain-thread (fallback map) branch is covered
+   * by Ce3MdcAdapterFallbackSpec. */
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  def testClear: Property =
+    for {
+      keyValuePairs <- Gens.genKeyValuePairs.log("keyValuePairs")
+    } yield {
+
+      before()
+
+      (for {
+        _            <- keyValuePairs.keyValuePairs.traverse_ { keyValue =>
+                          IO(MDC.put(keyValue.key, keyValue.value))
+                        }
+        valuesBefore <- keyValuePairs.keyValuePairs.traverse { keyValue =>
+                          IO(MDC.get(keyValue.key))
+                        }
+        _            <- IO(MDC.clear())
+        valuesAfter  <- keyValuePairs.keyValuePairs.traverse { keyValue =>
+                          IO(MDC.get(keyValue.key))
+                        }
+      } yield Result.all(
+        List(
+          (valuesBefore ==== keyValuePairs.keyValuePairs.map(_.value)).log("valuesBefore value check"),
+          (valuesAfter ==== keyValuePairs.keyValuePairs.as(null)) // scalafix:ok DisableSyntax.null
+            .log("valuesAfter value check"),
+        )
+      ))
+        .unsafeRunSync()
     }
 
   def testGetCopyOfContextMap: Property =
