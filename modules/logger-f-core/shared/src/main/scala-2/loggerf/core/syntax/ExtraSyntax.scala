@@ -1,6 +1,7 @@
 package loggerf.core.syntax
 
 import loggerf.LogMessage.LeveledMessage.PreprocessedStringToLeveledMessage
+import loggerf.SourceLocation
 
 /** @author Kevin Lee
   * @since 2022-10-29
@@ -15,50 +16,52 @@ trait ExtraSyntax {
     new Prefix(message => pre + message)
 
   @inline private[ExtraSyntax] def debug0(
-    f: String => String
+    f: String => String,
+    sourceLocation: SourceLocation,
   ): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
-    PreprocessedStringToLeveledMessage(Level.debug, f)
+    PreprocessedStringToLeveledMessage(Level.debug, f, sourceLocation)
 
   @inline private[ExtraSyntax] def info0(
-    f: String => String
+    f: String => String,
+    sourceLocation: SourceLocation,
   ): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
-    PreprocessedStringToLeveledMessage(Level.info, f)
+    PreprocessedStringToLeveledMessage(Level.info, f, sourceLocation)
 
   @inline private[ExtraSyntax] def warn0(
-    f: String => String
+    f: String => String,
+    sourceLocation: SourceLocation,
   ): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
-    PreprocessedStringToLeveledMessage(Level.warn, f)
+    PreprocessedStringToLeveledMessage(Level.warn, f, sourceLocation)
 
   @inline private[ExtraSyntax] def error0(
-    f: String => String
+    f: String => String,
+    sourceLocation: SourceLocation,
   ): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
-    PreprocessedStringToLeveledMessage(Level.error, f)
+    PreprocessedStringToLeveledMessage(Level.error, f, sourceLocation)
 
-  def debug(prefix: Prefix): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
-    debug0(prefix.value)
+  // format: off
+  def debug(prefix: Prefix): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled = macro LogMessageSyntaxMacro.debugWithPrefix
 
-  def info(prefix: Prefix): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
-    info0(prefix.value)
+  def info(prefix: Prefix): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled = macro LogMessageSyntaxMacro.infoWithPrefix
 
-  def warn(prefix: Prefix): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
-    warn0(prefix.value)
+  def warn(prefix: Prefix): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled = macro LogMessageSyntaxMacro.warnWithPrefix
 
-  def error(prefix: Prefix): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled =
-    error0(prefix.value)
+  def error(prefix: Prefix): (String => LogMessage with NotIgnorable) with LeveledMessage.Leveled = macro LogMessageSyntaxMacro.errorWithPrefix
+  // format: on
 
   import loggerf.core.ToLog
 
-  def debugAWith[A: ToLog](prefix: Prefix): A => LogMessage with NotIgnorable =
-    a => debug0(prefix.value)(ToLog[A].toLogMessage(a))
+  def debugAWith[A: ToLog](prefix: Prefix)(implicit sourceLocation: SourceLocation): A => LogMessage with NotIgnorable =
+    a => debug0(prefix.value, sourceLocation)(ToLog[A].toLogMessage(a))
 
-  def infoAWith[A: ToLog](prefix: Prefix): A => LogMessage with NotIgnorable =
-    a => info0(prefix.value)(ToLog[A].toLogMessage(a))
+  def infoAWith[A: ToLog](prefix: Prefix)(implicit sourceLocation: SourceLocation): A => LogMessage with NotIgnorable =
+    a => info0(prefix.value, sourceLocation)(ToLog[A].toLogMessage(a))
 
-  def warnAWith[A: ToLog](prefix: Prefix): A => LogMessage with NotIgnorable =
-    a => warn0(prefix.value)(ToLog[A].toLogMessage(a))
+  def warnAWith[A: ToLog](prefix: Prefix)(implicit sourceLocation: SourceLocation): A => LogMessage with NotIgnorable =
+    a => warn0(prefix.value, sourceLocation)(ToLog[A].toLogMessage(a))
 
-  def errorAWith[A: ToLog](prefix: Prefix): A => LogMessage with NotIgnorable =
-    a => error0(prefix.value)(ToLog[A].toLogMessage(a))
+  def errorAWith[A: ToLog](prefix: Prefix)(implicit sourceLocation: SourceLocation): A => LogMessage with NotIgnorable =
+    a => error0(prefix.value, sourceLocation)(ToLog[A].toLogMessage(a))
 
 }
 

@@ -5,7 +5,6 @@ import cats.{Eq, Show}
 import org.typelevel.doobie.util.log
 import org.typelevel.doobie.util.log.{LogHandler, Parameters}
 import loggerf.core.Log
-import loggerf.syntax.all._
 
 /** @author Kevin Lee
   * @since 2023-07-28
@@ -49,16 +48,11 @@ object LoggerFLogHandler {
     private val _execFailureLogLevel: loggerf.Level,
   ) extends LogHandler[F] {
 
-    private val getLeveledMessageFunction = (logLevel: loggerf.Level) => logLevel match {
-      case loggerf.Level.Debug => loggerf.core.syntax.LogMessageSyntax.debug
-      case loggerf.Level.Info => loggerf.core.syntax.LogMessageSyntax.info
-      case loggerf.Level.Warn => loggerf.core.syntax.LogMessageSyntax.warn
-      case loggerf.Level.Error => loggerf.core.syntax.LogMessageSyntax.error
-    }
-    
-    private val successfulLogLevel = getLeveledMessageFunction(_successfulLogLevel)
-    private val processingFailureLogLevel = getLeveledMessageFunction(_processingFailureLogLevel)
-    private val execFailureLogLevel = getLeveledMessageFunction(_execFailureLogLevel)
+    /* Logs inside doobie's LogHandler have no meaningful user call site, so they go straight to CanLog
+     * without a source location.
+     */
+    private def logAt(level: loggerf.Level)(message: => String): F[Unit] =
+      Log[F].EF.effectOf(Log[F].canLog.getLogger(level)(message))
 
     val renderSuccessfulBatchParams: Parameters => String = successfulBatchParamRendering match {
       case BatchParamRenderingWhenSuccessful.Render =>
@@ -74,7 +68,7 @@ object LoggerFLogHandler {
           case Parameters.NonBatch(paramsAsList) => s"[${paramsAsList.mkString(", ")}]"
           case Parameters.Batch(_) => renderSuccessfulBatchParams(params)
         }
-        logS_(
+        logAt(_successfulLogLevel)(
           show"""Successful Statement Execution:
                 |
                 |  ${sql.linesIterator.dropWhile(_.trim.isEmpty).mkString("\n  ")}
@@ -83,14 +77,14 @@ object LoggerFLogHandler {
                 |      label = $label
                 |    elapsed = ${e1.toMillis} ms exec + ${e2.toMillis} ms processing (${(e1 + e2).toMillis} ms total)
                 |""".stripMargin
-        )(successfulLogLevel)
+        )
 
       case log.ProcessingFailure(sql, params, label, e1, e2, failure) =>
         val paramsStr = params match {
           case Parameters.NonBatch(paramsAsList) => s"[${paramsAsList.mkString(", ")}]"
           case Parameters.Batch(_) => params.allParams.map(_.mkString("[", ", ", "]")).mkString("[\n   ", ",\n   ", "\n ]")
         }
-        logS_(
+        logAt(_processingFailureLogLevel)(
           show"""Failed Resultset Processing:
                 |
                 |  ${sql.linesIterator.dropWhile(_.trim.isEmpty).mkString("\n  ")}
@@ -100,14 +94,14 @@ object LoggerFLogHandler {
                 |    elapsed = ${e1.toMillis} ms exec + ${e2.toMillis} ms processing (failed) (${(e1 + e2).toMillis} ms total)
                 |    failure = ${failure.getMessage}
                 |""".stripMargin
-        )(processingFailureLogLevel)
+        )
 
       case log.ExecFailure(sql, params, label, e1, failure) =>
         val paramsStr = params match {
           case Parameters.NonBatch(paramsAsList) => s"[${paramsAsList.mkString(", ")}]"
           case Parameters.Batch(_) => params.allParams.map(_.mkString("[", ", ", "]")).mkString("[\n   ", ",\n   ", "\n ]")
         }
-        logS_(
+        logAt(_execFailureLogLevel)(
           show"""Failed Statement Execution:
                 |
                 |  ${sql.linesIterator.dropWhile(_.trim.isEmpty).mkString("\n  ")}
@@ -117,7 +111,7 @@ object LoggerFLogHandler {
                 |    elapsed = ${e1.toMillis} ms exec (failed)
                 |    failure = ${failure.getMessage}
                 |""".stripMargin
-        )(execFailureLogLevel)
+        )
     }
 
     @SuppressWarnings(Array("org.wartremover.warts.ToString"))

@@ -63,11 +63,13 @@ trait Log[F[*]] {
   def log[A](fa: F[A])(toLeveledMessage: A => LogMessage with MaybeIgnorable): F[A] =
     flatMap0(fa) { a =>
       toLeveledMessage(a) match {
-        case LogMessage.LeveledMessage(message, None, level) =>
-          flatMap0(EF.effectOf(canLog.getLogger(level)(message())))(_ => EF.pureOf(a))
+        case LogMessage.LeveledMessage(message, None, level, sourceLocation) =>
+          flatMap0(EF.effectOf(canLog.getLoggerWithSourceLocation(level)(sourceLocation)(message())))(_ => EF.pureOf(a))
 
-        case LogMessage.LeveledMessage(message, Some(throwable), level) =>
-          flatMap0(EF.effectOf(canLog.getLoggerWithThrowable(level)(throwable)(message())))(_ => EF.pureOf(a))
+        case LogMessage.LeveledMessage(message, Some(throwable), level, sourceLocation) =>
+          flatMap0(
+            EF.effectOf(canLog.getLoggerWithThrowableAndSourceLocation(level)(throwable)(sourceLocation)(message()))
+          )(_ => EF.pureOf(a))
 
         case LogMessage.Ignore =>
           EF.pureOf(a)
@@ -81,24 +83,26 @@ trait Log[F[*]] {
     message: => String
   )(toLeveledMessage: (String => LogMessage with NotIgnorable) with LogMessage.LeveledMessage.Leveled): F[String] =
     toLeveledMessage.toLazyInput(message) match {
-      case LogMessage.LeveledMessage(msg, None, level) =>
+      case LogMessage.LeveledMessage(msg, None, level, sourceLocation) =>
         lazy val messageString = msg()
-        map0(EF.effectOf(canLog.getLogger(level)(messageString)))(_ => messageString)
+        map0(EF.effectOf(canLog.getLoggerWithSourceLocation(level)(sourceLocation)(messageString)))(_ => messageString)
 
-      case LogMessage.LeveledMessage(msg, Some(throwable), level) =>
+      case LogMessage.LeveledMessage(msg, Some(throwable), level, sourceLocation) =>
         lazy val messageString = msg()
-        map0(EF.effectOf(canLog.getLoggerWithThrowable(level)(throwable)(messageString)))(_ => messageString)
+        map0(
+          EF.effectOf(canLog.getLoggerWithThrowableAndSourceLocation(level)(throwable)(sourceLocation)(messageString))
+        )(_ => messageString)
     }
 
   def logS_(
     message: => String
   )(toLeveledMessage: (String => LogMessage with NotIgnorable) with LogMessage.LeveledMessage.Leveled): F[Unit] =
     toLeveledMessage.toLazyInput(message) match {
-      case LogMessage.LeveledMessage(msg, None, level) =>
-        EF.effectOf(canLog.getLogger(level)(msg()))
+      case LogMessage.LeveledMessage(msg, None, level, sourceLocation) =>
+        EF.effectOf(canLog.getLoggerWithSourceLocation(level)(sourceLocation)(msg()))
 
-      case LogMessage.LeveledMessage(msg, Some(throwable), level) =>
-        EF.effectOf(canLog.getLoggerWithThrowable(level)(throwable)(msg()))
+      case LogMessage.LeveledMessage(msg, Some(throwable), level, sourceLocation) =>
+        EF.effectOf(canLog.getLoggerWithThrowableAndSourceLocation(level)(throwable)(sourceLocation)(msg()))
     }
 
   def log[A](
@@ -113,19 +117,27 @@ trait Log[F[*]] {
           case LogMessage.Ignore =>
             EF.pureOf(None)
 
-          case LogMessage.LeveledMessage(message, None, level) =>
-            flatMap0(EF.effectOf(canLog.getLogger(level)(message())))(_ => EF.pureOf(None))
+          case LogMessage.LeveledMessage(message, None, level, sourceLocation) =>
+            flatMap0(EF.effectOf(canLog.getLoggerWithSourceLocation(level)(sourceLocation)(message())))(_ =>
+              EF.pureOf(None)
+            )
 
-          case LogMessage.LeveledMessage(message, Some(throwable), level) =>
-            flatMap0(EF.effectOf(canLog.getLoggerWithThrowable(level)(throwable)(message())))(_ => EF.pureOf(None))
+          case LogMessage.LeveledMessage(message, Some(throwable), level, sourceLocation) =>
+            flatMap0(
+              EF.effectOf(canLog.getLoggerWithThrowableAndSourceLocation(level)(throwable)(sourceLocation)(message()))
+            )(_ => EF.pureOf(None))
         }
       case Some(a) =>
         toLeveledMessage(a) match {
-          case LogMessage.LeveledMessage(message, None, level) =>
-            flatMap0(EF.effectOf(canLog.getLogger(level)(message())))(_ => EF.pureOf(Some(a)))
+          case LogMessage.LeveledMessage(message, None, level, sourceLocation) =>
+            flatMap0(EF.effectOf(canLog.getLoggerWithSourceLocation(level)(sourceLocation)(message())))(_ =>
+              EF.pureOf(Some(a))
+            )
 
-          case LogMessage.LeveledMessage(message, Some(throwable), level) =>
-            flatMap0(EF.effectOf(canLog.getLoggerWithThrowable(level)(throwable)(message())))(_ => EF.pureOf(Some(a)))
+          case LogMessage.LeveledMessage(message, Some(throwable), level, sourceLocation) =>
+            flatMap0(
+              EF.effectOf(canLog.getLoggerWithThrowableAndSourceLocation(level)(throwable)(sourceLocation)(message()))
+            )(_ => EF.pureOf(Some(a)))
 
           case LogMessage.Ignore =>
             EF.pureOf(Some(a))
@@ -149,22 +161,30 @@ trait Log[F[*]] {
     flatMap0(feab) {
       case Left(l) =>
         leftToMessage(l) match {
-          case LogMessage.LeveledMessage(message, None, level) =>
-            flatMap0(EF.effectOf(canLog.getLogger(level)(message())))(_ => EF.pureOf(Left(l)))
+          case LogMessage.LeveledMessage(message, None, level, sourceLocation) =>
+            flatMap0(EF.effectOf(canLog.getLoggerWithSourceLocation(level)(sourceLocation)(message())))(_ =>
+              EF.pureOf(Left(l))
+            )
 
-          case LogMessage.LeveledMessage(message, Some(throwable), level) =>
-            flatMap0(EF.effectOf(canLog.getLoggerWithThrowable(level)(throwable)(message())))(_ => EF.pureOf(Left(l)))
+          case LogMessage.LeveledMessage(message, Some(throwable), level, sourceLocation) =>
+            flatMap0(
+              EF.effectOf(canLog.getLoggerWithThrowableAndSourceLocation(level)(throwable)(sourceLocation)(message()))
+            )(_ => EF.pureOf(Left(l)))
 
           case LogMessage.Ignore =>
             EF.pureOf(Left(l))
         }
       case Right(r) =>
         rightToMessage(r) match {
-          case LogMessage.LeveledMessage(message, None, level) =>
-            flatMap0(EF.effectOf(canLog.getLogger(level)(message())))(_ => EF.pureOf(Right(r)))
+          case LogMessage.LeveledMessage(message, None, level, sourceLocation) =>
+            flatMap0(EF.effectOf(canLog.getLoggerWithSourceLocation(level)(sourceLocation)(message())))(_ =>
+              EF.pureOf(Right(r))
+            )
 
-          case LogMessage.LeveledMessage(message, Some(throwable), level) =>
-            flatMap0(EF.effectOf(canLog.getLoggerWithThrowable(level)(throwable)(message())))(_ => EF.pureOf(Right(r)))
+          case LogMessage.LeveledMessage(message, Some(throwable), level, sourceLocation) =>
+            flatMap0(
+              EF.effectOf(canLog.getLoggerWithThrowableAndSourceLocation(level)(throwable)(sourceLocation)(message()))
+            )(_ => EF.pureOf(Right(r)))
 
           case LogMessage.Ignore =>
             EF.pureOf(Right(r))

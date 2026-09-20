@@ -124,10 +124,28 @@ lazy val core       =
         libs.tests.extrasConcurrentTesting,
         libs.cats.value % Optional,
       ) ++ libs.tests.hedgehogLibs.value,
+      /* Needed only to compile the Scala 2 macros. `Provided` keeps it off downstream classpaths.
+       * Scala 3 needs nothing: `inline` and `scala.quoted` are built into the language.
+       */
+      libraryDependencies ++= (
+        if (scalaVersion.value.startsWith("3."))
+          List.empty[ModuleID]
+        else
+          List("org.scala-lang" % "scala-reflect" % scalaVersion.value % Provided)
+      ),
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value,
       ),
+      /* Compile-time-only macro code whose quasiquote and quote expansions are not user code. */
+      wartremoverExcluded ++= {
+        val coreShared = (LocalRootProject / baseDirectory).value / "modules" / "logger-f-core" / "shared" / "src" / "main"
+        List(
+          coreShared / "scala-2" / "loggerf" / "SourceLocationInstances.scala",
+          coreShared / "scala-2" / "loggerf" / "core" / "syntax" / "LogMessageSyntaxMacro.scala",
+          coreShared / "scala-3" / "loggerf" / "SourceLocationInstances.scala",
+        )
+      },
     )
 lazy val coreJvm    = core.jvm
 lazy val coreJs     = core

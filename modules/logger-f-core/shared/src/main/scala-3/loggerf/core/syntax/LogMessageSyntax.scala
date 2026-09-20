@@ -4,56 +4,65 @@ import loggerf.core.ToLog
 import loggerf.LeveledMessage
 import loggerf.Ignore
 import loggerf.Level
+import loggerf.SourceLocation
 
 trait LogMessageSyntax {
 
-  val debug: (String => LeveledMessage) with LeveledMessage.Leveled =
-    LeveledMessage.StringToLeveledMessage(Level.debug)
+  def debug(using sourceLocation: SourceLocation): (String => LeveledMessage) with LeveledMessage.Leveled =
+    LeveledMessage.StringToLeveledMessage(Level.debug, sourceLocation)
 
-  def debug(throwable: Throwable): (String => LeveledMessage) with LeveledMessage.Leveled =
-    LeveledMessage.StringToLeveledMessageWithThrowable(Level.debug)(throwable)
+  def debug(throwable: Throwable)(
+    using sourceLocation: SourceLocation
+  ): (String => LeveledMessage) with LeveledMessage.Leveled =
+    LeveledMessage.StringToLeveledMessageWithThrowable(Level.debug, throwable, sourceLocation)
 
-  val info: (String => LeveledMessage) with LeveledMessage.Leveled =
-    LeveledMessage.StringToLeveledMessage(Level.info)
+  def info(using sourceLocation: SourceLocation): (String => LeveledMessage) with LeveledMessage.Leveled =
+    LeveledMessage.StringToLeveledMessage(Level.info, sourceLocation)
 
-  def info(throwable: Throwable): (String => LeveledMessage) with LeveledMessage.Leveled =
-    LeveledMessage.StringToLeveledMessageWithThrowable(Level.info)(throwable)
+  def info(throwable: Throwable)(
+    using sourceLocation: SourceLocation
+  ): (String => LeveledMessage) with LeveledMessage.Leveled =
+    LeveledMessage.StringToLeveledMessageWithThrowable(Level.info, throwable, sourceLocation)
 
-  val warn: (String => LeveledMessage) with LeveledMessage.Leveled =
-    LeveledMessage.StringToLeveledMessage(Level.warn)
+  def warn(using sourceLocation: SourceLocation): (String => LeveledMessage) with LeveledMessage.Leveled =
+    LeveledMessage.StringToLeveledMessage(Level.warn, sourceLocation)
 
-  def warn(throwable: Throwable): (String => LeveledMessage) with LeveledMessage.Leveled =
-    LeveledMessage.StringToLeveledMessageWithThrowable(Level.warn)(throwable)
+  def warn(throwable: Throwable)(
+    using sourceLocation: SourceLocation
+  ): (String => LeveledMessage) with LeveledMessage.Leveled =
+    LeveledMessage.StringToLeveledMessageWithThrowable(Level.warn, throwable, sourceLocation)
 
-  val error: (String => LeveledMessage) with LeveledMessage.Leveled =
-    LeveledMessage.StringToLeveledMessage(Level.error)
+  def error(using sourceLocation: SourceLocation): (String => LeveledMessage) with LeveledMessage.Leveled =
+    LeveledMessage.StringToLeveledMessage(Level.error, sourceLocation)
 
-  def error(throwable: Throwable): (String => LeveledMessage) with LeveledMessage.Leveled =
-    LeveledMessage.StringToLeveledMessageWithThrowable(Level.error)(throwable)
+  def error(throwable: Throwable)(
+    using sourceLocation: SourceLocation
+  ): (String => LeveledMessage) with LeveledMessage.Leveled =
+    LeveledMessage.StringToLeveledMessageWithThrowable(Level.error, throwable, sourceLocation)
 
-  def debugA[A: ToLog](a: A): LeveledMessage =
-    LeveledMessage(() => ToLog[A].toLogMessage(a), None, Level.debug)
+  def debugA[A: ToLog](a: A)(using sourceLocation: SourceLocation): LeveledMessage =
+    LeveledMessage(() => ToLog[A].toLogMessage(a), None, Level.debug, sourceLocation)
 
-  def debugA[A: ToLog](throwable: Throwable): A => LeveledMessage =
-    (a: A) => LeveledMessage(() => ToLog[A].toLogMessage(a), Some(throwable), Level.debug)
+  def debugA[A: ToLog](throwable: Throwable)(using sourceLocation: SourceLocation): A => LeveledMessage =
+    (a: A) => LeveledMessage(() => ToLog[A].toLogMessage(a), Some(throwable), Level.debug, sourceLocation)
 
-  def infoA[A: ToLog](a: A): LeveledMessage =
-    LeveledMessage(() => ToLog[A].toLogMessage(a), None, Level.info)
+  def infoA[A: ToLog](a: A)(using sourceLocation: SourceLocation): LeveledMessage =
+    LeveledMessage(() => ToLog[A].toLogMessage(a), None, Level.info, sourceLocation)
 
-  def infoA[A: ToLog](throwable: Throwable): A => LeveledMessage =
-    (a: A) => LeveledMessage(() => ToLog[A].toLogMessage(a), Some(throwable), Level.info)
+  def infoA[A: ToLog](throwable: Throwable)(using sourceLocation: SourceLocation): A => LeveledMessage =
+    (a: A) => LeveledMessage(() => ToLog[A].toLogMessage(a), Some(throwable), Level.info, sourceLocation)
 
-  def warnA[A: ToLog](a: A): LeveledMessage =
-    LeveledMessage(() => ToLog[A].toLogMessage(a), None, Level.warn)
+  def warnA[A: ToLog](a: A)(using sourceLocation: SourceLocation): LeveledMessage =
+    LeveledMessage(() => ToLog[A].toLogMessage(a), None, Level.warn, sourceLocation)
 
-  def warnA[A: ToLog](throwable: Throwable): A => LeveledMessage =
-    (a: A) => LeveledMessage(() => ToLog[A].toLogMessage(a), Some(throwable), Level.warn)
+  def warnA[A: ToLog](throwable: Throwable)(using sourceLocation: SourceLocation): A => LeveledMessage =
+    (a: A) => LeveledMessage(() => ToLog[A].toLogMessage(a), Some(throwable), Level.warn, sourceLocation)
 
-  def errorA[A: ToLog](a: A): LeveledMessage =
-    LeveledMessage(() => ToLog[A].toLogMessage(a), None, Level.error)
+  def errorA[A: ToLog](a: A)(using sourceLocation: SourceLocation): LeveledMessage =
+    LeveledMessage(() => ToLog[A].toLogMessage(a), None, Level.error, sourceLocation)
 
-  def errorA[A: ToLog](throwable: Throwable): A => LeveledMessage =
-    (a: A) => LeveledMessage(() => ToLog[A].toLogMessage(a), Some(throwable), Level.error)
+  def errorA[A: ToLog](throwable: Throwable)(using sourceLocation: SourceLocation): A => LeveledMessage =
+    (a: A) => LeveledMessage(() => ToLog[A].toLogMessage(a), Some(throwable), Level.error, sourceLocation)
 
   def ignore: Ignore.type = Ignore
 
