@@ -1,5 +1,6 @@
 package loggerf.logger
 
+import loggerf.SourceLocation
 import loggerf.logger.LoggerForTesting.MessageKeeper
 
 /** @author Kevin Lee
@@ -35,6 +36,27 @@ final case class LoggerForTesting private (
   @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   override def error(throwable: Throwable)(message: => String): Unit =
     logger.errorMessages = logger.errorMessages :+ s"$message\n${throwable.toString}"
+
+  /* The source location is dropped so that the recorded strings stay identical to the messages given. */
+  override def debug(sourceLocation: SourceLocation)(message: => String): Unit = debug(message)
+
+  override def debug(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit =
+    debug(throwable)(message)
+
+  override def info(sourceLocation: SourceLocation)(message: => String): Unit = info(message)
+
+  override def info(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit =
+    info(throwable)(message)
+
+  override def warn(sourceLocation: SourceLocation)(message: => String): Unit = warn(message)
+
+  override def warn(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit =
+    warn(throwable)(message)
+
+  override def error(sourceLocation: SourceLocation)(message: => String): Unit = error(message)
+
+  override def error(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit =
+    error(throwable)(message)
 }
 
 object LoggerForTesting {

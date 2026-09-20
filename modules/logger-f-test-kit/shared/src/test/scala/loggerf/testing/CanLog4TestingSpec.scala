@@ -3,7 +3,7 @@ package loggerf.testing
 import cats.syntax.all._
 import hedgehog._
 import hedgehog.runner._
-import loggerf.Level
+import loggerf.{Level, SourceLocation}
 import loggerf.test_data.{Gens => TestDataGens}
 
 /** @author Kevin Lee
@@ -26,7 +26,32 @@ object CanLog4TestingSpec extends Properties {
       "test CanLog4Testing hashCode and equality with Throwable",
       testCanLog4TestingHashCodeAndEqualityWithThrowable,
     ),
+    example("test CanLog4Testing records the source location", testCanLog4TestingSourceLocations),
+    example("test CanLog4Testing without source location records none", testCanLog4TestingNoSourceLocations),
   )
+
+  def testCanLog4TestingSourceLocations: Result = {
+    val loc    = SourceLocation("com.example.Foo", "bar", "Foo.scala", 42)
+    val canLog = CanLog4Testing()
+    canLog.info(loc)("m")
+    Result.all(
+      List(
+        canLog.messages ==== Vector((0, Level.info, "m")),
+        canLog.sourceLocations ==== Vector((0, loc)),
+      )
+    )
+  }
+
+  def testCanLog4TestingNoSourceLocations: Result = {
+    val canLog = CanLog4Testing()
+    canLog.info("m")
+    Result.all(
+      List(
+        canLog.messages ==== Vector((0, Level.info, "m")),
+        canLog.sourceLocations ==== Vector.empty,
+      )
+    )
+  }
 
   def testCanLog4TestingWithIndex: Property = for {
     levelAndMessageList <- Gens.genLevelAndMessage.list(Range.linear(1, 10)).log("levelAndMessageList")

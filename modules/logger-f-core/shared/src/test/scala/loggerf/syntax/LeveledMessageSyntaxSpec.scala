@@ -7,6 +7,7 @@ import hedgehog._
 import hedgehog.runner._
 import loggerf.core._
 import loggerf.core.syntax.all._
+import loggerf.SourceLocation
 import loggerf.logger.LoggerForTesting
 import loggerf.test_data.Something
 
@@ -18,7 +19,34 @@ object LeveledMessageSyntaxSpec extends Properties {
     property("test LeveledLogMessage", testLeveledLogMessage),
     property("test LeveledLogMessage with Throwable", testLeveledLogMessageWithThrowable),
     property("test LeveledLogMessage with ToLog", testLeveledLogMessageWithToLog),
+    example("debug/info/warn/error capture the call site", testCaptureCallSite),
   )
+
+  def testCaptureCallSite: Result = {
+    // format: off
+    val here: SourceLocation = implicitly[SourceLocation]
+    val d = debug
+    val i = info(new RuntimeException("x"))
+    val w = warn(prefix("p"))
+    val e = error
+    // format: on
+    Result.all(
+      List(
+        d.sourceLocation.line ==== here.line + 1,
+        i.sourceLocation.line ==== here.line + 2,
+        w.sourceLocation.line ==== here.line + 3,
+        e.sourceLocation.line ==== here.line + 4,
+        d.sourceLocation.fileName ==== "LeveledMessageSyntaxSpec.scala",
+        i.sourceLocation.fileName ==== "LeveledMessageSyntaxSpec.scala",
+        w.sourceLocation.fileName ==== "LeveledMessageSyntaxSpec.scala",
+        e.sourceLocation.fileName ==== "LeveledMessageSyntaxSpec.scala",
+        d.sourceLocation.enclosingMethod ==== "testCaptureCallSite",
+        i.sourceLocation.enclosingMethod ==== "testCaptureCallSite",
+        w.sourceLocation.enclosingMethod ==== "testCaptureCallSite",
+        e.sourceLocation.enclosingMethod ==== "testCaptureCallSite",
+      )
+    )
+  }
 
   def testLeveledLogMessage: Property = for {
     debugMsg <- Gen.string(Gen.unicode, Range.linear(1, 20)).log("debugMsg")

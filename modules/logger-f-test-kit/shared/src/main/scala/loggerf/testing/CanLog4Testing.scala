@@ -2,7 +2,7 @@ package loggerf.testing
 
 import cats.syntax.all._
 import cats.{Eq, Show}
-import loggerf.Level
+import loggerf.{Level, SourceLocation}
 import loggerf.logger.CanLog
 
 import java.util.concurrent.atomic.AtomicInteger
@@ -16,9 +16,16 @@ final case class CanLog4Testing(
 ) extends CanLog {
   private val index = new AtomicInteger(-1)
 
+  @volatile private var _sourceLocations: Vector[(Int, SourceLocation)] = Vector.empty // scalafix:ok DisableSyntax.var
+
   def currentIndex: Int = index.get()
 
   def messages: Vector[(Int, Level, String)] = _messages
+
+  /** The source locations recorded through the location-aware `CanLog` methods, keyed by the same index as
+    * `messages`. Not part of equality.
+    */
+  def sourceLocations: Vector[(Int, SourceLocation)] = _sourceLocations
 
   override def debug(message: => String): Unit =
     _messages = _messages :+ ((index.addAndGet(1), Level.debug, message))
@@ -43,6 +50,58 @@ final case class CanLog4Testing(
 
   override def error(throwable: Throwable)(message: => String): Unit =
     _messages = _messages :+ ((index.addAndGet(1), Level.error, s"$message\n${throwable.toString}"))
+
+  override def debug(sourceLocation: SourceLocation)(message: => String): Unit = {
+    val i = index.addAndGet(1)
+    _messages = _messages :+ ((i, Level.debug, message))
+    _sourceLocations = _sourceLocations :+ ((i, sourceLocation))
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+  override def debug(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit = {
+    val i = index.addAndGet(1)
+    _messages = _messages :+ ((i, Level.debug, s"$message\n${throwable.toString}"))
+    _sourceLocations = _sourceLocations :+ ((i, sourceLocation))
+  }
+
+  override def info(sourceLocation: SourceLocation)(message: => String): Unit = {
+    val i = index.addAndGet(1)
+    _messages = _messages :+ ((i, Level.info, message))
+    _sourceLocations = _sourceLocations :+ ((i, sourceLocation))
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+  override def info(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit = {
+    val i = index.addAndGet(1)
+    _messages = _messages :+ ((i, Level.info, s"$message\n${throwable.toString}"))
+    _sourceLocations = _sourceLocations :+ ((i, sourceLocation))
+  }
+
+  override def warn(sourceLocation: SourceLocation)(message: => String): Unit = {
+    val i = index.addAndGet(1)
+    _messages = _messages :+ ((i, Level.warn, message))
+    _sourceLocations = _sourceLocations :+ ((i, sourceLocation))
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+  override def warn(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit = {
+    val i = index.addAndGet(1)
+    _messages = _messages :+ ((i, Level.warn, s"$message\n${throwable.toString}"))
+    _sourceLocations = _sourceLocations :+ ((i, sourceLocation))
+  }
+
+  override def error(sourceLocation: SourceLocation)(message: => String): Unit = {
+    val i = index.addAndGet(1)
+    _messages = _messages :+ ((i, Level.error, message))
+    _sourceLocations = _sourceLocations :+ ((i, sourceLocation))
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+  override def error(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit = {
+    val i = index.addAndGet(1)
+    _messages = _messages :+ ((i, Level.error, s"$message\n${throwable.toString}"))
+    _sourceLocations = _sourceLocations :+ ((i, sourceLocation))
+  }
 
   override def hashCode(): Int = messages.hashCode()
 
