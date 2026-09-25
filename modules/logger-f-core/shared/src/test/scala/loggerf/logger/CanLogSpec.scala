@@ -14,7 +14,15 @@ object CanLogSpec extends Properties {
     example("default location overloads append the rendered location", testDefaultRendering),
     example("default throwable-and-location overloads append the rendered location", testDefaultRenderingWithThrowable),
     example("withoutSourceLocation drops the location", testWithoutSourceLocation),
+    example(
+      "withoutSourceLocation without SourceLocation given should do the same as withoutSourceLocation with SourceLocation passed (source location info dropped)",
+      testWithoutSourceLocationWithoutSourceLocationPassed,
+    ),
     example("withoutSourceLocation drops the location with Throwable", testWithoutSourceLocationWithThrowable),
+    example(
+      "withoutSourceLocation without SourceLocation given should do the same as withoutSourceLocation with Throwable (source location info dropped)",
+      testWithoutSourceLocationWithThrowableWithoutSourceLocationPassed,
+    ),
     example("getLoggerWithSourceLocation routes to the right level", testGetLoggerWithSourceLocation),
     example(
       "getLoggerWithThrowableAndSourceLocation routes to the right level",
@@ -91,6 +99,16 @@ object CanLogSpec extends Properties {
     recorder.records ==== Vector((Level.debug, "d"), (Level.info, "i"), (Level.warn, "w"), (Level.error, "e"))
   }
 
+  def testWithoutSourceLocationWithoutSourceLocationPassed: Result = {
+    val recorder = new PlainRecorder
+    val canLog   = recorder.withoutSourceLocation
+    canLog.debug("d")
+    canLog.info("i")
+    canLog.warn("w")
+    canLog.error("e")
+    recorder.records ==== Vector((Level.debug, "d"), (Level.info, "i"), (Level.warn, "w"), (Level.error, "e"))
+  }
+
   @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   def testWithoutSourceLocationWithThrowable: Result = {
     val recorder  = new PlainRecorder
@@ -100,6 +118,23 @@ object CanLogSpec extends Properties {
     canLog.info(throwable, loc)("i")
     canLog.warn(throwable, loc)("w")
     canLog.error(throwable, loc)("e")
+    recorder.records ==== Vector(
+      (Level.debug, s"d\n${throwable.toString}"),
+      (Level.info, s"i\n${throwable.toString}"),
+      (Level.warn, s"w\n${throwable.toString}"),
+      (Level.error, s"e\n${throwable.toString}"),
+    )
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+  def testWithoutSourceLocationWithThrowableWithoutSourceLocationPassed: Result = {
+    val recorder  = new PlainRecorder
+    val canLog    = recorder.withoutSourceLocation
+    val throwable = new RuntimeException("t")
+    canLog.debug(throwable)("d")
+    canLog.info(throwable)("i")
+    canLog.warn(throwable)("w")
+    canLog.error(throwable)("e")
     recorder.records ==== Vector(
       (Level.debug, s"d\n${throwable.toString}"),
       (Level.info, s"i\n${throwable.toString}"),
