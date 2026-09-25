@@ -110,13 +110,6 @@ object CanLog {
       case Level.Error => message => canLog.error(message)
     }
 
-    @inline def getLoggerWithThrowable(level: Level): (Throwable) => (=> String) => Unit = level match {
-      case Level.Debug => throwable => message => canLog.debug(throwable)(message)
-      case Level.Info => throwable => message => canLog.info(throwable)(message)
-      case Level.Warn => throwable => message => canLog.warn(throwable)(message)
-      case Level.Error => throwable => message => canLog.error(throwable)(message)
-    }
-
     @inline def getLoggerWithSourceLocation(level: Level): SourceLocation => (=> String) => Unit = level match {
       case Level.Debug => sourceLocation => message => canLog.debug(sourceLocation)(message)
       case Level.Info => sourceLocation => message => canLog.info(sourceLocation)(message)
