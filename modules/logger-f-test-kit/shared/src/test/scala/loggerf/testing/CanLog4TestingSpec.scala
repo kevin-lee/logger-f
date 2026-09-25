@@ -27,6 +27,14 @@ object CanLog4TestingSpec extends Properties {
       testCanLog4TestingHashCodeAndEqualityWithThrowable,
     ),
     example("test CanLog4Testing records the source location", testCanLog4TestingSourceLocations),
+    property(
+      "test CanLog4Testing with index should record the source location",
+      testCanLog4TestingWithIndexSourceLocations,
+    ),
+    property(
+      "test CanLog4Testing with index and Throwable should record the source location",
+      testCanLog4TestingWithIndexAndThrowableSourceLocations,
+    ),
     example("test CanLog4Testing without source location records none", testCanLog4TestingNoSourceLocations),
   )
 
@@ -41,6 +49,87 @@ object CanLog4TestingSpec extends Properties {
       )
     )
   }
+
+  def testCanLog4TestingWithIndexSourceLocations: Property =
+    for {
+      levelAndMessageList <- Gens.genLevelAndMessage.list(Range.linear(1, 10)).log("levelAndMessageList")
+    } yield {
+      val loc = SourceLocation("com.example.Foo", "bar", "Foo.scala", 42)
+
+      val expected = CanLog4Testing.OrderedMessages.withAutoIndex(levelAndMessageList: _*)
+
+      val expectedSourceLocations = levelAndMessageList.zipWithIndex.map { case (_, index) => index -> loc }.toVector
+
+      val canLog = CanLog4Testing()
+
+      levelAndMessageList.foreach {
+        case (level, message) =>
+          level match {
+            case Level.Debug => canLog.debug(loc)(message)
+            case Level.Info => canLog.info(loc)(message)
+            case Level.Warn => canLog.warn(loc)(message)
+            case Level.Error => canLog.error(loc)(message)
+          }
+      }
+
+      val actual                = canLog.getOrderedMessages
+      val actualSourceLocations = canLog.sourceLocations
+      Result.all(
+        List(
+          Result.diffNamed("actual === expected", actual, expected)(_ === _),
+          actual ==== expected,
+          actualSourceLocations ==== expectedSourceLocations,
+        )
+      )
+    }
+
+  def testCanLog4TestingWithIndexAndThrowableSourceLocations: Property =
+    for {
+      levelAndMessageList <- Gens.genLevelAndMessage.list(Range.linear(1, 10)).log("levelAndMessageList")
+
+      throwables <- TestDataGens.genThrowable.log("throwables")
+      (debugThrowable, infoThrowable, warnThrowable, errorThrowable) = throwables
+    } yield {
+
+      val loc = SourceLocation("com.example.Foo", "bar", "Foo.scala", 42)
+
+      val expected = CanLog4Testing
+        .OrderedMessages
+        .withAutoIndex(levelAndMessageList.map {
+          case (level, message) =>
+            level match {
+              case Level.Debug => level -> s"$message\n${debugThrowable.toString}"
+              case Level.Info => level  -> s"$message\n${infoThrowable.toString}"
+              case Level.Warn => level  -> s"$message\n${warnThrowable.toString}"
+              case Level.Error => level -> s"$message\n${errorThrowable.toString}"
+            }
+        }: _*)
+
+      val expectedSourceLocations = levelAndMessageList.zipWithIndex.map { case (_, index) => index -> loc }.toVector
+
+      val canLog = CanLog4Testing()
+
+      levelAndMessageList.foreach {
+        case (level, message) =>
+          level match {
+            case Level.Debug => canLog.debug(debugThrowable, loc)(message)
+            case Level.Info => canLog.info(infoThrowable, loc)(message)
+            case Level.Warn => canLog.warn(warnThrowable, loc)(message)
+            case Level.Error => canLog.error(errorThrowable, loc)(message)
+          }
+      }
+
+      val actual                = canLog.getOrderedMessages
+      val actualSourceLocations = canLog.sourceLocations
+
+      Result.all(
+        List(
+          Result.diffNamed("actual === expected", actual, expected)(_ === _),
+          actual ==== expected,
+          actualSourceLocations ==== expectedSourceLocations,
+        )
+      )
+    }
 
   def testCanLog4TestingNoSourceLocations: Result = {
     val canLog = CanLog4Testing()
