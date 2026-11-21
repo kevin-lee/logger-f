@@ -3,6 +3,7 @@ package loggerf.testing
 import cats.syntax.all._
 import hedgehog._
 import hedgehog.runner._
+import loggerf.logger.CanLog
 import loggerf.{Level, SourceLocation}
 import loggerf.test_data.{Gens => TestDataGens}
 
@@ -525,7 +526,10 @@ object CanLog4TestingSpec extends Properties {
         .map {
           case ((level, message), index) => (index, level, message)
         }
-        .toVector
+        .toVector,
+      CanLog.SourceLocationPosition.AfterMessage,
+      "",
+      "",
     )
 
     val canLog = CanLog4Testing()
@@ -572,7 +576,10 @@ object CanLog4TestingSpec extends Properties {
             }
             (index, level, newMessage)
         }
-        .toVector
+        .toVector,
+      CanLog.SourceLocationPosition.AfterMessage,
+      "",
+      "",
     )
 
     val canLog = CanLog4Testing()

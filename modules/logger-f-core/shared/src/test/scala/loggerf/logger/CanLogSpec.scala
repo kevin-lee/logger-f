@@ -31,7 +31,23 @@ object CanLogSpec extends Properties {
   )
 
   @SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.ToString"))
-  final class PlainRecorder extends CanLog {
+  final case class PlainRecorder(
+    override protected val sourceLocationPosition: CanLog.SourceLocationPosition,
+    override protected val sourceLocationPrefix: String,
+    override protected val sourceLocationSuffix: String,
+  ) extends CanLog {
+
+    override protected def newCanLogWithNewSourceLocationConfig(
+      sourceLocationPosition: CanLog.SourceLocationPosition,
+      sourceLocationPrefix: String,
+      sourceLocationSuffix: String,
+    ): CanLog =
+      copy(
+        sourceLocationPosition = sourceLocationPosition,
+        sourceLocationPrefix = sourceLocationPrefix,
+        sourceLocationSuffix = sourceLocationSuffix,
+      )
+
     @volatile private var _records: Vector[(Level, String)] = Vector.empty // scalafix:ok DisableSyntax.var
 
     def records: Vector[(Level, String)] = _records
@@ -56,11 +72,14 @@ object CanLogSpec extends Properties {
     override def error(throwable: Throwable)(message: => String): Unit =
       _records = _records :+ ((Level.error, s"$message\n${throwable.toString}"))
   }
+  object PlainRecorder {
+    def apply(): PlainRecorder = PlainRecorder(CanLog.SourceLocationPosition.AfterMessage, "", "")
+  }
 
   private val loc: SourceLocation = SourceLocation("com.example.Foo", "bar", "Foo.scala", 42)
 
   def testDefaultRendering: Result = {
-    val recorder = new PlainRecorder
+    val recorder = PlainRecorder()
     recorder.debug(loc)("d")
     recorder.info(loc)("i")
     recorder.warn(loc)("w")
@@ -75,7 +94,7 @@ object CanLogSpec extends Properties {
 
   @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   def testDefaultRenderingWithThrowable: Result = {
-    val recorder  = new PlainRecorder
+    val recorder  = PlainRecorder()
     val throwable = new RuntimeException("t")
     recorder.debug(throwable, loc)("d")
     recorder.info(throwable, loc)("i")
@@ -90,7 +109,7 @@ object CanLogSpec extends Properties {
   }
 
   def testWithoutSourceLocation: Result = {
-    val recorder = new PlainRecorder
+    val recorder = PlainRecorder()
     val canLog   = recorder.withoutSourceLocation
     canLog.debug(loc)("d")
     canLog.info(loc)("i")
@@ -100,7 +119,7 @@ object CanLogSpec extends Properties {
   }
 
   def testWithoutSourceLocationWithoutSourceLocationPassed: Result = {
-    val recorder = new PlainRecorder
+    val recorder = PlainRecorder()
     val canLog   = recorder.withoutSourceLocation
     canLog.debug("d")
     canLog.info("i")
@@ -111,7 +130,7 @@ object CanLogSpec extends Properties {
 
   @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   def testWithoutSourceLocationWithThrowable: Result = {
-    val recorder  = new PlainRecorder
+    val recorder  = PlainRecorder()
     val canLog    = recorder.withoutSourceLocation
     val throwable = new RuntimeException("t")
     canLog.debug(throwable, loc)("d")
@@ -128,7 +147,7 @@ object CanLogSpec extends Properties {
 
   @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   def testWithoutSourceLocationWithThrowableWithoutSourceLocationPassed: Result = {
-    val recorder  = new PlainRecorder
+    val recorder  = PlainRecorder()
     val canLog    = recorder.withoutSourceLocation
     val throwable = new RuntimeException("t")
     canLog.debug(throwable)("d")
@@ -144,7 +163,7 @@ object CanLogSpec extends Properties {
   }
 
   def testGetLoggerWithSourceLocation: Result = {
-    val recorder = new PlainRecorder
+    val recorder = PlainRecorder()
     recorder.getLoggerWithSourceLocation(Level.info)(loc)("i")
     recorder.getLoggerWithSourceLocation(Level.error)(loc)("e")
     recorder.records ==== Vector(
@@ -155,7 +174,7 @@ object CanLogSpec extends Properties {
 
   @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   def testGetLoggerWithThrowableAndSourceLocation: Result = {
-    val recorder  = new PlainRecorder
+    val recorder  = PlainRecorder()
     val throwable = new RuntimeException("t")
     recorder.getLoggerWithThrowableAndSourceLocation(Level.warn)(throwable)(loc)("w")
     recorder.getLoggerWithThrowableAndSourceLocation(Level.error)(throwable)(loc)("e")
