@@ -26,7 +26,23 @@ object LogSourceLocationSpec extends Properties {
   )
 
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
-  final class SourceLocationRecorder extends CanLog {
+  final case class SourceLocationRecorder(
+    override protected val sourceLocationPosition: CanLog.SourceLocationPosition,
+    override protected val sourceLocationPrefix: String,
+    override protected val sourceLocationSuffix: String,
+  ) extends CanLog {
+
+    override protected def newCanLogWithNewSourceLocationConfig(
+      sourceLocationPosition: CanLog.SourceLocationPosition,
+      sourceLocationPrefix: String,
+      sourceLocationSuffix: String,
+    ): CanLog =
+      copy(
+        sourceLocationPosition = sourceLocationPosition,
+        sourceLocationPrefix = sourceLocationPrefix,
+        sourceLocationSuffix = sourceLocationSuffix,
+      )
+
     @volatile private var _records: Vector[(Level, String, Option[SourceLocation])] = // scalafix:ok DisableSyntax.var
       Vector.empty
 
@@ -76,6 +92,10 @@ object LogSourceLocationSpec extends Properties {
     override def error(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit =
       _records = _records :+ ((Level.error, message, sourceLocation.some))
   }
+  object SourceLocationRecorder {
+    def apply(): SourceLocationRecorder =
+      SourceLocationRecorder(CanLog.SourceLocationPosition.AfterMessage, "", "")
+  }
 
   final case class LogWithRecorder(recorder: SourceLocationRecorder) extends Log[Identity] {
     override implicit val EF: FxCtor[Identity] = FxCtorForTesting
@@ -91,7 +111,7 @@ object LogSourceLocationSpec extends Properties {
     recorder.records.map { case (_, _, location) => location.map(_.line) }
 
   def testBareConstructor: Result = {
-    val recorder                   = new SourceLocationRecorder
+    val recorder                   = SourceLocationRecorder()
     implicit val lg: Log[Identity] = LogWithRecorder(recorder)
     // format: off
     val here: SourceLocation = implicitly[SourceLocation]
@@ -106,7 +126,7 @@ object LogSourceLocationSpec extends Properties {
   }
 
   def testAppliedConstructor: Result = {
-    val recorder                   = new SourceLocationRecorder
+    val recorder                   = SourceLocationRecorder()
     implicit val lg: Log[Identity] = LogWithRecorder(recorder)
     // format: off
     val here: SourceLocation = implicitly[SourceLocation]
@@ -121,7 +141,7 @@ object LogSourceLocationSpec extends Properties {
   }
 
   def testEitherBranches: Result = {
-    val recorder                   = new SourceLocationRecorder
+    val recorder                   = SourceLocationRecorder()
     implicit val lg: Log[Identity] = LogWithRecorder(recorder)
     // format: off
     val here: SourceLocation = implicitly[SourceLocation]
@@ -146,7 +166,7 @@ object LogSourceLocationSpec extends Properties {
   }
 
   def testLogS: Result = {
-    val recorder                   = new SourceLocationRecorder
+    val recorder                   = SourceLocationRecorder()
     implicit val lg: Log[Identity] = LogWithRecorder(recorder)
     // format: off
     val here: SourceLocation = implicitly[SourceLocation]
@@ -161,7 +181,7 @@ object LogSourceLocationSpec extends Properties {
   }
 
   def testDebugA: Result = {
-    val recorder                   = new SourceLocationRecorder
+    val recorder                   = SourceLocationRecorder()
     implicit val lg: Log[Identity] = LogWithRecorder(recorder)
     // format: off
     val here: SourceLocation = implicitly[SourceLocation]
@@ -176,7 +196,7 @@ object LogSourceLocationSpec extends Properties {
   }
 
   def testThrowable: Result = {
-    val recorder                   = new SourceLocationRecorder
+    val recorder                   = SourceLocationRecorder()
     implicit val lg: Log[Identity] = LogWithRecorder(recorder)
     // format: off
     val here: SourceLocation = implicitly[SourceLocation]
@@ -191,7 +211,7 @@ object LogSourceLocationSpec extends Properties {
   }
 
   def testIgnore: Result = {
-    val recorder                   = new SourceLocationRecorder
+    val recorder                   = SourceLocationRecorder()
     implicit val lg: Log[Identity] = LogWithRecorder(recorder)
     val _                          = log[Identity, String]("x")(ignoreA)
     recorder.records ==== Vector.empty
