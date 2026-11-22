@@ -2,7 +2,12 @@ package loggerf.logger
 
 import sbt.util.Logger
 
-final class SbtLogger(val logger: Logger) extends CanLog {
+final class SbtLogger(
+  val logger: Logger,
+  override val sourceLocationFormat: SourceLocationFormat,
+) extends CanLog {
+
+  def this(logger: Logger) = this(logger, SourceLocationFormat.default)
 
   override def debug(message: => String): Unit = logger.debug(message)
 
@@ -36,6 +41,12 @@ final class SbtLogger(val logger: Logger) extends CanLog {
 object SbtLogger {
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   def sbtLoggerCanLog(implicit logger: Logger): CanLog = new SbtLogger(logger)
+
+  @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
+  def sbtLoggerCanLogWithSourceLocationFormat(sourceLocationFormat: SourceLocationFormat)(
+    implicit logger: Logger
+  ): CanLog =
+    new SbtLogger(logger, sourceLocationFormat)
 
   @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   @deprecated(message = "Use SbtLogger.sbtLoggerCanLog(sbt.util.Logger) instead", since = "1.2.0")

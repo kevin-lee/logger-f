@@ -7,7 +7,12 @@ import scala.reflect.ClassTag
 /** @author Kevin Lee
   * @since 2020-09-12
   */
-final class Log4sLogger(val logger: Logger) extends CanLog {
+final class Log4sLogger(
+  val logger: Logger,
+  override val sourceLocationFormat: SourceLocationFormat,
+) extends CanLog {
+
+  def this(logger: Logger) = this(logger, SourceLocationFormat.default)
 
   override def debug(message: => String): Unit = logger.debug(message)
 
@@ -36,5 +41,16 @@ object Log4sLogger {
 
   def log4sCanLogWith(logger: Logger): CanLog =
     new Log4sLogger(logger)
+
+  def log4sCanLogWithSourceLocationFormat[A](sourceLocationFormat: SourceLocationFormat)(
+    implicit aClass: ClassTag[A]
+  ): CanLog =
+    new Log4sLogger(org.log4s.getLogger(aClass.runtimeClass), sourceLocationFormat)
+
+  def log4sCanLogWithSourceLocationFormat(name: String, sourceLocationFormat: SourceLocationFormat): CanLog =
+    new Log4sLogger(org.log4s.getLogger(name), sourceLocationFormat)
+
+  def log4sCanLogWithLoggerAndSourceLocationFormat(logger: Logger, sourceLocationFormat: SourceLocationFormat): CanLog =
+    new Log4sLogger(logger, sourceLocationFormat)
 
 }

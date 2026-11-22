@@ -3,7 +3,6 @@ package loggerf.testing
 import cats.syntax.all._
 import hedgehog._
 import hedgehog.runner._
-import loggerf.logger.SourceLocationFormat
 import loggerf.{Level, SourceLocation}
 import loggerf.test_data.{Gens => TestDataGens}
 
@@ -37,10 +36,6 @@ object CanLog4TestingSpec extends Properties {
       testCanLog4TestingWithIndexAndThrowableSourceLocations,
     ),
     example("test CanLog4Testing without source location records none", testCanLog4TestingNoSourceLocations),
-    example(
-      "test CanLog4Testing with withSourceLocationFormat records the rendered message in the same CanLog4Testing",
-      testCanLog4TestingWithSourceLocationFormat,
-    ),
   )
 
   def testCanLog4TestingSourceLocations: Result = {
@@ -600,18 +595,6 @@ object CanLog4TestingSpec extends Properties {
         Result.diffNamed("CanLog4Testing == CanLog4Testing", actual, expected)(_ == _),
         Result.diffNamed("CanLog4Testing != different CanLog4Testing", actual, CanLog4Testing())(_ != _),
         Result.diffNamed("CanLog4Testing === CanLog4Testing", actual, expected)(_ === _),
-      )
-    )
-  }
-
-  def testCanLog4TestingWithSourceLocationFormat: Result = {
-    val loc    = SourceLocation("com.example.Foo", "bar", "Foo.scala", 42)
-    val canLog = CanLog4Testing()
-    canLog.withSourceLocationFormat(SourceLocationFormat.beforeMessage("[", "] ")).info(loc)("m")
-    Result.all(
-      List(
-        canLog.messages ==== Vector((0, Level.info, "[com.example.Foo.bar(Foo.scala:42)] m")),
-        canLog.sourceLocations ==== Vector.empty,
       )
     )
   }

@@ -28,24 +28,30 @@ object CanLogSpec extends Properties {
       "getLoggerWithThrowableAndSourceLocation routes to the right level",
       testGetLoggerWithThrowableAndSourceLocation,
     ),
-    example("withSourceLocationFormat puts the location before the message", testWithSourceLocationFormatBefore),
-    example("withSourceLocationFormat puts the location after the message", testWithSourceLocationFormatAfter),
+    example("a custom sourceLocationFormat puts the location before the message", testCustomFormatBefore),
+    example("a custom sourceLocationFormat puts the location after the message", testCustomFormatAfter),
     example(
-      "withSourceLocationFormat with empty prefix and suffix adds no separator",
-      testWithSourceLocationFormatEmptyPrefixAndSuffix,
+      "a custom sourceLocationFormat with empty prefix and suffix adds no separator",
+      testCustomFormatEmptyPrefixAndSuffix,
     ),
-    example("withSourceLocationFormat with Throwable", testWithSourceLocationFormatWithThrowable),
+    example("a custom sourceLocationFormat with Throwable", testCustomFormatWithThrowable),
     example(
-      "withSourceLocationFormat does not change the methods without SourceLocation",
-      testWithSourceLocationFormatWithoutSourceLocationPassed,
+      "a custom sourceLocationFormat does not change the methods without SourceLocation",
+      testCustomFormatWithoutSourceLocationPassed,
     ),
-    example("the last withSourceLocationFormat wins", testWithSourceLocationFormatLastWins),
-    example("withoutSourceLocation after withSourceLocationFormat drops the location", testWithoutAfterWith),
-    example("withSourceLocationFormat after withoutSourceLocation renders the location", testWithAfterWithout),
+    example("the default sourceLocationFormat is SourceLocationFormat.default", testDefaultSourceLocationFormat),
+    example("withoutSourceLocation drops the location with a custom sourceLocationFormat", testWithoutWithCustomFormat),
+    example(
+      "withoutSourceLocation keeps the sourceLocationFormat of the underlying CanLog",
+      testWithoutKeepsSourceLocationFormat,
+    ),
+    example("withoutSourceLocation twice does not nest", testWithoutTwiceDoesNotNest),
   )
 
   @SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.ToString"))
-  final class PlainRecorder extends CanLog {
+  final class PlainRecorder(override val sourceLocationFormat: SourceLocationFormat) extends CanLog {
+    def this() = this(SourceLocationFormat.default)
+
     @volatile private var _records: Vector[(Level, String)] = Vector.empty // scalafix:ok DisableSyntax.var
 
     def records: Vector[(Level, String)] = _records
@@ -179,13 +185,12 @@ object CanLogSpec extends Properties {
     )
   }
 
-  def testWithSourceLocationFormatBefore: Result = {
-    val recorder = new PlainRecorder
-    val canLog   = recorder.withSourceLocationFormat(SourceLocationFormat.beforeMessage("[", "] "))
-    canLog.debug(loc)("d")
-    canLog.info(loc)("i")
-    canLog.warn(loc)("w")
-    canLog.error(loc)("e")
+  def testCustomFormatBefore: Result = {
+    val recorder = new PlainRecorder(SourceLocationFormat.beforeMessage("[", "] "))
+    recorder.debug(loc)("d")
+    recorder.info(loc)("i")
+    recorder.warn(loc)("w")
+    recorder.error(loc)("e")
     recorder.records ==== Vector(
       (Level.debug, "[com.example.Foo.bar(Foo.scala:42)] d"),
       (Level.info, "[com.example.Foo.bar(Foo.scala:42)] i"),
@@ -194,13 +199,12 @@ object CanLogSpec extends Properties {
     )
   }
 
-  def testWithSourceLocationFormatAfter: Result = {
-    val recorder = new PlainRecorder
-    val canLog   = recorder.withSourceLocationFormat(SourceLocationFormat.afterMessage(" (", ")"))
-    canLog.debug(loc)("d")
-    canLog.info(loc)("i")
-    canLog.warn(loc)("w")
-    canLog.error(loc)("e")
+  def testCustomFormatAfter: Result = {
+    val recorder = new PlainRecorder(SourceLocationFormat.afterMessage(" (", ")"))
+    recorder.debug(loc)("d")
+    recorder.info(loc)("i")
+    recorder.warn(loc)("w")
+    recorder.error(loc)("e")
     recorder.records ==== Vector(
       (Level.debug, "d (com.example.Foo.bar(Foo.scala:42))"),
       (Level.info, "i (com.example.Foo.bar(Foo.scala:42))"),
@@ -209,25 +213,27 @@ object CanLogSpec extends Properties {
     )
   }
 
-  def testWithSourceLocationFormatEmptyPrefixAndSuffix: Result = {
-    val recorder = new PlainRecorder
-    recorder.withSourceLocationFormat(SourceLocationFormat.beforeMessage("", "")).info(loc)("before")
-    recorder.withSourceLocationFormat(SourceLocationFormat.afterMessage("", "")).info(loc)("after")
-    recorder.records ==== Vector(
-      (Level.info, "com.example.Foo.bar(Foo.scala:42)before"),
-      (Level.info, "aftercom.example.Foo.bar(Foo.scala:42)"),
+  def testCustomFormatEmptyPrefixAndSuffix: Result = {
+    val before = new PlainRecorder(SourceLocationFormat.beforeMessage("", ""))
+    val after  = new PlainRecorder(SourceLocationFormat.afterMessage("", ""))
+    before.info(loc)("before")
+    after.info(loc)("after")
+    Result.all(
+      List(
+        before.records ==== Vector((Level.info, "com.example.Foo.bar(Foo.scala:42)before")),
+        after.records ==== Vector((Level.info, "aftercom.example.Foo.bar(Foo.scala:42)")),
+      )
     )
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.ToString"))
-  def testWithSourceLocationFormatWithThrowable: Result = {
-    val recorder  = new PlainRecorder
-    val canLog    = recorder.withSourceLocationFormat(SourceLocationFormat.beforeMessage("[", "] "))
+  def testCustomFormatWithThrowable: Result = {
+    val recorder  = new PlainRecorder(SourceLocationFormat.beforeMessage("[", "] "))
     val throwable = new RuntimeException("t")
-    canLog.debug(throwable, loc)("d")
-    canLog.info(throwable, loc)("i")
-    canLog.warn(throwable, loc)("w")
-    canLog.error(throwable, loc)("e")
+    recorder.debug(throwable, loc)("d")
+    recorder.info(throwable, loc)("i")
+    recorder.warn(throwable, loc)("w")
+    recorder.error(throwable, loc)("e")
     recorder.records ==== Vector(
       (Level.debug, s"[com.example.Foo.bar(Foo.scala:42)] d\n${throwable.toString}"),
       (Level.info, s"[com.example.Foo.bar(Foo.scala:42)] i\n${throwable.toString}"),
@@ -237,14 +243,13 @@ object CanLogSpec extends Properties {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.ToString"))
-  def testWithSourceLocationFormatWithoutSourceLocationPassed: Result = {
-    val recorder  = new PlainRecorder
-    val canLog    = recorder.withSourceLocationFormat(SourceLocationFormat.beforeMessage("[", "] "))
+  def testCustomFormatWithoutSourceLocationPassed: Result = {
+    val recorder  = new PlainRecorder(SourceLocationFormat.beforeMessage("[", "] "))
     val throwable = new RuntimeException("t")
-    canLog.debug("d")
-    canLog.info("i")
-    canLog.warn(throwable)("w")
-    canLog.error(throwable)("e")
+    recorder.debug("d")
+    recorder.info("i")
+    recorder.warn(throwable)("w")
+    recorder.error(throwable)("e")
     recorder.records ==== Vector(
       (Level.debug, "d"),
       (Level.info, "i"),
@@ -253,18 +258,42 @@ object CanLogSpec extends Properties {
     )
   }
 
-  def testWithSourceLocationFormatLastWins: Result = {
+  def testDefaultSourceLocationFormat: Result = {
+    val canLog: CanLog = new CanLog {
+      override def debug(message: => String): Unit                       = ()
+      override def debug(throwable: Throwable)(message: => String): Unit = ()
+      override def info(message: => String): Unit                        = ()
+      override def info(throwable: Throwable)(message: => String): Unit  = ()
+      override def warn(message: => String): Unit                        = ()
+      override def warn(throwable: Throwable)(message: => String): Unit  = ()
+      override def error(message: => String): Unit                       = ()
+      override def error(throwable: Throwable)(message: => String): Unit = ()
+    }
+    canLog.sourceLocationFormat ==== SourceLocationFormat.default
+  }
+
+  def testWithoutWithCustomFormat: Result = {
+    val recorder = new PlainRecorder(SourceLocationFormat.beforeMessage("[", "] "))
+    recorder.withoutSourceLocation.info(loc)("i")
+    recorder.records ==== Vector((Level.info, "i"))
+  }
+
+  def testWithoutKeepsSourceLocationFormat: Result = {
+    val sourceLocationFormat = SourceLocationFormat.beforeMessage("[", "] ")
+    val recorder             = new PlainRecorder(sourceLocationFormat)
+    recorder.withoutSourceLocation.sourceLocationFormat ==== sourceLocationFormat
+  }
+
+  def testWithoutTwiceDoesNotNest: Result = {
     val recorder = new PlainRecorder
-    val canLog   = recorder
-      .withSourceLocationFormat(SourceLocationFormat.beforeMessage("[", "] "))
-      .withSourceLocationFormat(SourceLocationFormat.afterMessage(" @ ", ""))
+    val canLog   = recorder.withoutSourceLocation.withoutSourceLocation
     canLog.info(loc)("i")
     Result.all(
       List(
-        recorder.records ==== Vector((Level.info, "i @ com.example.Foo.bar(Foo.scala:42)")),
+        recorder.records ==== Vector((Level.info, "i")),
         Result.assert(canLog match {
-          case withFormat: CanLog.WithSourceLocationFormat =>
-            withFormat.underlying match {
+          case without: CanLog.WithoutSourceLocation =>
+            without.underlying match {
               case _: PlainRecorder => true
               case _ => false
             }
@@ -272,20 +301,6 @@ object CanLogSpec extends Properties {
         }),
       )
     )
-  }
-
-  def testWithoutAfterWith: Result = {
-    val recorder = new PlainRecorder
-    val canLog = recorder.withSourceLocationFormat(SourceLocationFormat.beforeMessage("[", "] ")).withoutSourceLocation
-    canLog.info(loc)("i")
-    recorder.records ==== Vector((Level.info, "i"))
-  }
-
-  def testWithAfterWithout: Result = {
-    val recorder = new PlainRecorder
-    val canLog = recorder.withoutSourceLocation.withSourceLocationFormat(SourceLocationFormat.beforeMessage("[", "] "))
-    canLog.info(loc)("i")
-    recorder.records ==== Vector((Level.info, "[com.example.Foo.bar(Foo.scala:42)] i"))
   }
 
 }
