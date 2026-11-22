@@ -161,13 +161,13 @@ lazy val slf4jLogger       = module(ProjectName("slf4j"), crossProject(JVMPlatfo
     description := "Logger for F[_] - Logger with Slf4j",
     libraryDependencies ++= Seq(
       libs.slf4jApi
-    ),
+    ) ++ libs.tests.hedgehogLibs.value,
     libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
       scalaVersion.value,
       libraryDependencies.value,
     ),
   )
-  .dependsOn(core)
+  .dependsOn(core % props.IncludeTest)
 lazy val slf4jLoggerJvm    = slf4jLogger.jvm
 lazy val slf4jLoggerNative = slf4jLogger.native.settings(nativeSettings)
 
@@ -181,9 +181,13 @@ lazy val log4sLogger    =
       ),
       libraryDependencies ++= List(
         libs.log4sLib.value
-      ),
+      ) ++ libs.tests.hedgehogLibs.value,
     )
-    .dependsOn(core)
+    .jvmSettings(
+      /* The JVM tests use slf4j 2's `LegacyAbstractLogger` to record what log4s logs. */
+      libraryDependencies += libs.slf4jApi % Test
+    )
+    .dependsOn(core % props.IncludeTest)
 lazy val log4sLoggerJvm = log4sLogger.jvm
 lazy val log4sLoggerJs  = log4sLogger
   .js
@@ -241,13 +245,13 @@ lazy val log4jLogger       =
       libraryDependencies ++= Seq(
         libs.log4jApi,
         libs.log4jCore,
-      ).map(_ % Provided),
+      ).map(_ % Provided) ++ libs.tests.hedgehogLibs.value,
       libraryDependencies := libraryDependenciesRemoveScala3Incompatible(
         scalaVersion.value,
         libraryDependencies.value,
       ),
     )
-    .dependsOn(core)
+    .dependsOn(core % props.IncludeTest)
 lazy val log4jLoggerJvm    = log4jLogger.jvm
 lazy val log4jLoggerNative = log4jLogger.native.settings(nativeSettings)
 
