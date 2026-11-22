@@ -5,8 +5,11 @@ import org.apache.logging.log4j.{LogManager, Logger}
 import scala.reflect.ClassTag
 
 final class Log4jLogger(
-  val logger: Logger
+  val logger: Logger,
+  override val sourceLocationFormat: SourceLocationFormat,
 ) extends CanLog {
+
+  def this(logger: Logger) = this(logger, SourceLocationFormat.default)
 
   override def debug(message: => String): Unit =
     logger.debug(Log4jCompat.toStringSupplier(message))
@@ -44,6 +47,17 @@ object Log4jLogger {
 
   def log4jCanLogWith(logger: Logger): CanLog =
     new Log4jLogger(logger)
+
+  def log4jCanLogWithSourceLocationFormat[A](sourceLocationFormat: SourceLocationFormat)(
+    implicit aClassTag: ClassTag[A]
+  ): CanLog =
+    new Log4jLogger(LogManager.getLogger(aClassTag.runtimeClass), sourceLocationFormat)
+
+  def log4jCanLogWithSourceLocationFormat(name: String, sourceLocationFormat: SourceLocationFormat): CanLog =
+    new Log4jLogger(LogManager.getLogger(name), sourceLocationFormat)
+
+  def log4jCanLogWithLoggerAndSourceLocationFormat(logger: Logger, sourceLocationFormat: SourceLocationFormat): CanLog =
+    new Log4jLogger(logger, sourceLocationFormat)
 
   @deprecated(message = "Use Log4jLogger.log4jCanLog[A] instead", since = "1.2.0")
   def log4jLogger[A](implicit aClassTag: ClassTag[A]): CanLog =
