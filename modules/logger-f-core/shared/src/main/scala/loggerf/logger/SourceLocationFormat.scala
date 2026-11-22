@@ -25,7 +25,17 @@ final case class SourceLocationFormat(
   position: SourceLocationFormat.Position,
   prefix: String,
   suffix: String,
-)
+) {
+  private lazy val renderer: (String, SourceLocation) => String = position match {
+    case SourceLocationFormat.Position.BeforeMessage =>
+      (message: String, sourceLocation: SourceLocation) => s"$prefix${sourceLocation.render}$suffix$message"
+
+    case SourceLocationFormat.Position.AfterMessage =>
+      (message: String, sourceLocation: SourceLocation) => s"$message$prefix${sourceLocation.render}$suffix"
+  }
+
+  def render(message: String, sourceLocation: SourceLocation): String = renderer(message, sourceLocation)
+}
 
 object SourceLocationFormat {
 
@@ -47,14 +57,4 @@ object SourceLocationFormat {
   def afterMessage(prefix: String, suffix: String): SourceLocationFormat =
     SourceLocationFormat(Position.AfterMessage, prefix, suffix)
 
-  implicit class SourceLocationFormatOps(private val sourceLocationFormat: SourceLocationFormat) extends AnyVal {
-
-    def render(message: String, sourceLocation: SourceLocation): String = sourceLocationFormat match {
-      case SourceLocationFormat(Position.BeforeMessage, prefix, suffix) =>
-        s"$prefix${sourceLocation.render}$suffix$message"
-
-      case SourceLocationFormat(Position.AfterMessage, prefix, suffix) =>
-        s"$message$prefix${sourceLocation.render}$suffix"
-    }
-  }
 }
