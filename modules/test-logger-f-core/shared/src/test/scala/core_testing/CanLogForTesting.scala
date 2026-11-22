@@ -7,24 +7,7 @@ import loggerf.logger.CanLog
   * @since 2025-08-07
   */
 @SuppressWarnings(Array("org.wartremover.warts.Var"))
-final case class CanLogForTesting private (
-  private var _logs: Vector[String],
-  override protected val sourceLocationPosition: CanLog.SourceLocationPosition,
-  override protected val sourceLocationPrefix: String,
-  override protected val sourceLocationSuffix: String,
-) extends CanLog {
-
-  override protected def newCanLogWithNewSourceLocationConfig(
-    sourceLocationPosition: CanLog.SourceLocationPosition,
-    sourceLocationPrefix: String,
-    sourceLocationSuffix: String,
-  ): CanLog =
-    copy(
-      _logs = Vector.empty,
-      sourceLocationPosition = sourceLocationPosition,
-      sourceLocationPrefix = sourceLocationPrefix,
-      sourceLocationSuffix = sourceLocationSuffix,
-    )
+final case class CanLogForTesting private (private var _logs: Vector[String]) extends CanLog {
 
   def logs: List[String] = _logs.toList
 
@@ -75,6 +58,5 @@ final case class CanLogForTesting private (
 
 }
 object CanLogForTesting {
-  def apply(): CanLogForTesting =
-    new CanLogForTesting(Vector.empty, CanLog.SourceLocationPosition.AfterMessage, "", "")
+  def apply(): CanLogForTesting = new CanLogForTesting(Vector.empty)
 }

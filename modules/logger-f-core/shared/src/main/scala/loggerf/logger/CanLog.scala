@@ -58,44 +58,6 @@ import scala.annotation.implicitNotFound
   """
 )
 trait CanLog {
-
-  protected def sourceLocationPosition: CanLog.SourceLocationPosition
-
-  protected def sourceLocationPrefix: String
-  protected def sourceLocationSuffix: String
-
-  private lazy val renderWithSourceLocation: (String, SourceLocation) => String = {
-
-    lazy val renderFunction: (String, String) => (String, SourceLocation) => String =
-      sourceLocationPosition match {
-        case CanLog.SourceLocationPosition.AfterMessage =>
-          CanLog.renderWithSourceLocationWithPrefixAndSuffixAfterMessage
-
-        case CanLog.SourceLocationPosition.BeforeMessage =>
-          CanLog.renderWithSourceLocationWithPrefixAndSuffixBeforeMessage
-      }
-
-    (sourceLocationPrefix, sourceLocationSuffix) match {
-      case (prefix, suffix) if prefix.nonEmpty && suffix.nonEmpty =>
-        renderFunction(prefix, suffix)(_, _)
-
-      case (prefix, _) if prefix.nonEmpty =>
-        renderFunction(prefix, "")(_, _)
-
-      case (_, suffix) if suffix.nonEmpty =>
-        renderFunction("", suffix)(_, _)
-
-      case (_, _) =>
-        CanLog.defaultRenderWithSourceLocation
-    }
-  }
-
-  protected def newCanLogWithNewSourceLocationConfig(
-    sourceLocationPosition: CanLog.SourceLocationPosition,
-    sourceLocationPrefix: String,
-    sourceLocationSuffix: String,
-  ): CanLog
-
   def debug(message: => String): Unit
   def debug(throwable: Throwable)(message: => String): Unit
   def info(message: => String): Unit
@@ -111,61 +73,44 @@ trait CanLog {
    * built when the backend has the level disabled.
    */
   def debug(sourceLocation: SourceLocation)(message: => String): Unit =
-    debug(renderWithSourceLocation(message, sourceLocation))
+    debug(CanLog.renderWithSourceLocation(message, sourceLocation))
 
   def debug(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit =
-    debug(throwable)(renderWithSourceLocation(message, sourceLocation))
+    debug(throwable)(CanLog.renderWithSourceLocation(message, sourceLocation))
 
   def info(sourceLocation: SourceLocation)(message: => String): Unit =
-    info(renderWithSourceLocation(message, sourceLocation))
+    info(CanLog.renderWithSourceLocation(message, sourceLocation))
 
   def info(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit =
-    info(throwable)(renderWithSourceLocation(message, sourceLocation))
+    info(throwable)(CanLog.renderWithSourceLocation(message, sourceLocation))
 
   def warn(sourceLocation: SourceLocation)(message: => String): Unit =
-    warn(renderWithSourceLocation(message, sourceLocation))
+    warn(CanLog.renderWithSourceLocation(message, sourceLocation))
 
   def warn(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit =
-    warn(throwable)(renderWithSourceLocation(message, sourceLocation))
+    warn(throwable)(CanLog.renderWithSourceLocation(message, sourceLocation))
 
   def error(sourceLocation: SourceLocation)(message: => String): Unit =
-    error(renderWithSourceLocation(message, sourceLocation))
+    error(CanLog.renderWithSourceLocation(message, sourceLocation))
 
   def error(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit =
-    error(throwable)(renderWithSourceLocation(message, sourceLocation))
+    error(throwable)(CanLog.renderWithSourceLocation(message, sourceLocation))
 }
 
 object CanLog {
 
-  sealed trait SourceLocationPosition
-  object SourceLocationPosition {
-    case object BeforeMessage extends SourceLocationPosition
-    case object AfterMessage extends SourceLocationPosition
+  /** Renders with [[SourceLocationFormat.default]], e.g. `message at com.example.Foo.bar(Foo.scala:42)`. */
+  def renderWithSourceLocation(message: String, sourceLocation: SourceLocation): String =
+    SourceLocationFormat.default.render(message, sourceLocation)
 
-    def beforeMessage: SourceLocationPosition = BeforeMessage
-    def afterMessage: SourceLocationPosition  = AfterMessage
+  /** Removes a `WithoutSourceLocation` or `WithSourceLocationFormat` wrapper so that the last one applied wins and
+    * the wrappers do not nest.
+    */
+  private def unwrapSourceLocationDecorator(canLog: CanLog): CanLog = canLog match {
+    case withoutSourceLocation: WithoutSourceLocation => withoutSourceLocation.underlying
+    case withSourceLocationFormat: WithSourceLocationFormat => withSourceLocationFormat.underlying
+    case other => other
   }
-
-  def renderWithSourceLocationWithPrefixAndSuffixBeforeMessage(
-    sourceLocationPrefix: String,
-    sourceLocationSuffix: String,
-  )(
-    message: String,
-    sourceLocation: SourceLocation,
-  ): String =
-    s"$sourceLocationPrefix${sourceLocation.render}$sourceLocationSuffix$message"
-
-  def renderWithSourceLocationWithPrefixAndSuffixAfterMessage(
-    sourceLocationPrefix: String,
-    sourceLocationSuffix: String,
-  )(
-    message: String,
-    sourceLocation: SourceLocation,
-  ): String =
-    s"$message$sourceLocationPrefix${sourceLocation.render}$sourceLocationSuffix"
-
-  def defaultRenderWithSourceLocation(message: String, sourceLocation: SourceLocation): String =
-    s"$message at ${sourceLocation.render}"
 
   implicit class GetLogger(private val canLog: CanLog) extends AnyVal {
     @inline def getLogger(level: Level): (=> String) => Unit = level match {
@@ -195,38 +140,63 @@ object CanLog {
   implicit class CanLogOps(private val canLog: CanLog) extends AnyVal {
 
     /** A `CanLog` which logs exactly what `canLog` logs, minus the source location. */
-    def withoutSourceLocation: CanLog = new CanLog.WithoutSourceLocation(canLog)
+    def withoutSourceLocation: CanLog = new CanLog.WithoutSourceLocation(unwrapSourceLocationDecorator(canLog))
 
-    def withSourceLocationConfig(
-      sourceLocationPosition: SourceLocationPosition = canLog.sourceLocationPosition,
-      sourceLocationPrefix: String = canLog.sourceLocationPrefix,
-      sourceLocationSuffix: String = canLog.sourceLocationSuffix,
-    ): CanLog =
-      canLog.newCanLogWithNewSourceLocationConfig(
-        sourceLocationPosition,
-        sourceLocationPrefix,
-        sourceLocationSuffix,
-      )
+    /** A `CanLog` which logs what `canLog` logs, with the source location rendered into the message by
+      * `sourceLocationFormat`.
+      *
+      * It replaces an earlier `withSourceLocationFormat` or `withoutSourceLocation`, so the last one applied wins.
+      * The rendered message goes to the plain methods of `canLog`. So if `canLog` overrides the location-aware
+      * methods to send the location in another way, that override is not used.
+      */
+    def withSourceLocationFormat(sourceLocationFormat: SourceLocationFormat): CanLog =
+      new CanLog.WithSourceLocationFormat(unwrapSourceLocationDecorator(canLog), sourceLocationFormat)
+  }
+
+  final class WithSourceLocationFormat(val underlying: CanLog, val sourceLocationFormat: SourceLocationFormat)
+      extends CanLog {
+    override def debug(message: => String): Unit = underlying.debug(message)
+
+    override def debug(throwable: Throwable)(message: => String): Unit = underlying.debug(throwable)(message)
+
+    override def info(message: => String): Unit = underlying.info(message)
+
+    override def info(throwable: Throwable)(message: => String): Unit = underlying.info(throwable)(message)
+
+    override def warn(message: => String): Unit = underlying.warn(message)
+
+    override def warn(throwable: Throwable)(message: => String): Unit = underlying.warn(throwable)(message)
+
+    override def error(message: => String): Unit = underlying.error(message)
+
+    override def error(throwable: Throwable)(message: => String): Unit = underlying.error(throwable)(message)
+
+    override def debug(sourceLocation: SourceLocation)(message: => String): Unit =
+      underlying.debug(sourceLocationFormat.render(message, sourceLocation))
+
+    override def debug(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit =
+      underlying.debug(throwable)(sourceLocationFormat.render(message, sourceLocation))
+
+    override def info(sourceLocation: SourceLocation)(message: => String): Unit =
+      underlying.info(sourceLocationFormat.render(message, sourceLocation))
+
+    override def info(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit =
+      underlying.info(throwable)(sourceLocationFormat.render(message, sourceLocation))
+
+    override def warn(sourceLocation: SourceLocation)(message: => String): Unit =
+      underlying.warn(sourceLocationFormat.render(message, sourceLocation))
+
+    override def warn(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit =
+      underlying.warn(throwable)(sourceLocationFormat.render(message, sourceLocation))
+
+    override def error(sourceLocation: SourceLocation)(message: => String): Unit =
+      underlying.error(sourceLocationFormat.render(message, sourceLocation))
+
+    override def error(throwable: Throwable, sourceLocation: SourceLocation)(message: => String): Unit =
+      underlying.error(throwable)(sourceLocationFormat.render(message, sourceLocation))
   }
 
   final class WithoutSourceLocation(val underlying: CanLog) extends CanLog {
-
-    @inline
-    override def sourceLocationPosition: SourceLocationPosition = underlying.sourceLocationPosition
-
-    @inline
-    override def sourceLocationPrefix: String = underlying.sourceLocationPrefix
-
-    @inline
-    override def sourceLocationSuffix: String = underlying.sourceLocationSuffix
-
-    override def newCanLogWithNewSourceLocationConfig(
-      sourceLocationPosition: SourceLocationPosition,
-      sourceLocationPrefix: String,
-      sourceLocationSuffix: String,
-    ): CanLog =
-      this
-
     override def debug(message: => String): Unit = underlying.debug(message)
 
     override def debug(throwable: Throwable)(message: => String): Unit = underlying.debug(throwable)(message)

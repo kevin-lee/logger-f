@@ -7,24 +7,8 @@ import loggerf.logger.LoggerForTesting.MessageKeeper
   * @since 2020-04-12
   */
 final case class LoggerForTesting private (
-  logger: MessageKeeper,
-  override protected val sourceLocationPosition: CanLog.SourceLocationPosition,
-  override protected val sourceLocationPrefix: String,
-  override protected val sourceLocationSuffix: String,
+  logger: MessageKeeper
 ) extends CanLog {
-
-  override protected def newCanLogWithNewSourceLocationConfig(
-    sourceLocationPosition: CanLog.SourceLocationPosition,
-    sourceLocationPrefix: String,
-    sourceLocationSuffix: String,
-  ): CanLog =
-    copy(
-      logger = logger,
-      sourceLocationPosition = sourceLocationPosition,
-      sourceLocationPrefix = sourceLocationPrefix,
-      sourceLocationSuffix = sourceLocationSuffix,
-    )
-
   override def debug(message: => String): Unit =
     logger.debugMessages = logger.debugMessages :+ message
 
@@ -107,18 +91,10 @@ object LoggerForTesting {
     warnMessages: Vector[String],
     errorMessages: Vector[String],
   ): LoggerForTesting =
-    LoggerForTesting(
-      MessageKeeper(debugMessages, infoMessages, warnMessages, errorMessages),
-      CanLog.SourceLocationPosition.AfterMessage,
-      "",
-      "",
-    )
+    LoggerForTesting(MessageKeeper(debugMessages, infoMessages, warnMessages, errorMessages))
 
   def apply(): LoggerForTesting =
     LoggerForTesting(
-      MessageKeeper(Vector.empty, Vector.empty, Vector.empty, Vector.empty),
-      CanLog.SourceLocationPosition.AfterMessage,
-      "",
-      "",
+      MessageKeeper(Vector.empty, Vector.empty, Vector.empty, Vector.empty)
     )
 }
