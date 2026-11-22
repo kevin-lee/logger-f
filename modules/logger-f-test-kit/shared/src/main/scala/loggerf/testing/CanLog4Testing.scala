@@ -12,24 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger
   */
 @SuppressWarnings(Array("org.wartremover.warts.Var"))
 final case class CanLog4Testing(
-  @volatile private var _messages: Vector[(Int, Level, String)], // scalafix:ok DisableSyntax.var
-  override protected val sourceLocationPosition: CanLog.SourceLocationPosition,
-  override protected val sourceLocationPrefix: String,
-  override protected val sourceLocationSuffix: String,
+  @volatile private var _messages: Vector[(Int, Level, String)] // scalafix:ok DisableSyntax.var
 ) extends CanLog {
-
-  override protected def newCanLogWithNewSourceLocationConfig(
-    sourceLocationPosition: CanLog.SourceLocationPosition,
-    sourceLocationPrefix: String,
-    sourceLocationSuffix: String,
-  ): CanLog =
-    copy(
-      _messages = Vector.empty,
-      sourceLocationPosition = sourceLocationPosition,
-      sourceLocationPrefix = sourceLocationPrefix,
-      sourceLocationSuffix = sourceLocationSuffix,
-    )
-
   private val index = new AtomicInteger(-1)
 
   @volatile private var _sourceLocations: Vector[(Int, SourceLocation)] = Vector.empty // scalafix:ok DisableSyntax.var
@@ -122,12 +106,7 @@ final case class CanLog4Testing(
   override def hashCode(): Int = messages.hashCode()
 
   override def equals(that: Any): Boolean = that match {
-    case thatCanLog4Testing @ CanLog4Testing(
-          _,
-          `sourceLocationPosition`,
-          `sourceLocationPrefix`,
-          `sourceLocationSuffix`,
-        ) =>
+    case thatCanLog4Testing @ CanLog4Testing(_) =>
       val (thisMessages, thatMessages) = (this.getOrderedMessages, thatCanLog4Testing.getOrderedMessages)
       thisMessages === thatMessages
     case _ =>
@@ -137,7 +116,7 @@ final case class CanLog4Testing(
 
 object CanLog4Testing {
 
-  def apply(): CanLog4Testing = CanLog4Testing(Vector.empty, CanLog.SourceLocationPosition.AfterMessage, "", "")
+  def apply(): CanLog4Testing = CanLog4Testing(Vector.empty)
 
   implicit val canLog4TestingEq: Eq[CanLog4Testing] = Eq.fromUniversalEquals
 
